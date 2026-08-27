@@ -1,237 +1,180 @@
-import Link from "next/link";
+import Link from 'next/link';
+
+const NavLink = ({ title, hasDropdown }: { title: string, hasDropdown?: boolean }) => (
+  <div className="flex items-center gap-1 text-gray-300 hover:text-white cursor-pointer transition-colors text-sm font-medium">
+    {title}
+    {hasDropdown && (
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    )}
+  </div>
+);
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-slate-100 p-4 md:p-6 lg:p-10 font-sans selection:bg-[#03362a] selection:text-white">
+    <div className="min-h-screen bg-[#050505] text-white font-sans overflow-x-hidden relative">
+      {/* Background Grid Pattern */}
+      <div className="absolute inset-0 z-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px)', backgroundSize: '60px 60px' }}></div>
       
-      {/* Floating Navbar */}
-      <div className="fixed top-4 md:top-8 left-1/2 -translate-x-1/2 w-full max-w-5xl px-4 z-50 transition-all duration-300">
-        <header className="bg-white/80 backdrop-blur-xl shadow-lg border border-white/40 rounded-full flex justify-between items-center py-3 px-6 mx-auto w-full">
-          <button className="rounded-full border border-gray-300 px-6 py-2.5 text-[10px] sm:text-xs font-semibold tracking-[0.2em] uppercase hover:bg-gray-50 transition-colors">
-            Menu
-          </button>
-          <div className="text-xl sm:text-2xl font-black tracking-[0.2em] uppercase text-[#1a1a1a]">
-            Snec Task
-          </div>
-          <div className="flex items-center gap-6">
-            <Link href="/contact" className="text-xs font-semibold tracking-[0.2em] uppercase hover:underline underline-offset-4 hidden sm:block text-gray-800">
-              Contact
-            </Link>
-            <div className="relative">
-              <button className="w-10 h-10 sm:w-11 sm:h-11 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-colors bg-white">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-              </button>
-              <span className="absolute top-0 right-0 w-3.5 h-3.5 bg-red-500 rounded-full border-[2.5px] border-white"></span>
-            </div>
-          </div>
-        </header>
-      </div>
+      {/* Radial Gradient overlay to fade edges of grid */}
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_#050505_70%)] pointer-events-none"></div>
 
-      {/* Main Containerized Content */}
-      <main className="max-w-[1400px] mx-auto bg-white rounded-[2rem] md:rounded-[3rem] shadow-2xl overflow-hidden relative text-[#111] mt-24 md:mt-28">
+      {/* Navbar */}
+      <header className="relative z-50 flex items-center justify-between px-6 py-5 max-w-[1200px] mx-auto">
+        <div className="flex items-center gap-3">
+          {/* Logo Icon */}
+          <div className="flex">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14.5 6.5C15.5 6.5 17.5 7 17.5 9.5C17.5 12 15 13 13 13H11C9 13 6.5 14 6.5 16.5C6.5 19 8.5 19.5 9.5 19.5" stroke="#f43f5e" strokeWidth="2" strokeLinecap="round"/>
+              <path d="M9.5 17.5C8.5 17.5 6.5 17 6.5 14.5C6.5 12 9 11 11 11H13C15 11 17.5 10 17.5 7.5C17.5 5 15.5 4.5 14.5 4.5" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          </div>
+          <span className="font-bold text-lg tracking-tight">SNEC TASK</span>
+        </div>
+
+        <nav className="hidden md:flex items-center gap-8">
+          <NavLink title="Product" hasDropdown />
+          <NavLink title="Solutions" hasDropdown />
+          <NavLink title="Pricing" />
+          <NavLink title="Partner" />
+          <NavLink title="Resources" hasDropdown />
+        </nav>
+
+        <div className="flex items-center gap-4">
+          <Link href="/login" className="bg-[#1f1f1f] hover:bg-[#2a2a2a] border border-[#333] text-white px-5 py-2 rounded-full text-sm font-medium transition-colors">
+            Sign up
+          </Link>
+          <Link href="/register" className="bg-white hover:bg-gray-100 text-black px-5 py-2 rounded-full text-sm font-medium transition-colors">
+            Start Free
+          </Link>
+        </div>
+      </header>
+
+      {/* Main Hero Section */}
+      <main className="relative z-10 max-w-[1200px] mx-auto px-6 pt-16 pb-32 lg:pt-28 grid lg:grid-cols-2 gap-12 items-center">
         
-        {/* Hero Section */}
-        <section className="relative pt-16 pb-32 px-4 sm:px-8">
+        {/* Left Content */}
+        <div className="max-w-xl">
+          <h1 className="text-5xl lg:text-[4.5rem] font-bold tracking-tight leading-[1.05] mb-4">
+            Never miss<br />another deadline.
+          </h1>
           
-          {/* Title */}
-          <div className="text-center relative z-10 mb-8 sm:mb-0">
-            <h1 className="text-[12vw] sm:text-[90px] md:text-[100px] lg:text-[130px] font-black leading-[0.85] tracking-tighter uppercase text-[#1a1a1a]">
-              EFFICIENT &
-              <br />
-              <span className="ml-[10vw] sm:ml-32 md:ml-48">ORGANIZED</span>
-            </h1>
-          </div>
-
-          {/* Decorative Left Card */}
-          <div className="hidden lg:block absolute left-8 top-48 w-64 z-20">
-            <div className="bg-[#ffdee6] rounded-[2rem] p-6 aspect-square relative mb-6 shadow-sm flex flex-col items-center justify-center transform -rotate-3 hover:rotate-0 transition-transform">
-               <div className="text-7xl drop-shadow-xl">🐥</div>
-            </div>
-            <h3 className="font-black text-2xl mb-1 uppercase tracking-tight text-[#1a1a1a]">Save 25%</h3>
-            <p className="text-[10px] text-gray-500 mb-6 uppercase tracking-[0.2em] font-medium">On Daily Tasks</p>
-            <button className="bg-[#03362a] text-white rounded-full pl-6 pr-2 py-2 text-[10px] font-bold flex items-center gap-4 hover:bg-black transition-colors tracking-[0.1em]">
-              EXPLORE MORE 
-              <span className="bg-white text-black rounded-full w-7 h-7 flex items-center justify-center text-xs">→</span>
-            </button>
+          <h2 className="text-2xl lg:text-3xl font-semibold mb-6 flex items-center gap-2">
+            Your smart agent <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500">tracks 24/7</span>
+          </h2>
+          
+          <p className="text-gray-400 text-lg mb-10 leading-relaxed max-w-[28rem]">
+            Teams get instant clarity on their projects, tasks, and sprints. You get the delivery, the focus, and the results. Live in 5 minutes, no code.
+          </p>
+          
+          <div className="flex flex-wrap items-center gap-4 mb-6">
+            <Link href="/register" className="relative group p-[2px] rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 hover:shadow-[0_0_20px_rgba(168,85,247,0.4)] transition-all">
+              <div className="bg-white text-black px-6 py-3 rounded-full font-semibold flex items-center gap-2 text-sm">
+                Start Free <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              </div>
+            </Link>
             
-            <p className="mt-12 text-[9px] text-gray-400 uppercase tracking-[0.2em] leading-relaxed max-w-[200px] font-medium">
-              A JOURNEY OF DISCOVERY AS WE HELP YOU CREATE THE BEAUTY, HARMONY AND DELICIOUSNESS OF PROJECTS FROM AROUND THE WORLD.
-            </p>
+            <Link href="/demo" className="bg-[#0a0a0a] hover:bg-[#1f1f1f] border border-gray-800 text-white px-6 py-[14px] rounded-full font-semibold text-sm transition-colors">
+              Book a Demo
+            </Link>
           </div>
-
-          {/* Decorative Right Elements */}
-          <div className="hidden lg:block absolute right-8 top-48 w-64 z-20">
-             <div className="flex gap-4 justify-end mb-8 items-center">
-                <div className="w-12 h-12 rounded-full bg-[#ffdee6] flex items-center justify-center shadow-sm text-xl">🎯</div>
-                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center shadow-sm text-xl">⚡</div>
-                <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center shadow-sm text-xl">💡</div>
-             </div>
-             <div className="flex justify-end mb-16 mr-2">
-               <div className="w-24 h-px bg-gray-300"></div>
-             </div>
-             <div className="bg-[#e3f4db] rounded-[2rem] p-6 aspect-square relative shadow-sm flex flex-col items-center justify-center transform rotate-6 hover:rotate-0 transition-transform ml-auto w-48">
-               <div className="text-6xl drop-shadow-xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">🐘</div>
-             </div>
-          </div>
-
-          {/* Center Main Element */}
-          <div className="relative mx-auto mt-12 sm:mt-[-40px] z-0 flex flex-col items-center w-full max-w-[380px] lg:max-w-[420px]">
-            <div className="bg-[#fff1d0] rounded-[3rem] w-full aspect-[3/4] relative flex items-center justify-center shadow-sm overflow-visible">
-               {/* Character / Main illustration mock */}
-               <div className="text-[200px] lg:text-[240px] drop-shadow-2xl z-10 leading-none relative -top-12">🍍</div>
-               
-               {/* Funny Glasses */}
-               <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-[120%] flex justify-center gap-1 z-20">
-                  <div className="w-24 h-24 lg:w-28 lg:h-28 bg-white rounded-full border-[8px] border-[#d4a017] flex items-center justify-center shadow-2xl relative">
-                    <div className="w-10 h-10 bg-[#03362a] rounded-full absolute bottom-4 right-4">
-                      <div className="w-3 h-3 bg-white rounded-full absolute top-1.5 left-1.5"></div>
-                    </div>
-                  </div>
-                  <div className="w-24 h-24 lg:w-28 lg:h-28 bg-white rounded-full border-[8px] border-[#d4a017] flex items-center justify-center shadow-2xl relative">
-                    <div className="w-10 h-10 bg-[#03362a] rounded-full absolute bottom-4 left-4">
-                       <div className="w-3 h-3 bg-white rounded-full absolute top-1.5 left-1.5"></div>
-                    </div>
-                  </div>
-               </div>
-               {/* Funny Mouth */}
-               <div className="absolute top-[65%] left-1/2 -translate-x-1/2 z-20">
-                  <div className="w-16 h-12 bg-red-600 rounded-b-full shadow-inner border-t-[6px] border-white overflow-hidden relative">
-                     <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-10 h-10 bg-pink-400 rounded-full"></div>
-                  </div>
-               </div>
+          
+          <p className="text-gray-500 text-sm mb-6 font-medium">
+            Free to start · No credit card required
+          </p>
+          
+          {/* Partner Badges */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 bg-[#0f0f0f] border border-gray-800 rounded-full px-4 py-2 text-xs font-semibold text-gray-400">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-blue-500"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+              GitHub Partner
             </div>
-            
-            <button className="absolute -bottom-12 left-1/2 -translate-x-1/2 w-28 h-28 bg-[#03362a] border-[8px] border-white text-white rounded-full flex items-center justify-center hover:scale-110 transition-transform duration-300 z-30 shadow-xl group">
-              <svg className="w-10 h-10 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 19L19 5M19 5v10M19 5H9" />
-              </svg>
-            </button>
-          </div>
-        </section>
-
-        {/* Marquee Banner */}
-        <div className="relative -mt-20 sm:-mt-32 z-20 transform -rotate-6 sm:-rotate-6 bg-[#03362a] py-4 sm:py-6 shadow-2xl border-y-[6px] border-yellow-400 -mx-10 w-[120%]">
-          <div className="flex whitespace-nowrap animate-[marquee_15s_linear_infinite]">
-            {Array(10).fill(0).map((_, i) => (
-               <span key={i} className="text-white font-black text-3xl sm:text-5xl mx-6 uppercase tracking-widest outline-text drop-shadow-md">
-                 ENJOY ORGANIZED WORKFLOWS
-               </span>
-            ))}
+            <div className="flex items-center gap-2 bg-[#0f0f0f] border border-gray-800 rounded-full px-4 py-2 text-xs font-semibold text-gray-400">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-green-500"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM5.042 8.835a2.528 2.528 0 0 1-2.52-2.521A2.528 2.528 0 0 1 0 8.834a2.527 2.527 0 0 1 2.522-2.521h2.52v2.522zM6.313 8.834a2.527 2.527 0 0 1 2.521-2.521 2.527 2.527 0 0 1 2.521 2.521v-6.314A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1-2.521 2.522v6.312zM15.165 5.042a2.528 2.528 0 0 1 2.523-2.52A2.528 2.528 0 0 1 15.165 0a2.527 2.527 0 0 1 2.52 2.522v2.52h-2.52zM15.165 6.313a2.527 2.527 0 0 1-2.52 2.521 2.527 2.527 0 0 1 2.52 2.521h6.313A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522-2.521h-6.313zM18.835 5.042a2.528 2.528 0 0 1 2.521-2.52A2.528 2.528 0 0 1 24 5.042a2.527 2.527 0 0 1-2.522 2.52v-2.52h-2.52zM18.834 6.313a2.527 2.527 0 0 1 2.521-2.521 2.527 2.527 0 0 1 2.521 2.521v6.314A2.528 2.528 0 0 1 21.356 24a2.528 2.528 0 0 1-2.522-2.522v-6.312z"/></svg>
+              Slack Partner
+            </div>
           </div>
         </div>
-        
-        <style dangerouslySetInnerHTML={{__html: `
-          @keyframes marquee {
-            0% { transform: translateX(0%); }
-            100% { transform: translateX(-50%); }
-          }
-          .outline-text {
-            color: transparent;
-            -webkit-text-stroke: 1.5px white;
-          }
-        `}} />
 
-        {/* Why Choose Us Section */}
-        <section className="pt-40 pb-20 px-4 sm:px-12 md:px-20 lg:px-24">
-          <div className="grid lg:grid-cols-2 gap-12 mb-20 items-end">
-            <div className="hidden lg:block relative">
-              <p className="text-[10px] text-gray-500 uppercase tracking-[0.2em] leading-relaxed max-w-[300px] font-medium">
-                WE CONTINUE TO COOPERATE CLOSELY WITH FARMERS, TOP QUALITY OF THE FRUIT BEFORE DO THAT IT REMAINS FRESH AND FULL OF VIT.
-              </p>
-            </div>
-            <div className="flex lg:justify-end">
-               <h2 className="text-4xl sm:text-6xl font-black uppercase tracking-tighter leading-[0.9] lg:text-left max-w-xl text-[#1a1a1a]">
-                 WHY CHOOSE US FOR YOUR HEALTHY TEAMS
-               </h2>
+        {/* Right Illustration (3D Isometric mock) */}
+        <div className="relative h-[450px] w-full flex items-center justify-center mt-12 lg:mt-0">
+          
+          {/* Base purple glow beneath everything */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-32 bg-purple-600/20 blur-[60px] rounded-full"></div>
+
+          {/* Central Cube / Platform */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 border border-gray-800 rounded-xl transform rotate-45 scale-y-50 bg-[#080808] shadow-[0_0_50px_rgba(168,85,247,0.15)] flex items-center justify-center">
+             {/* Inner Grid */}
+             <div className="absolute inset-0 bg-[linear-gradient(#1a1a1a_1px,transparent_1px),linear-gradient(90deg,#1a1a1a_1px,transparent_1px)] bg-[size:15px_15px] opacity-70 rounded-xl"></div>
+          </div>
+          
+          {/* Glowing Box on Platform */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[65%] transform rotate-45 scale-y-50">
+            {/* Box Body */}
+            <div className="relative w-28 h-28 border border-purple-500/30 bg-purple-900/10 backdrop-blur-md rounded shadow-[0_0_30px_rgba(168,85,247,0.4)] flex items-center justify-center">
+               <div className="w-[90%] h-[90%] border border-purple-400/20"></div>
             </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 mt-16 items-center">
-            {/* Card 1 */}
-            <div className="bg-[#f9f9f9] rounded-[2rem] p-8 lg:p-10 shadow-sm group hover:shadow-md transition-shadow">
-              <div className="w-14 h-14 bg-[#fff1d0] rounded-full flex items-center justify-center mb-8 shadow-sm">
-                <span className="text-2xl">🍓</span>
-              </div>
-              <h3 className="font-black text-xl lg:text-2xl uppercase tracking-tight mb-4 text-[#1a1a1a]">Own Workspace</h3>
-              <p className="text-[10px] lg:text-[11px] text-gray-500 mb-10 uppercase tracking-[0.15em] leading-loose font-medium">
-                 Imagine a world where you can pick your features, it matters what you do at any time of your career to help them.
-              </p>
-              <button className="rounded-full border-[1.5px] border-gray-300 px-6 py-2.5 lg:px-8 lg:py-3 text-[10px] font-bold tracking-[0.2em] uppercase group-hover:bg-[#03362a] group-hover:text-white group-hover:border-[#03362a] transition-all">
-                Read More
-              </button>
-            </div>
-
-            {/* Card 2 (Dark & Tilted) */}
-            <div className="bg-[#fff1d0] rounded-[2.5rem] relative p-5 aspect-[4/5] shadow-lg transform -rotate-6 md:hover:rotate-0 transition-transform duration-500 group overflow-visible z-10">
-              <div className="absolute -top-16 lg:-top-20 left-1/2 -translate-x-1/2 w-32 h-32 lg:w-40 lg:h-40 z-20">
-                <div className="text-[100px] lg:text-[120px] drop-shadow-2xl text-center leading-none">🐒</div>
-              </div>
-              <div className="bg-[#03362a] text-white rounded-[2rem] p-8 lg:p-10 h-full flex flex-col justify-end relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
-                
-                <div className="w-12 h-12 bg-[#fff1d0] rounded-full flex items-center justify-center mb-6 shadow-sm">
-                  <span className="text-xl">🍍</span>
-                </div>
-                <h3 className="font-black text-xl lg:text-2xl uppercase tracking-tight mb-4 leading-tight">Productivity Recipes</h3>
-                <p className="text-[9px] lg:text-[10px] text-gray-300 mb-8 uppercase tracking-[0.15em] leading-loose">
-                   Juicy guarantee is high priority. Please explain your daily life features, get completely fresh everything.
-                </p>
-                <button className="rounded-full border-[1.5px] border-white/30 px-6 py-2.5 lg:px-8 lg:py-3 text-[10px] font-bold tracking-[0.2em] uppercase hover:bg-white hover:text-[#03362a] transition-colors self-start">
-                  Read More
-                </button>
-              </div>
-            </div>
-
-            {/* Card 3 */}
-            <div className="bg-[#f9f9f9] rounded-[2rem] p-8 lg:p-10 shadow-sm group hover:shadow-md transition-shadow">
-              <div className="w-14 h-14 bg-[#fff1d0] rounded-full flex items-center justify-center mb-8 shadow-sm">
-                <span className="text-2xl">🥝</span>
-              </div>
-              <h3 className="font-black text-xl lg:text-2xl uppercase tracking-tight mb-4 text-[#1a1a1a]">Top 100 Teams</h3>
-              <p className="text-[10px] lg:text-[11px] text-gray-500 mb-10 uppercase tracking-[0.15em] leading-loose font-medium">
-                 List there were in your magical app, generated. If it has a powerful timeline you can achieve whatever you accomplish.
-              </p>
-              <button className="rounded-full border-[1.5px] border-gray-300 px-6 py-2.5 lg:px-8 lg:py-3 text-[10px] font-bold tracking-[0.2em] uppercase group-hover:bg-[#03362a] group-hover:text-white group-hover:border-[#03362a] transition-all">
-                Read More
-              </button>
-            </div>
-          </div>
-        </section>
-
-        {/* Top Selling Products */}
-        <section className="py-24 px-4 sm:px-12 md:px-20 lg:px-24 border-t border-gray-100">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
-            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter leading-[0.9] max-w-2xl text-[#1a1a1a]">
-              TOP-SELLING WORKFLOW TEMPLATES
-            </h2>
-            <div className="flex flex-col sm:flex-row items-end sm:items-center gap-8">
-              <p className="text-[10px] text-gray-500 uppercase tracking-[0.2em] leading-relaxed max-w-[280px] text-right sm:text-left font-medium">
-                WHETHER YOU'RE SEEKING A LIGHT AND REFRESHING SIDE DISH FOR A SUMMER PICNIC OR A VIBRANT CENTERPIECE.
-              </p>
-              <div className="flex gap-3 shrink-0">
-                <button className="w-12 h-12 rounded-full border-[1.5px] border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-colors">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-                </button>
-                <button className="w-12 h-12 rounded-full bg-[#03362a] text-white flex items-center justify-center hover:bg-black transition-colors shadow-lg">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-                </button>
-              </div>
-            </div>
+          {/* Floating Logo above box */}
+          <div className="absolute top-[42%] left-[49%] -translate-x-1/2 -translate-y-1/2 z-20 drop-shadow-[0_0_15px_rgba(244,63,94,0.3)]">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14.5 6.5C15.5 6.5 17.5 7 17.5 9.5C17.5 12 15 13 13 13H11C9 13 6.5 14 6.5 16.5C6.5 19 8.5 19.5 9.5 19.5" stroke="#f43f5e" strokeWidth="2.5" strokeLinecap="round"/>
+              <path d="M9.5 17.5C8.5 17.5 6.5 17 6.5 14.5C6.5 12 9 11 11 11H13C15 11 17.5 10 17.5 7.5C17.5 5 15.5 4.5 14.5 4.5" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round"/>
+            </svg>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-             <div className="bg-[#e3f4db] rounded-[2.5rem] aspect-[4/3.5] flex items-end justify-center overflow-hidden relative shadow-sm group">
-                <div className="text-[200px] lg:text-[240px] absolute -bottom-12 lg:-bottom-16 group-hover:scale-110 group-hover:-translate-y-4 transition-all duration-500 drop-shadow-xl">🥝</div>
-             </div>
-             <div className="bg-[#fff1d0] rounded-[2.5rem] aspect-[4/3.5] flex items-end justify-center overflow-hidden relative shadow-sm group">
-                <div className="text-[200px] lg:text-[240px] absolute -bottom-12 lg:-bottom-16 group-hover:scale-110 group-hover:-translate-y-4 transition-all duration-500 drop-shadow-xl">🥥</div>
-             </div>
-             <div className="bg-[#ffdee6] rounded-[2.5rem] aspect-[4/3.5] flex items-end justify-center overflow-hidden relative shadow-sm group hidden lg:flex">
-                <div className="text-[200px] lg:text-[240px] absolute -bottom-12 lg:-bottom-16 group-hover:scale-110 group-hover:-translate-y-4 transition-all duration-500 drop-shadow-xl">🍓</div>
+          {/* Connecting Curved Lines (Approximated with SVG paths) */}
+          <svg className="absolute inset-0 w-full h-full z-0 pointer-events-none" viewBox="0 0 500 500">
+            {/* Line 1 (Far Left) */}
+            <path d="M 230 250 Q 140 180 120 200" fill="none" stroke="#333" strokeWidth="1.5" strokeDasharray="4 4" />
+            {/* Line 2 (Mid Left) */}
+            <path d="M 240 250 Q 180 140 180 150" fill="none" stroke="#333" strokeWidth="1.5" strokeDasharray="4 4" />
+            {/* Line 3 (Top Center) */}
+            <path d="M 250 250 Q 250 120 260 130" fill="none" stroke="#333" strokeWidth="1.5" strokeDasharray="4 4" />
+            {/* Line 4 (Mid Right) */}
+            <path d="M 260 250 Q 320 140 330 160" fill="none" stroke="#333" strokeWidth="1.5" strokeDasharray="4 4" />
+            {/* Line 5 (Far Right) */}
+            <path d="M 270 250 Q 380 180 390 220" fill="none" stroke="#333" strokeWidth="1.5" strokeDasharray="4 4" />
+          </svg>
+
+          {/* Floating Platform Icons */}
+          {/* Platform Icon Component */}
+          {/* WhatsApp / Slack */}
+          <div className="absolute top-[39%] left-[17%] w-[42px] h-[42px] border border-gray-800 rounded transform rotate-45 scale-y-50 bg-[#111] shadow-2xl flex items-center justify-center z-10">
+            <div className="transform -rotate-45 scale-y-200">
+               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-green-500"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+            </div>
+          </div>
+          
+          {/* Instagram / Figma */}
+          <div className="absolute top-[28%] left-[34%] w-[42px] h-[42px] border border-gray-800 rounded transform rotate-45 scale-y-50 bg-[#111] shadow-2xl flex items-center justify-center z-10">
+            <div className="transform -rotate-45 scale-y-200">
+               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-pink-500"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm3.98-10.869a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+            </div>
+          </div>
+          
+          {/* Shopify / Jira */}
+          <div className="absolute top-[23%] left-[52%] -translate-x-1/2 w-[42px] h-[42px] border border-gray-800 rounded transform rotate-45 scale-y-50 bg-[#111] shadow-2xl flex items-center justify-center z-10">
+            <div className="transform -rotate-45 scale-y-200">
+               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-green-400"><path d="M21 7L12 1 3 7v10l9 6 9-6V7zm-9 11L5 13V9l7 4 7-4v4l-7 5z"/></svg>
+            </div>
+          </div>
+          
+          {/* Slack / Notion */}
+          <div className="absolute top-[28%] left-[68%] w-[42px] h-[42px] border border-gray-800 rounded transform rotate-45 scale-y-50 bg-[#111] shadow-2xl flex items-center justify-center z-10">
+            <div className="transform -rotate-45 scale-y-200">
+               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-blue-300"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM5.042 8.835a2.528 2.528 0 0 1-2.52-2.521A2.528 2.528 0 0 1 0 8.834a2.527 2.527 0 0 1 2.522-2.521h2.52v2.522zM6.313 8.834a2.527 2.527 0 0 1 2.521-2.521 2.527 2.527 0 0 1 2.521 2.521v-6.314A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1-2.521 2.522v6.312zM15.165 5.042a2.528 2.528 0 0 1 2.523-2.52A2.528 2.528 0 0 1 15.165 0a2.527 2.527 0 0 1 2.52 2.522v2.52h-2.52zM15.165 6.313a2.527 2.527 0 0 1-2.52 2.521 2.527 2.527 0 0 1 2.52 2.521h6.313A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522-2.521h-6.313zM18.835 5.042a2.528 2.528 0 0 1 2.521-2.52A2.528 2.528 0 0 1 24 5.042a2.527 2.527 0 0 1-2.522 2.52v-2.52h-2.52zM18.834 6.313a2.527 2.527 0 0 1 2.521-2.521 2.527 2.527 0 0 1 2.521 2.521v6.314A2.528 2.528 0 0 1 21.356 24a2.528 2.528 0 0 1-2.522-2.522v-6.312z"/></svg>
+            </div>
+          </div>
+          
+          {/* Facebook / Teams */}
+          <div className="absolute top-[39%] left-[78%] w-[42px] h-[42px] border border-gray-800 rounded transform rotate-45 scale-y-50 bg-[#111] shadow-2xl flex items-center justify-center z-10">
+             <div className="transform -rotate-45 scale-y-200">
+               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-blue-600"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
              </div>
           </div>
-        </section>
 
+        </div>
       </main>
     </div>
   );
