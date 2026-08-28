@@ -16,13 +16,20 @@ export function ProtectedRoute({
   allowedRoles = [],
   redirectPath = "/login",
 }: ProtectedRouteProps) {
-  const { user, isLoading } = useAuthStore()
+  const { user, isLoading, checkAuth } = useAuthStore()
   const router = useRouter()
   const [isAuthorized, setIsAuthorized] = React.useState(false)
+  const [hasChecked, setHasChecked] = React.useState(false)
+
+  React.useEffect(() => {
+    if (!hasChecked) {
+      checkAuth().finally(() => setHasChecked(true))
+    }
+  }, [checkAuth, hasChecked])
 
   React.useEffect(() => {
     // Wait for auth check to complete
-    if (isLoading) return
+    if (isLoading || !hasChecked) return
 
     // 1. Check if user is logged in
     if (!user) {

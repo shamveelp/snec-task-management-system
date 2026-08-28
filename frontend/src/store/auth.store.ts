@@ -18,7 +18,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     const { user, tokens } = await authApi.login(credentials);
     localStorage.setItem('accessToken', tokens.accessToken);
     localStorage.setItem('refreshToken', tokens.refreshToken);
-    set({ user, isAuthenticated: true });
+    set({ user, isAuthenticated: true, isLoading: false });
     return user;
   },
   logout: async () => {
@@ -27,7 +27,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     } finally {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
-      set({ user: null, isAuthenticated: false });
+      set({ user: null, isAuthenticated: false, isLoading: false });
     }
   },
   checkAuth: async () => {
