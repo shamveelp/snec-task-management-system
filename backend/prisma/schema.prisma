@@ -17,6 +17,7 @@ datasource db {
 model User {
   id                 String    @id @default(uuid())
   name               String
+  username           String?   @unique
   email              String    @unique
   password           String
   mobile             String?
@@ -24,6 +25,8 @@ model User {
   status             UserStatus @default(ACTIVE)
   roleId             String?
   role               Role?      @relation(fields: [roleId], references: [id])
+  organizationId     String?
+  organization       Organization? @relation(fields: [organizationId], references: [id])
   hashedRefreshToken String?
   resetToken         String?
   resetTokenExpiry   DateTime?
@@ -32,6 +35,18 @@ model User {
   deletedAt          DateTime?
 
   @@index([email])
+  @@index([username])
+}
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  mobile    String?
+  category  String
+  users     User[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum UserStatus {
@@ -66,4 +81,12 @@ model RolePermission {
   permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
 
   @@id([roleId, permissionId])
+}
+
+model Otp {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  otp       String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 }

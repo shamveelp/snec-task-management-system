@@ -15,8 +15,35 @@ export class AuthService {
     private readonly tokenService: TokenService,
   ) {}
 
+  async register(registerDto: any) {
+    const existingUser = await this.authRepository.findByEmail(registerDto.email);
+    if (existingUser) {
+      throw new BadRequestException('User with this email already exists');
+    }
+
+    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+    const user = await this.authRepository.create({
+      name: registerDto.name,
+      email: registerDto.email,
+      mobile: registerDto.mobileNumber,
+      password: hashedPassword,
+    });
+    
+    // Automatically login the user after registration
+    const tokens = await this.tokenService.generateTokens(user.id, user.email);
+    const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
+    await this.authRepository.updateRefreshToken(user.id, hashedRefreshToken);
+    
+    const { password, hashedRefreshToken: _, resetToken, resetTokenExpiry, ...userWithoutSecrets } = user as any;
+    
+    return {
+      user: userWithoutSecrets,
+      tokens,
+    };
+  }
+
   async login(loginDto: LoginDto) {
-    const user = await this.authRepository.findByEmail(loginDto.email);
+    const user = await this.authRepository.findByEmailOrUsername(loginDto.email);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }

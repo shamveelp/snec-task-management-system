@@ -25,8 +25,14 @@ export function LoginForm() {
     setLoading(true)
 
     try {
-      await login({ email, password })
-      router.push("/dashboard") // Will navigate to dashboard if it existed
+      const user = await login({ email, password })
+      if (user?.role?.name === 'Super Admin') {
+        router.push('/admin/dashboard')
+      } else if (user?.role?.name === 'Organization Admin') {
+        router.push('/organization/dashboard')
+      } else {
+        router.push('/dashboard')
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || "Invalid email or password")
     } finally {

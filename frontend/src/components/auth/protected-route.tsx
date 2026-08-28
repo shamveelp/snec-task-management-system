@@ -34,8 +34,14 @@ export function ProtectedRoute({
     if (allowedRoles.length > 0) {
       if (!user.role || !allowedRoles.includes(user.role.name)) {
         // Logged in but not authorized for this specific role
-        // Redirect standard users to dashboard, and admins to admin/dashboard
-        router.push(user.role?.name === 'Super Admin' ? '/admin/dashboard' : '/dashboard')
+        // Redirect based on role
+        if (user.role?.name === 'Super Admin') {
+          router.push('/admin/dashboard')
+        } else if (user.role?.name === 'Organization Admin') {
+          router.push('/organization/dashboard')
+        } else {
+          router.push('/dashboard')
+        }
         return
       }
     }

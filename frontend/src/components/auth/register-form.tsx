@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import axios from "axios"
 import { motion } from "framer-motion"
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
@@ -44,11 +45,10 @@ export function RegisterForm() {
     setLoading(true)
 
     try {
-      // Simulate API call for mockup purposes
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      await axios.post("http://localhost:5000/auth/register", formData)
       setSuccess(true)
     } catch (err: any) {
-      setError("An error occurred during registration. Please try again.")
+      setError(err.response?.data?.message || "An error occurred during registration. Please try again.")
     } finally {
       setLoading(false)
     }

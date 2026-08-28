@@ -5,7 +5,7 @@ interface AuthState {
   user: any | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (credentials: any) => Promise<void>;
+  login: (credentials: any) => Promise<any>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
 }
@@ -19,6 +19,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.setItem('accessToken', tokens.accessToken);
     localStorage.setItem('refreshToken', tokens.refreshToken);
     set({ user, isAuthenticated: true });
+    return user;
   },
   logout: async () => {
     try {
