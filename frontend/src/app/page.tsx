@@ -10,10 +10,12 @@ import { AnalyticsShowcase } from "../components/landing/analytics-showcase"
 import { SecuritySection } from "../components/landing/security-section"
 import { FinalCta } from "../components/landing/final-cta"
 import { Footer } from "../components/landing/footer"
+import { PublicRoute } from "../components/auth/public-route"
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
+    <PublicRoute>
+      <div className="flex min-h-screen flex-col bg-background text-foreground">
       <AnnouncementBar />
       <Navbar />
       
@@ -31,5 +33,6 @@ export default function Home() {
       
       <Footer />
     </div>
+    </PublicRoute>
   )
 }

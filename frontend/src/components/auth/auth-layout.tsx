@@ -3,6 +3,7 @@
 import { ReactNode } from "react"
 import Link from "next/link"
 import { CheckSquare } from "lucide-react"
+import { PublicRoute } from "./public-route"
 
 interface AuthLayoutProps {
   children: ReactNode
@@ -10,7 +11,8 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <div className="min-h-screen flex w-full bg-background">
+    <PublicRoute>
+      <div className="min-h-screen flex w-full bg-background">
       
       {/* Left side - Branding Panel (Hidden on mobile) */}
       <div className="hidden lg:flex lg:w-1/2 bg-zinc-950 text-white flex-col relative overflow-hidden">
@@ -72,5 +74,6 @@ export function AuthLayout({ children }: AuthLayoutProps) {
       </div>
       
     </div>
+    </PublicRoute>
   )
 }
