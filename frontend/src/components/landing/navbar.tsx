@@ -20,16 +20,17 @@ export function Navbar() {
   }, [])
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-40 w-full transition-all duration-300",
-        isScrolled
-          ? "bg-background/80 backdrop-blur-md border-b border-border shadow-sm"
-          : "bg-transparent"
-      )}
-    >
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="flex h-16 items-center justify-between">
+    <div className="sticky top-0 z-50 w-full pt-4 px-4 md:px-6 flex justify-center pointer-events-none">
+      <header
+        className={cn(
+          "pointer-events-auto w-full max-w-5xl transition-all duration-300 rounded-lg border",
+          isScrolled
+            ? "bg-background/90 backdrop-blur-md border-border shadow-lg"
+            : "bg-background/50 backdrop-blur-sm border-border shadow-sm"
+        )}
+      >
+        <div className="px-4 md:px-6">
+          <div className="flex h-14 items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
               <div className="bg-primary text-primary-foreground p-1 rounded-md">
@@ -55,12 +56,12 @@ export function Navbar() {
             </Link>
           </nav>
 
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-3">
             <Link href="/login">
-              <Button variant="ghost" className="text-sm">Sign In</Button>
+              <Button variant="ghost" className="text-sm h-9">Login</Button>
             </Link>
-            <Link href="/register">
-              <Button className="text-sm">Get Started</Button>
+            <Link href="/organization/register">
+              <Button className="text-sm h-9">Create your organization</Button>
             </Link>
           </div>
 
@@ -78,12 +79,12 @@ export function Navbar() {
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-b border-border bg-background"
+            initial={{ opacity: 0, height: 0, marginTop: 0 }}
+            animate={{ opacity: 1, height: "auto", marginTop: 8 }}
+            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+            className="md:hidden border-t border-border bg-background rounded-b-lg overflow-hidden"
           >
-            <div className="container mx-auto px-4 py-4 flex flex-col gap-4">
+            <div className="px-4 py-4 flex flex-col gap-4">
               <Link
                 href="#product"
                 className="text-sm font-medium py-2 border-b border-border/50"
@@ -114,16 +115,17 @@ export function Navbar() {
               </Link>
               <div className="flex flex-col gap-2 mt-4">
                 <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" className="w-full">Sign In</Button>
+                  <Button variant="outline" className="w-full">Login</Button>
                 </Link>
-                <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
-                  <Button className="w-full">Get Started</Button>
+                <Link href="/organization/register" onClick={() => setMobileMenuOpen(false)}>
+                  <Button className="w-full">Create your organization</Button>
                 </Link>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+      </header>
+    </div>
   )
 }
