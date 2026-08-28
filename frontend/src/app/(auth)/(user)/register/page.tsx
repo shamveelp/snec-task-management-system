@@ -1,6 +1,6 @@
 import { Metadata } from "next"
-import { AuthLayout } from "../../../../components/auth/auth-layout"
 import { RegisterForm } from "../../../../components/auth/register-form"
+import { UserAuthLayout } from "../../../../components/auth/user-auth-layout"
 
 export const metadata: Metadata = {
   title: "Register - FlowTask",
@@ -9,8 +9,8 @@ export const metadata: Metadata = {
 
 export default function RegisterPage() {
   return (
-    <AuthLayout>
+    <UserAuthLayout>
       <RegisterForm />
-    </AuthLayout>
+    </UserAuthLayout>
   )
 }

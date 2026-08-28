@@ -1,6 +1,6 @@
 import { Metadata } from "next"
-import { AuthLayout } from "../../../../components/auth/auth-layout"
 import { OrganizationLoginForm } from "../../../../components/auth/organization-login-form"
+import { OrgAuthLayout } from "../../../../components/auth/org-auth-layout"
 
 export const metadata: Metadata = {
   title: "Organization Login - FlowTask",
@@ -9,8 +9,8 @@ export const metadata: Metadata = {
 
 export default function OrganizationLoginPage() {
   return (
-    <AuthLayout>
+    <OrgAuthLayout>
       <OrganizationLoginForm />
-    </AuthLayout>
+    </OrgAuthLayout>
   )
 }

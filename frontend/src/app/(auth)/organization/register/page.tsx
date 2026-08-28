@@ -1,5 +1,5 @@
 import { Metadata } from "next"
-import { AuthLayout } from "../../../../components/auth/auth-layout"
+import { OrgAuthLayout } from "../../../../components/auth/org-auth-layout"
 import { OrganizationRegisterForm } from "../../../../components/auth/organization-register-form"
 
 export const metadata: Metadata = {
@@ -9,8 +9,8 @@ export const metadata: Metadata = {
 
 export default function OrganizationRegisterPage() {
   return (
-    <AuthLayout>
+    <OrgAuthLayout>
       <OrganizationRegisterForm />
-    </AuthLayout>
+    </OrgAuthLayout>
   )
 }

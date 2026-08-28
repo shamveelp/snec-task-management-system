@@ -1,5 +1,5 @@
 import { Metadata } from "next"
-import { AuthLayout } from "../../../../components/auth/auth-layout"
+import { AdminAuthLayout } from "../../../../components/auth/admin-auth-layout"
 import { AdminLoginForm } from "../../../../components/auth/admin-login-form"
 
 export const metadata: Metadata = {
@@ -9,8 +9,8 @@ export const metadata: Metadata = {
 
 export default function AdminLoginPage() {
   return (
-    <AuthLayout>
+    <AdminAuthLayout>
       <AdminLoginForm />
-    </AuthLayout>
+    </AdminAuthLayout>
   )
 }
