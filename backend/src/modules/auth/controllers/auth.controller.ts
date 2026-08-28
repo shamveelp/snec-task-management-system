@@ -8,15 +8,33 @@ import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { JwtRefreshGuard } from '../../../common/guards/jwt-refresh.guard';
 
 import { RegisterDto } from '../dto/register.dto';
+import { VerifyUserRegistrationDto } from '../dto/verify-user-registration.dto';
+import { Query } from '@nestjs/common';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.OK)
   async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
+  }
+
+  @Post('verify-registration')
+  @HttpCode(HttpStatus.CREATED)
+  async verifyRegistration(@Body() dto: VerifyUserRegistrationDto) {
+    return this.authService.verifyRegistration(dto);
+  }
+
+  @Get('check-username')
+  async checkUsername(@Query('username') username: string) {
+    return this.authService.checkUsername(username);
+  }
+
+  @Get('check-email')
+  async checkEmail(@Query('email') email: string) {
+    return this.authService.checkEmail(email);
   }
 
   @Post('login')

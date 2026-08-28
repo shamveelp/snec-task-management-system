@@ -8,7 +8,20 @@ export class PrismaAuthRepository implements IAuthRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: any): Promise<User> {
-    return this.prisma.user.create({ data });
+    return this.prisma.user.create({ 
+      data,
+      include: {
+        role: {
+          include: {
+            permissions: {
+              include: {
+                permission: true,
+              },
+            },
+          },
+        },
+      }
+    });
   }
 
   async findByEmail(email: string): Promise<User | null> {

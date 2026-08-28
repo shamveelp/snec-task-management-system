@@ -8,12 +8,14 @@ import { PrismaAuthRepository } from './repositories/prisma-auth.repository';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { DatabaseModule } from '../../database/database.module';
+import { EmailModule } from '../email/email.module';
 
 @Module({
   imports: [
     DatabaseModule,
     PassportModule,
     JwtModule.register({}),
+    EmailModule,
   ],
   controllers: [AuthController],
   providers: [

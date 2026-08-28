@@ -8,28 +8,91 @@ import { ChangePasswordDto } from '../dto/change-password.dto';
 import { ForgotPasswordDto } from '../dto/forgot-password.dto';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 
+import { EmailService } from '../../../modules/email/email.service';
+import { VerifyUserRegistrationDto } from '../dto/verify-user-registration.dto';
+import { PrismaService } from '../../../database/prisma.service'; // Needed to fetch Role
+
 @Injectable()
 export class AuthService {
   constructor(
     @Inject('IAuthRepository') private readonly authRepository: IAuthRepository,
     private readonly tokenService: TokenService,
+    private readonly emailService: EmailService,
+    private readonly prisma: PrismaService,
   ) {}
 
+  async checkUsername(username: string) {
+    const user = await this.authRepository.findByEmailOrUsername(username); // Wait, we might need a dedicated findByUsername, but Prisma can do it. Actually let's use Prisma directly or add a method. For now, since findByEmailOrUsername exists, it checks both!
+    return { isUnique: !user };
+  }
+
+  async checkEmail(email: string) {
+    const user = await this.authRepository.findByEmail(email);
+    return { isUnique: !user };
+  }
+
   async register(registerDto: any) {
-    const existingUser = await this.authRepository.findByEmail(registerDto.email);
-    if (existingUser) {
+    const existingEmail = await this.authRepository.findByEmail(registerDto.email);
+    if (existingEmail) {
       throw new BadRequestException('User with this email already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-    const user = await this.authRepository.create({
-      name: registerDto.name,
-      email: registerDto.email,
-      mobile: registerDto.mobileNumber,
-      password: hashedPassword,
+    const existingUsername = await this.authRepository.findByEmailOrUsername(registerDto.username);
+    if (existingUsername) {
+       throw new BadRequestException('User with this username already exists');
+    }
+
+    // Generate and send OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date();
+    expiresAt.setMinutes(expiresAt.getMinutes() + 5);
+
+    await this.prisma.otp.upsert({
+      where: { email: registerDto.email },
+      update: { otp, expiresAt, createdAt: new Date() },
+      create: { email: registerDto.email, otp, expiresAt },
     });
+
+    await this.emailService.sendOtpEmail(registerDto.email, otp);
+
+    return { message: 'OTP sent to email successfully' };
+  }
+
+  async verifyRegistration(dto: VerifyUserRegistrationDto) {
+    const storedOtp = await this.prisma.otp.findUnique({ where: { email: dto.email } });
+    if (!storedOtp || storedOtp.otp !== dto.otp || storedOtp.expiresAt < new Date()) {
+      throw new BadRequestException('Invalid or expired OTP');
+    }
+
+    const existingEmail = await this.authRepository.findByEmail(dto.email);
+    if (existingEmail) {
+      throw new BadRequestException('User with this email already exists');
+    }
+
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
     
-    // Automatically login the user after registration
+    // Find or create User Role
+    let userRole = await this.prisma.role.findUnique({ where: { name: 'User' } });
+    if (!userRole) {
+      userRole = await this.prisma.role.create({
+        data: {
+          name: 'User',
+          description: 'Standard user role',
+        },
+      });
+    }
+    const roleId = userRole.id;
+
+    const user = await this.authRepository.create({
+      name: dto.name,
+      username: dto.username,
+      email: dto.email,
+      password: hashedPassword,
+      roleId,
+    });
+
+    await this.prisma.otp.delete({ where: { email: dto.email } });
+    
     const tokens = await this.tokenService.generateTokens(user.id, user.email);
     const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
     await this.authRepository.updateRefreshToken(user.id, hashedRefreshToken);
