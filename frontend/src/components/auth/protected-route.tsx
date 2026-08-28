@@ -14,47 +14,62 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({
   children,
   allowedRoles = [],
-  redirectPath = "/login",
+  redirectPath = "/",
 }: ProtectedRouteProps) {
   const { user, isLoading, checkAuth } = useAuthStore()
   const router = useRouter()
   const [isAuthorized, setIsAuthorized] = React.useState(false)
   const [hasChecked, setHasChecked] = React.useState(false)
+  const [mounted, setMounted] = React.useState(false)
 
   React.useEffect(() => {
+    setMounted(true)
+    const token = localStorage.getItem("accessToken")
+    if (!token) {
+      setHasChecked(true)
+      router.replace(redirectPath)
+      return
+    }
+
     if (!hasChecked) {
       checkAuth().finally(() => setHasChecked(true))
     }
-  }, [checkAuth, hasChecked])
+  }, [checkAuth, hasChecked, router, redirectPath])
 
   React.useEffect(() => {
-    // Wait for auth check to complete
-    if (isLoading || !hasChecked) return
+    if (!mounted || isLoading || !hasChecked) return
 
-    // 1. Check if user is logged in
-    if (!user) {
-      router.push(redirectPath)
+    const token = localStorage.getItem("accessToken")
+    if (!user && !token) {
+      router.replace(redirectPath)
       return
     }
 
     // 2. Check Role if allowedRoles is provided
-    if (allowedRoles.length > 0) {
+    if (user && allowedRoles.length > 0) {
       if (!user.role || !allowedRoles.includes(user.role.name)) {
-        // Logged in but not authorized for this specific role
-        // Redirect based on role
         if (user.role?.name === 'Super Admin') {
-          router.push('/admin/dashboard')
+          router.replace('/admin/dashboard')
         } else if (user.role?.name === 'Organization Admin') {
-          router.push('/organization/dashboard')
+          router.replace('/organization/dashboard')
         } else {
-          router.push('/dashboard')
+          router.replace('/dashboard')
         }
         return
       }
     }
 
-    setIsAuthorized(true)
-  }, [user, isLoading, router, allowedRoles, redirectPath])
+    if (user) {
+      setIsAuthorized(true)
+    }
+  }, [user, isLoading, router, allowedRoles, redirectPath, hasChecked, mounted])
+
+  // Don't render anything until mounted to avoid hydration errors
+  if (!mounted) return null;
+
+  // If no token exists, return null while we redirect, avoiding any loader!
+  const hasToken = typeof window !== 'undefined' ? !!localStorage.getItem("accessToken") : false;
+  if (!hasToken) return null;
 
   if (isLoading || !isAuthorized) {
     return (

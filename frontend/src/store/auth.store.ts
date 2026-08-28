@@ -31,15 +31,15 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
   checkAuth: async () => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      set({ user: null, isAuthenticated: false, isLoading: false });
+      return;
+    }
     set({ isLoading: true });
     try {
-      const token = localStorage.getItem('accessToken');
-      if (token) {
-        const user = await authApi.getProfile();
-        set({ user, isAuthenticated: true });
-      } else {
-        set({ user: null, isAuthenticated: false });
-      }
+      const user = await authApi.getProfile();
+      set({ user, isAuthenticated: true });
     } catch (error) {
       set({ user: null, isAuthenticated: false });
     } finally {

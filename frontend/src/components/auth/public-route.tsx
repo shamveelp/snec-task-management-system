@@ -13,29 +13,42 @@ export function PublicRoute({ children }: PublicRouteProps) {
   const { user, isLoading, isAuthenticated, checkAuth } = useAuthStore()
   const router = useRouter()
   const [hasChecked, setHasChecked] = React.useState(false)
+  const [mounted, setMounted] = React.useState(false)
 
   React.useEffect(() => {
+    setMounted(true)
+    const token = localStorage.getItem("accessToken")
+    if (!token) {
+      setHasChecked(true)
+      return
+    }
+
     if (!hasChecked) {
       checkAuth().finally(() => setHasChecked(true))
     }
   }, [checkAuth, hasChecked])
 
   React.useEffect(() => {
-    if (isLoading || !hasChecked) return
+    if (!mounted || isLoading || !hasChecked) return
 
     if (isAuthenticated && user) {
       // Redirect based on role
       if (user.role?.name === 'Super Admin') {
-        router.push('/admin/dashboard')
+        router.replace('/admin/dashboard')
       } else if (user.role?.name === 'Organization Admin') {
-        router.push('/organization/dashboard')
+        router.replace('/organization/dashboard')
       } else {
-        router.push('/dashboard')
+        router.replace('/dashboard')
       }
     }
-  }, [user, isLoading, isAuthenticated, hasChecked, router])
+  }, [user, isLoading, isAuthenticated, hasChecked, router, mounted])
 
-  if (isLoading || !hasChecked || isAuthenticated) {
+  if (!mounted) return null;
+
+  const hasToken = typeof window !== 'undefined' ? !!localStorage.getItem("accessToken") : false;
+
+  // If we have a token, and we are still loading or authenticating, show loader while redirect happens
+  if (hasToken && (isLoading || !hasChecked || isAuthenticated)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
