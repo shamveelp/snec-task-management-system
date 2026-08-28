@@ -129,4 +129,55 @@ export class OrganizationsService {
       throw new InternalServerErrorException('Registration failed');
     }
   }
+
+  async getMembers(organizationId: string) {
+    const users = await this.prisma.user.findMany({
+      where: { organizationId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        status: true,
+        role: {
+          select: { name: true }
+        }
+      }
+    });
+    return users.map(u => ({
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      role: u.role?.name,
+      status: u.status,
+    }));
+  }
+
+  async getInvitations(organizationId: string) {
+    const invitations = await this.prisma.invitation.findMany({
+      where: { organizationId },
+      include: { role: true },
+      orderBy: { createdAt: 'desc' },
+    });
+    return invitations.map(i => ({
+      id: i.id,
+      email: i.email,
+      role: i.role?.name,
+      status: i.status,
+      createdAt: i.createdAt,
+    }));
+  }
+
+  async getRoles() {
+    return this.prisma.role.findMany({
+      where: {
+        name: {
+          in: ['Developer', 'Project Manager', 'Team Lead']
+        }
+      },
+      select: {
+        id: true,
+        name: true,
+      }
+    });
+  }
 }

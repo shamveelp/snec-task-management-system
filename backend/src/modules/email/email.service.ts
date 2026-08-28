@@ -35,4 +35,19 @@ export class EmailService {
       return false;
     }
   }
+  async sendEmail({ to, subject, html }: { to: string; subject: string; html: string }): Promise<boolean> {
+    try {
+      await this.transporter.sendMail({
+        from: `"SNEC Task Management" <${process.env.APP_EMAIL}>`,
+        to,
+        subject,
+        html,
+      });
+      this.logger.log(`Email successfully sent to ${to}`);
+      return true;
+    } catch (error) {
+      this.logger.error(`Failed to send email to ${to}`, error);
+      return false;
+    }
+  }
 }

@@ -10,10 +10,12 @@ import { Label } from "../ui/label"
 import { PasswordInput } from "../ui/password-input"
 import { Loader2, CheckCircle, CheckCircle2 } from "lucide-react"
 import { useAuthStore } from "../../store/auth.store"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 export function RegisterForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const inviteToken = searchParams.get('inviteToken')
   const { setAuth } = useAuthStore()
 
   const [formData, setFormData] = React.useState({
@@ -181,7 +183,28 @@ export function RegisterForm() {
       
       // Auto login using the new setAuth
       setAuth(response.data.user, response.data.tokens)
-      router.push("/dashboard")
+      
+      let finalUser = response.data.user
+      if (inviteToken) {
+        try {
+          await axios.post(`http://localhost:5000/invitations/${inviteToken}/accept`, {}, {
+            headers: { Authorization: `Bearer ${response.data.tokens.accessToken}` }
+          })
+          const state = useAuthStore.getState()
+          await state.checkAuth()
+          finalUser = useAuthStore.getState().user
+        } catch (inviteErr) {
+          console.error("Failed to accept invite during registration", inviteErr)
+        }
+      }
+
+      if (finalUser?.role?.name === 'Super Admin') {
+        router.push('/admin/dashboard')
+      } else if (finalUser?.role?.name === 'Organization Admin') {
+        router.push('/organization/dashboard')
+      } else {
+        router.push('/dashboard')
+      }
     } catch (err: any) {
       setOtpError(err?.response?.data?.message || "Verification failed. Please try again.")
     } finally {

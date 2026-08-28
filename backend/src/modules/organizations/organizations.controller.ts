@@ -1,4 +1,7 @@
-import { Controller, Post, Body, Get, Query, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, BadRequestException, UseGuards, Req } from '@nestjs/common';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
 import { OrganizationsService } from './organizations.service';
 import { RegisterOrganizationDto } from './dto/register-organization.dto';
 import { SendOtpDto } from './dto/send-otp.dto';
@@ -33,5 +36,24 @@ export class OrganizationsController {
     }
     const isAvailable = await this.organizationsService.isEmailAvailable(email);
     return { isAvailable };
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Organization Admin')
+  @Get('members')
+  async getMembers(@Req() req) {
+    return this.organizationsService.getMembers(req.user.organizationId);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Organization Admin')
+  @Get('invitations')
+  async getInvitations(@Req() req) {
+    return this.organizationsService.getInvitations(req.user.organizationId);
+  }
+
+  @Get('roles')
+  async getRoles() {
+    return this.organizationsService.getRoles();
   }
 }

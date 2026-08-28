@@ -45,13 +45,20 @@ model Organization {
   mobile    String?
   category  String
   users     User[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  invitations Invitation[]
 }
 
 enum UserStatus {
   ACTIVE
   INACTIVE
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
 }
 
 model Role {
@@ -60,6 +67,7 @@ model Role {
   description String?
   users       User[]
   permissions RolePermission[]
+  invitations Invitation[]
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 }
@@ -89,4 +97,21 @@ model Otp {
   otp       String
   expiresAt DateTime
   createdAt DateTime @default(now())
+}
+
+model Invitation {
+  id             String           @id @default(uuid())
+  email          String
+  roleId         String
+  role           Role             @relation(fields: [roleId], references: [id])
+  organizationId String
+  organization   Organization     @relation(fields: [organizationId], references: [id])
+  token          String           @unique
+  status         InvitationStatus @default(PENDING)
+  expiresAt      DateTime
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([email])
+  @@index([token])
 }

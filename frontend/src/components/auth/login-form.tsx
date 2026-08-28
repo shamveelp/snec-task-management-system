@@ -9,7 +9,8 @@ import { Label } from "../ui/label"
 import { PasswordInput } from "../ui/password-input"
 import { Loader2 } from "lucide-react"
 import { useAuthStore } from "../../store/auth.store"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
+import axios from "axios"
 
 export function LoginForm() {
   const [email, setEmail] = React.useState("")
@@ -17,7 +18,10 @@ export function LoginForm() {
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState("")
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const inviteToken = searchParams.get('inviteToken')
   const login = useAuthStore((state) => state.login)
+  const checkAuth = useAuthStore((state) => state.checkAuth)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,7 +29,23 @@ export function LoginForm() {
     setLoading(true)
 
     try {
-      const user = await login({ email, password })
+      let user = await login({ email, password })
+      
+      if (inviteToken) {
+        try {
+          const accessToken = localStorage.getItem('accessToken')
+          await axios.post(`http://localhost:5000/invitations/${inviteToken}/accept`, {}, {
+            headers: { Authorization: `Bearer ${accessToken}` }
+          })
+          // refresh user to get new role
+          await checkAuth()
+          const state = useAuthStore.getState()
+          user = state.user
+        } catch (inviteErr) {
+          console.error("Failed to accept invite during login", inviteErr)
+        }
+      }
+
       if (user?.role?.name === 'Super Admin') {
         router.push('/admin/dashboard')
       } else if (user?.role?.name === 'Organization Admin') {

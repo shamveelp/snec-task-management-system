@@ -8,7 +8,7 @@ export default function UserDashboardPage() {
   const { user, logout } = useAuthStore()
 
   return (
-    <ProtectedRoute allowedRoles={["User"]}>
+    <ProtectedRoute allowedRoles={["Developer", "Project Manager", "Team Lead"]}>
       <div className="p-8">
         <div className="flex items-center justify-between mb-8">
           <div>

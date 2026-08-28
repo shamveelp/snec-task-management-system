@@ -72,12 +72,12 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(dto.password, 10);
     
     // Find or create User Role
-    let userRole = await this.prisma.role.findUnique({ where: { name: 'User' } });
+    let userRole = await this.prisma.role.findUnique({ where: { name: 'Developer' } });
     if (!userRole) {
       userRole = await this.prisma.role.create({
         data: {
-          name: 'User',
-          description: 'Standard user role',
+          name: 'Developer',
+          description: 'Developer role',
         },
       });
     }
