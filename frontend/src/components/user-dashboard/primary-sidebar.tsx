@@ -53,6 +53,13 @@ export function PrimarySidebar({ isExpanded, onToggle }: PrimarySidebarProps) {
           isExpanded={isExpanded} 
         />
         <SidebarItem 
+          icon={FolderKanban} 
+          label="My Projects" 
+          href="/dashboard/projects"
+          active={pathname?.startsWith("/dashboard/projects")} 
+          isExpanded={isExpanded} 
+        />
+        <SidebarItem 
           icon={User} 
           label="Profile" 
           href="/dashboard/profile"

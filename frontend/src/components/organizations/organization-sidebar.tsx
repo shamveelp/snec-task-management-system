@@ -38,7 +38,7 @@ const sidebarSections = [
   {
     title: "WORKSPACE",
     items: [
-      { name: "Projects", href: "/organization/dashboard#projects", icon: FolderKanban },
+      { name: "Projects", href: "/organization/projects", icon: FolderKanban },
       { name: "Tasks", href: "/organization/dashboard#tasks", icon: CheckSquare },
       { name: "My Tasks", href: "/organization/dashboard#mytasks", icon: ListTodo },
     ]

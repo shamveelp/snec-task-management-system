@@ -7,9 +7,11 @@ import { UsersModule } from './modules/users/users.module';
 import { OrganizationsModule } from './modules/organizations/organizations.module';
 import { InvitationsModule } from './modules/invitations/invitations.module';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
+import { ProjectsModule } from './modules/projects/projects.module';
+import { TasksModule } from './modules/tasks/tasks.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), AuthModule, UsersModule, OrganizationsModule, InvitationsModule, CloudinaryModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), AuthModule, UsersModule, OrganizationsModule, InvitationsModule, CloudinaryModule, ProjectsModule, TasksModule],
   controllers: [AppController],
   providers: [AppService],
 })

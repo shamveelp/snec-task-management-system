@@ -35,6 +35,13 @@ model User {
   updatedAt          DateTime  @updatedAt
   deletedAt          DateTime?
 
+  createdProjects    Project[]         @relation("ProjectCreator")
+  projectMembers     ProjectMember[]
+  assignedTasks      Task[]            @relation("TaskAssignee")
+  reportedTasks      Task[]            @relation("TaskReporter")
+  taskComments       TaskComment[]
+  taskAttachments    TaskAttachment[]
+
   @@index([email])
   @@index([username])
 }
@@ -49,6 +56,7 @@ model Organization {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   invitations Invitation[]
+  projects    Project[]
 }
 
 enum UserStatus {
@@ -115,4 +123,123 @@ model Invitation {
 
   @@index([email])
   @@index([token])
+}
+
+enum ProjectPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum ProjectStatus {
+  PLANNING
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+}
+
+enum ProjectRole {
+  PROJECT_MANAGER
+  TEAM_LEAD
+  DEVELOPER
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+}
+
+model Project {
+  id             String          @id @default(uuid())
+  name           String
+  description    String?
+  startDate      DateTime?
+  endDate        DateTime?
+  priority       ProjectPriority @default(MEDIUM)
+  status         ProjectStatus   @default(PLANNING)
+  organizationId String
+  organization   Organization    @relation(fields: [organizationId], references: [id])
+  createdById    String
+  createdBy      User            @relation("ProjectCreator", fields: [createdById], references: [id])
+  members        ProjectMember[]
+  tasks          Task[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([organizationId])
+}
+
+model ProjectMember {
+  id        String      @id @default(uuid())
+  projectId String
+  project   Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      ProjectRole @default(DEVELOPER)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@unique([projectId, userId])
+  @@index([userId])
+}
+
+model Task {
+  id             String           @id @default(uuid())
+  title          String
+  description    String?
+  projectId      String
+  project        Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assigneeId     String?
+  assignee       User?            @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  reporterId     String
+  reporter       User             @relation("TaskReporter", fields: [reporterId], references: [id])
+  priority       TaskPriority     @default(MEDIUM)
+  status         TaskStatus       @default(TODO)
+  dueDate        DateTime?
+  estimatedHours Float?
+  actualHours    Float?
+  comments       TaskComment[]
+  attachments    TaskAttachment[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([projectId])
+  @@index([assigneeId])
+}
+
+model TaskComment {
+  id        String   @id @default(uuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([taskId])
+}
+
+model TaskAttachment {
+  id        String   @id @default(uuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileUrl   String
+  fileName  String
+  fileSize  Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([taskId])
 }
