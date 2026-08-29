@@ -132,9 +132,24 @@ export function TaskDetailPanel({ taskId, projectRole, project, onClose, onTaskU
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-[#F8FAFC] flex-shrink-0">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-2">
               TASK-{task?.id?.split('-')[0].toUpperCase() || '...'}
             </span>
+            {task && task.status !== 'DONE' && (task.assigneeId === user?.id || canEditTask) && (
+              <button
+                onClick={() => updateField('status', 'DONE')}
+                disabled={updatingField === 'status'}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-md text-xs font-semibold shadow-sm transition-colors"
+              >
+                {updatingField === 'status' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                Mark as Complete
+              </button>
+            )}
+            {task && task.status === 'DONE' && (
+              <span className="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-md">
+                <CheckCircle2 className="h-3.5 w-3.5" /> Completed
+              </span>
+            )}
           </div>
           <button onClick={onClose} className="h-7 w-7 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
             <X className="h-4 w-4 text-gray-600" />
