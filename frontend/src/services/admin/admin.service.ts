@@ -3,6 +3,7 @@ import api from '../core/api-client';
 export interface AdminUserData {
   id: string;
   name: string;
+  username: string | null;
   email: string;
   mobile: string | null;
   status: string;
@@ -31,6 +32,16 @@ export interface PaginatedResponse<T> {
 }
 
 export const adminService = {
+  checkUsername: async (username: string) => {
+    const { data } = await api.get<{ available: boolean }>('/admin/users/check-username', { params: { username } });
+    return data;
+  },
+
+  checkEmail: async (email: string) => {
+    const { data } = await api.get<{ available: boolean }>('/admin/users/check-email', { params: { email } });
+    return data;
+  },
+
   getUsers: async (params: { query?: string; roleId?: string; status?: string; page?: number; limit?: number }) => {
     const { data } = await api.get<PaginatedResponse<AdminUserData>>('/admin/users', { params });
     return data;

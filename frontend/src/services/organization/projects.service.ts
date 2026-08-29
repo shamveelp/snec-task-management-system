@@ -43,17 +43,17 @@ export interface CreateProjectPayload {
 
 export const projectsService = {
   getOrganizationProjects: async () => {
-    const response = await api.get<ProjectData[]>('/projects/organization');
+    const response = await api.get<ProjectData[]>('/organization/projects/organization');
     return response.data;
   },
 
   getMyProjects: async () => {
-    const response = await api.get<ProjectData[]>('/projects/me');
+    const response = await api.get<ProjectData[]>('/user/projects/me');
     return response.data;
   },
 
   getProjectById: async (id: string) => {
-    const response = await api.get<ProjectData>(`/projects/${id}`);
+    const response = await api.get<ProjectData>(`/user/projects/${id}`);
     return response.data;
   },
 
@@ -63,22 +63,22 @@ export const projectsService = {
   },
 
   updateProject: async (id: string, data: Partial<CreateProjectPayload>) => {
-    const response = await api.put<ProjectData>(`/projects/${id}`, data);
+    const response = await api.put<ProjectData>(`/organization/projects/${id}`, data);
     return response.data;
   },
 
   addMember: async (projectId: string, userId: string, role: string) => {
-    const response = await api.post(`/projects/${projectId}/members`, { userId, role });
+    const response = await api.post(`/organization/projects/${projectId}/members`, { userId, role });
     return response.data;
   },
 
   updateMemberRole: async (projectId: string, userId: string, role: string) => {
-    const response = await api.put(`/projects/${projectId}/members/${userId}`, { role });
+    const response = await api.put(`/organization/projects/${projectId}/members/${userId}`, { role });
     return response.data;
   },
 
   removeMember: async (projectId: string, userId: string) => {
-    const response = await api.delete(`/projects/${projectId}/members/${userId}`);
+    const response = await api.delete(`/organization/projects/${projectId}/members/${userId}`);
     return response.data;
   }
 };

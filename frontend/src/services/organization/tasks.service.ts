@@ -57,17 +57,17 @@ export type ProjectUserRole = 'ORG_ADMIN' | 'PROJECT_MANAGER' | 'TEAM_LEAD' | 'D
 
 export const tasksService = {
   getMyTasks: async () => {
-    const response = await api.get<TaskData[]>('/tasks/me');
+    const response = await api.get<TaskData[]>('/user/tasks/me');
     return response.data;
   },
 
   getTasksByProject: async (projectId: string) => {
-    const response = await api.get<TaskData[]>(`/tasks/project/${projectId}`);
+    const response = await api.get<TaskData[]>(`/user/tasks/project/${projectId}`);
     return response.data;
   },
 
   getTaskById: async (id: string) => {
-    const response = await api.get<TaskData>(`/tasks/${id}`);
+    const response = await api.get<TaskData>(`/user/tasks/${id}`);
     return response.data;
   },
 
@@ -82,7 +82,7 @@ export const tasksService = {
   },
 
   updateTask: async (id: string, data: Partial<CreateTaskPayload> & { actualHours?: number }) => {
-    const response = await api.put<TaskData>(`/tasks/${id}`, data);
+    const response = await api.put<TaskData>(`/user/tasks/${id}`, data);
     return response.data;
   },
 
@@ -101,7 +101,7 @@ export const tasksService = {
   },
 
   deleteAttachment: async (attachmentId: string) => {
-    const response = await api.delete(`/tasks/attachments/${attachmentId}`);
+    const response = await api.delete(`/user/tasks/attachments/${attachmentId}`);
     return response.data;
   },
 };

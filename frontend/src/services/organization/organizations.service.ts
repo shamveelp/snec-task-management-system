@@ -34,32 +34,32 @@ export interface OrganizationInvitation {
 
 export const organizationsService = {
   getMembers: async () => {
-    const response = await api.get<OrganizationMember[]>('/organizations/members');
+    const response = await api.get<OrganizationMember[]>('/organization/profile/members');
     return response.data;
   },
 
   getInvitations: async () => {
-    const response = await api.get<OrganizationInvitation[]>('/organizations/invitations');
+    const response = await api.get<OrganizationInvitation[]>('/organization/profile/invitations');
     return response.data;
   },
 
   searchDevelopers: async (query: string) => {
-    const response = await api.get<DeveloperSearch[]>(`/organizations/search-developers?q=${encodeURIComponent(query)}`);
+    const response = await api.get<DeveloperSearch[]>(`/organization/profile/search-developers?q=${encodeURIComponent(query)}`);
     return response.data;
   },
 
   getRoles: async () => {
-    const response = await api.get<{ id: string; name: string }[]>('/organizations/roles');
+    const response = await api.get<{ id: string; name: string }[]>('/organization/profile/roles');
     return response.data;
   },
 
   getJoinedOrganizations: async () => {
-    const response = await api.get<OrganizationData[]>('/organizations/joined');
+    const response = await api.get<OrganizationData[]>('/organization/profile/joined');
     return response.data;
   },
 
   getNotifications: async () => {
-    const response = await api.get<any[]>('/organizations/notifications');
+    const response = await api.get<any[]>('/organization/profile/notifications');
     return response.data;
   }
 };
