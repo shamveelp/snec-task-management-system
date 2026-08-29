@@ -2,6 +2,7 @@ import { Injectable, ConflictException, InternalServerErrorException, BadRequest
 import { PrismaService } from '../../../database/prisma.service';
 import { OrganizationsRepository } from './organizations.repository';
 import { RegisterOrganizationDto } from './dtos/register-organization.dto';
+import { UpdateOrganizationSettingsDto } from './dtos/update-organization-settings.dto';
 import * as bcrypt from 'bcrypt';
 import { EmailService } from '../../email/email.service';
 
@@ -270,5 +271,49 @@ export class OrganizationsService {
       metadata: n.metadata,
       createdAt: n.createdAt,
     }));
+  }
+
+  async getSettings(organizationId: string) {
+    const org = await this.prisma.organization.findUnique({
+      where: { id: organizationId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        mobile: true,
+        category: true,
+      }
+    });
+    if (!org) {
+      throw new BadRequestException('Organization not found');
+    }
+    return org;
+  }
+
+  async updateSettings(organizationId: string, dto: UpdateOrganizationSettingsDto) {
+    const org = await this.prisma.organization.findUnique({
+      where: { id: organizationId }
+    });
+    if (!org) {
+      throw new BadRequestException('Organization not found');
+    }
+
+    const updated = await this.prisma.organization.update({
+      where: { id: organizationId },
+      data: {
+        name: dto.name !== undefined ? dto.name : org.name,
+        category: dto.category !== undefined ? dto.category : org.category,
+        mobile: dto.mobile !== undefined ? dto.mobile : org.mobile,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        mobile: true,
+        category: true,
+      }
+    });
+
+    return updated;
   }
 }

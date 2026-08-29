@@ -66,5 +66,15 @@ export const organizationsService = {
   getDashboardData: async () => {
     const response = await api.get<any>('/organization/dashboard');
     return response.data;
+  },
+
+  getSettings: async () => {
+    const response = await api.get<any>('/organization/profile/settings');
+    return response.data;
+  },
+
+  updateSettings: async (data: { name?: string; category?: string; mobile?: string }) => {
+    const response = await api.post<any>('/organization/profile/settings', data);
+    return response.data;
   }
 };

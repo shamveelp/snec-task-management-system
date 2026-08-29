@@ -5,6 +5,7 @@ import { Roles } from '../../../common/decorators/roles.decorator';
 import { OrganizationsService } from './organizations.service';
 import { RegisterOrganizationDto } from './dtos/register-organization.dto';
 import { SendOtpDto } from './dtos/send-otp.dto';
+import { UpdateOrganizationSettingsDto } from './dtos/update-organization-settings.dto';
 
 @Controller('organization/profile')
 export class OrganizationsController {
@@ -75,5 +76,19 @@ export class OrganizationsController {
   @Get('notifications')
   async getNotifications(@Req() req) {
     return this.organizationsService.getOrganizationNotifications(req.user.organizationId);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Organization Admin')
+  @Get('settings')
+  async getSettings(@Req() req) {
+    return this.organizationsService.getSettings(req.user.organizationId);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Organization Admin')
+  @Post('settings') // Using Post or Put, wait I will use Post for consistency if needed, but let's use Put
+  async updateSettings(@Req() req, @Body() dto: UpdateOrganizationSettingsDto) {
+    return this.organizationsService.updateSettings(req.user.organizationId, dto);
   }
 }
