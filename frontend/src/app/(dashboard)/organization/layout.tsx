@@ -1,0 +1,31 @@
+import { Metadata } from "next"
+import { ProtectedRoute } from "../../../components/auth/protected-route"
+import { OrganizationSidebar } from "../../../components/organizations/organization-sidebar"
+import { OrganizationNavbar } from "../../../components/organizations/organization-navbar"
+
+export const metadata: Metadata = {
+  title: "Organization - FlowTask",
+  description: "Manage your organization, team, and projects.",
+}
+
+export default function OrganizationLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <ProtectedRoute allowedRoles={["Organization Admin"]}>
+      <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950 font-sans">
+        <OrganizationSidebar />
+        
+        <div className="flex flex-col flex-1 min-w-0 overflow-hidden relative">
+          <OrganizationNavbar />
+          
+          <main className="flex-1 overflow-y-auto outline-none">
+            {children}
+          </main>
+        </div>
+      </div>
+    </ProtectedRoute>
+  )
+}
