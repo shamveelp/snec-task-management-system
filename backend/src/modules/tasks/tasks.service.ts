@@ -69,6 +69,20 @@ export class TasksService {
     return this.prisma.task.findMany({
       where: { projectId },
       include: {
+        project: { select: { id: true, name: true, organizationId: true } },
+        assignee: { select: { id: true, name: true, profilePicture: true } },
+        reporter: { select: { id: true, name: true, profilePicture: true } },
+        _count: { select: { comments: true, attachments: true } }
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async getMyTasks(userId: string) {
+    return this.prisma.task.findMany({
+      where: { assigneeId: userId },
+      include: {
+        project: { select: { id: true, name: true, organizationId: true } },
         assignee: { select: { id: true, name: true, profilePicture: true } },
         reporter: { select: { id: true, name: true, profilePicture: true } },
         _count: { select: { comments: true, attachments: true } }

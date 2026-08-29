@@ -1,42 +1,92 @@
 "use client"
 
 import * as React from "react"
-import { Search, ChevronDown, ChevronRight, Star, Plus } from "lucide-react"
+import { Search, ChevronDown, ChevronRight, Star, Plus, Building2 } from "lucide-react"
 import { cn } from "../../lib/utils"
 import { useAuthStore } from "../../store/auth.store"
 import { useRouter, usePathname } from "next/navigation"
+import { organizationsApi, OrganizationData } from "../../lib/api/organizations.api"
 
 interface SecondarySidebarProps {
   isExpanded: boolean
   onExpand?: () => void
+  selectedOrgId?: string
+  onSelectOrg?: (org: any) => void
 }
 
-export function SecondarySidebar({ isExpanded, onExpand }: SecondarySidebarProps) {
+export function SecondarySidebar({ isExpanded, onExpand, selectedOrgId, onSelectOrg }: SecondarySidebarProps) {
   const searchInputRef = React.useRef<HTMLInputElement>(null)
   const [searchQuery, setSearchQuery] = React.useState("")
+  const [joinedOrgs, setJoinedOrgs] = React.useState<OrganizationData[]>([])
   const { user } = useAuthStore()
   const router = useRouter()
   const pathname = usePathname()
 
+  React.useEffect(() => {
+    organizationsApi.getJoinedOrganizations()
+      .then((data) => {
+        if (data && data.length > 0) {
+          setJoinedOrgs(data)
+          // Auto select first org if none selected and onSelectOrg provided
+          if (!selectedOrgId && onSelectOrg) {
+            onSelectOrg(data[0])
+          }
+        } else if (user?.organization) {
+          const fallbackOrg = {
+            id: user.organization.id,
+            name: user.organization.name,
+            category: user.organization.category || "General",
+            memberCount: 1,
+            createdAt: new Date().toISOString(),
+          }
+          setJoinedOrgs([fallbackOrg])
+          if (!selectedOrgId && onSelectOrg) {
+            onSelectOrg(fallbackOrg)
+          }
+        }
+      })
+      .catch(() => {
+        if (user?.organization) {
+          const fallbackOrg = {
+            id: user.organization.id,
+            name: user.organization.name,
+            category: user.organization.category || "General",
+            memberCount: 1,
+            createdAt: new Date().toISOString(),
+          }
+          setJoinedOrgs([fallbackOrg])
+          if (!selectedOrgId && onSelectOrg) {
+            onSelectOrg(fallbackOrg)
+          }
+        }
+      })
+  }, [user?.organization?.id])
+
   const handleSearchClick = () => {
     if (onExpand) {
       onExpand()
-      // Wait for the transition to finish before focusing
       setTimeout(() => {
         searchInputRef.current?.focus()
       }, 300)
     }
   }
 
-  const organization = user?.organization
+  const filteredOrgs = joinedOrgs.filter((org) =>
+    org.name.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
-  // Filter organization based on search query
-  const matchesSearch = organization?.name.toLowerCase().includes(searchQuery.toLowerCase()) || false
+  const handleOrgClick = (org: OrganizationData) => {
+    if (onSelectOrg) {
+      onSelectOrg(org)
+    } else {
+      router.push(`/dashboard/organizations`)
+    }
+  }
 
   return (
     <aside 
       className={cn(
-        "h-full bg-[#18191E] border-r border-white/[0.04] flex flex-col flex-shrink-0 transition-all duration-300 overflow-hidden",
+        "h-full bg-[#18191E] border-r border-white/[0.04] flex flex-col flex-shrink-0 transition-all duration-300 overflow-hidden select-none",
         isExpanded ? "w-[280px]" : "w-[80px]"
       )}
     >
@@ -44,7 +94,7 @@ export function SecondarySidebar({ isExpanded, onExpand }: SecondarySidebarProps
         
         {/* Header */}
         {isExpanded ? (
-          <h2 className="text-lg font-semibold mb-6 whitespace-nowrap">Organizations</h2>
+          <h2 className="text-lg font-semibold mb-6 text-white whitespace-nowrap">Organizations</h2>
         ) : (
           <div className="mb-6 h-7 w-7 rounded bg-white/5 flex items-center justify-center border border-white/10" title="Organizations">
             <span className="text-white/40 text-xs font-bold">O</span>
@@ -76,10 +126,10 @@ export function SecondarySidebar({ isExpanded, onExpand }: SecondarySidebarProps
         
         <div className={cn("overflow-y-auto stylish-scrollbar-dark h-[calc(100vh-180px)]", isExpanded ? "space-y-6 pr-2" : "space-y-8 flex flex-col items-center")}>
           
-          {/* Favourites / Joined */}
+          {/* Joined Organizations List */}
           <div className={cn(isExpanded ? "w-full" : "flex flex-col items-center gap-3")}>
             {isExpanded ? (
-              <div className="flex items-center text-white/60 text-xs font-medium mb-3 cursor-pointer hover:text-white">
+              <div className="flex items-center text-white/60 text-xs font-medium mb-3">
                 <ChevronDown className="h-3.5 w-3.5 mr-2" />
                 Joined Organizations
               </div>
@@ -87,21 +137,48 @@ export function SecondarySidebar({ isExpanded, onExpand }: SecondarySidebarProps
               <div className="h-px w-8 bg-white/10 mb-2"></div>
             )}
             
-            <div className={cn(isExpanded ? "space-y-1" : "flex flex-col items-center gap-4")}>
-              {organization && matchesSearch ? (
-                <div 
-                  onClick={() => router.push('/organization/dashboard')}
-                  className={cn("cursor-pointer group flex items-center justify-between", isExpanded ? "px-3 py-2 rounded-lg hover:bg-white/5" : "justify-center")} 
-                  title={organization.name}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={cn("rounded-full bg-[#3B82F6]", isExpanded ? "h-2 w-2" : "h-3 w-3 shadow-[0_0_8px_#3B82F6]")}></div>
-                    {isExpanded && <span className="text-sm text-white/80 group-hover:text-white transition-colors">{organization.name}</span>}
+            <div className={cn(isExpanded ? "space-y-1.5" : "flex flex-col items-center gap-3")}>
+              {filteredOrgs.map((org) => {
+                const isSelected = selectedOrgId === org.id
+                return (
+                  <div 
+                    key={org.id}
+                    onClick={() => handleOrgClick(org)}
+                    className={cn(
+                      "cursor-pointer group flex items-center justify-between transition-all duration-200",
+                      isExpanded 
+                        ? cn("px-3 py-2.5 rounded-xl", isSelected ? "bg-white/10 border border-white/10" : "hover:bg-white/5")
+                        : cn("h-10 w-10 rounded-xl flex items-center justify-center", isSelected ? "bg-white/15 border border-white/20 shadow-md" : "hover:bg-white/5")
+                    )} 
+                    title={org.name}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={cn(
+                        "rounded-full transition-all flex-shrink-0",
+                        isSelected ? "bg-[#3B82F6] shadow-[0_0_10px_#3B82F6]" : "bg-white/20 group-hover:bg-[#3B82F6]/60",
+                        isExpanded ? "h-2.5 w-2.5" : "h-3.5 w-3.5"
+                      )}></div>
+                      {isExpanded && (
+                        <span className={cn(
+                          "text-sm truncate transition-colors font-medium",
+                          isSelected ? "text-white font-semibold" : "text-white/70 group-hover:text-white"
+                        )}>
+                          {org.name}
+                        </span>
+                      )}
+                    </div>
+                    {isExpanded && (
+                      <Star className={cn(
+                        "h-3.5 w-3.5 transition-colors flex-shrink-0",
+                        isSelected ? "text-[#EAB308] fill-[#EAB308]" : "text-white/20 group-hover:text-[#EAB308]"
+                      )} />
+                    )}
                   </div>
-                  {isExpanded && <Star className="h-3.5 w-3.5 text-[#EAB308] fill-[#EAB308]" />}
-                </div>
-              ) : organization && !matchesSearch ? null : (
-                isExpanded && <div className="text-xs text-white/40 px-3">No organizations joined.</div>
+                )
+              })}
+
+              {filteredOrgs.length === 0 && (
+                isExpanded && <div className="text-xs text-white/40 px-3 py-2">No organizations found.</div>
               )}
             </div>
           </div>

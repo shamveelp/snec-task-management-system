@@ -33,6 +33,7 @@ export interface TaskData {
   estimatedHours: number | null;
   actualHours: number | null;
   createdAt: string;
+  project?: { id: string; name: string; organizationId?: string };
   assignee?: { id: string; name: string; profilePicture: string | null };
   reporter?: { id: string; name: string; profilePicture: string | null };
   comments?: TaskCommentData[];
@@ -55,6 +56,11 @@ export interface CreateTaskPayload {
 export type ProjectUserRole = 'ORG_ADMIN' | 'PROJECT_MANAGER' | 'TEAM_LEAD' | 'DEVELOPER' | 'NONE';
 
 export const tasksApi = {
+  getMyTasks: async () => {
+    const response = await api.get<TaskData[]>('/tasks/me');
+    return response.data;
+  },
+
   getTasksByProject: async (projectId: string) => {
     const response = await api.get<TaskData[]>(`/tasks/project/${projectId}`);
     return response.data;

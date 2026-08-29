@@ -2,19 +2,37 @@
 
 import * as React from "react"
 import { SecondarySidebar } from "../../../../components/user-dashboard/secondary-sidebar"
-import { KanbanBoard } from "../../../../components/user-dashboard/kanban-board"
+import { OrganizationContentView } from "../../../../components/user-dashboard/organization-content-view"
 import { DashboardSidebarContext } from "../layout"
+import { OrganizationData } from "../../../../lib/api/organizations.api"
+import { useAuthStore } from "../../../../store/auth.store"
 
 export default function OrganizationsPage() {
   const { isPrimaryExpanded, toggleSidebar } = React.useContext(DashboardSidebarContext)
+  const { user } = useAuthStore()
+  const [selectedOrg, setSelectedOrg] = React.useState<OrganizationData | null>(null)
+
+  React.useEffect(() => {
+    if (!selectedOrg && user?.organization) {
+      setSelectedOrg({
+        id: user.organization.id,
+        name: user.organization.name,
+        category: user.organization.category || "General",
+        memberCount: 1,
+        createdAt: new Date().toISOString(),
+      })
+    }
+  }, [user?.organization?.id])
 
   return (
     <div className="flex flex-1 overflow-hidden w-full h-full">
       <SecondarySidebar 
         isExpanded={!isPrimaryExpanded}
         onExpand={() => toggleSidebar?.()}
+        selectedOrgId={selectedOrg?.id}
+        onSelectOrg={(org) => setSelectedOrg(org)}
       />
-      <KanbanBoard />
+      <OrganizationContentView organization={selectedOrg} />
     </div>
   )
 }

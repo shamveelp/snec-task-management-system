@@ -19,6 +19,11 @@ export class TasksController {
     return this.tasksService.createTask(req.user.id, userRole, data);
   }
 
+  @Get('me')
+  async getMyTasks(@Req() req) {
+    return this.tasksService.getMyTasks(req.user.id);
+  }
+
   @Get('project/:projectId')
   async getTasksByProject(@Param('projectId') projectId: string) {
     return this.tasksService.getTasksByProject(projectId);
