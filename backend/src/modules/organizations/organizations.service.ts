@@ -180,4 +180,47 @@ export class OrganizationsService {
       }
     });
   }
+  async searchDevelopers(query: string, currentOrganizationId: string) {
+    if (!query || query.length < 2) return [];
+    
+    // We want to find users who have the role "Developer", "Project Manager", or "Team Lead"
+    // and who are NOT already in this organization
+    const users = await this.prisma.user.findMany({
+      where: {
+        AND: [
+          {
+            OR: [
+              { email: { contains: query, mode: 'insensitive' } },
+              { username: { contains: query, mode: 'insensitive' } },
+              { name: { contains: query, mode: 'insensitive' } },
+            ]
+          },
+          {
+            OR: [
+              { organizationId: null },
+              { organizationId: { not: currentOrganizationId } }
+            ]
+          }
+        ]
+      },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        email: true,
+        role: {
+          select: { name: true }
+        }
+      },
+      take: 5
+    });
+
+    return users.map(u => ({
+      id: u.id,
+      name: u.name,
+      username: u.username,
+      email: u.email,
+      role: u.role?.name
+    }));
+  }
 }

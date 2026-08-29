@@ -56,4 +56,11 @@ export class OrganizationsController {
   async getRoles() {
     return this.organizationsService.getRoles();
   }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Organization Admin')
+  @Get('search-developers')
+  async searchDevelopers(@Query('q') query: string, @Req() req) {
+    return this.organizationsService.searchDevelopers(query, req.user.organizationId);
+  }
 }
