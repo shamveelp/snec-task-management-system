@@ -4,7 +4,7 @@ import * as React from "react";
 import { useAuthStore } from "../../../../store/auth.store";
 import { Button } from "../../../../components/ui/button";
 import { invitationsApi, PendingInvitation } from "../../../../lib/api/invitations.api";
-import { Loader2, Mail, Building, Clock, CheckCircle2 } from "lucide-react";
+import { Loader2, Mail, Building, Clock, Check, X, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function UserInvitationsPage() {
@@ -34,10 +34,8 @@ export default function UserInvitationsPage() {
     setProcessingId(id);
     try {
       await invitationsApi.acceptInvitation(token);
-      // Remove accepted invitation from list
       setInvitations(prev => prev.filter(inv => inv.id !== id));
-      // Option: redirect to organizations dashboard
-      router.push('/dashboard/organizations');
+      router.push('/dashboard');
     } catch (error) {
       console.error("Failed to accept invitation", error);
       alert("Failed to accept invitation. It may have expired.");
@@ -52,76 +50,106 @@ export default function UserInvitationsPage() {
   };
 
   return (
-    <div className="flex flex-col h-full px-10 pb-10 gap-10 bg-white">
-      <div className="flex-1 space-y-10 overflow-y-auto pr-2 stylish-scrollbar">
-        
-        {/* Header */}
-        <div className="flex justify-between items-center mt-2">
-          <h1 className="text-[22px] font-bold text-gray-900">Your Invitations</h1>
+    <div className="flex-1 overflow-y-auto stylish-scrollbar-dark px-8 pb-8 pt-[104px] h-full bg-[#131417]">
+      
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight text-white/90">Invitations</h1>
+          <p className="text-white/40 mt-1">Manage your pending invitations to join organizations.</p>
         </div>
+        <div className="bg-[#18191E] border border-white/[0.04] px-4 py-2 rounded-xl text-sm font-medium text-white/70 flex items-center gap-2">
+          <Mail className="h-4 w-4 text-white/40" />
+          {invitations.length} Pending
+        </div>
+      </div>
 
-        {/* Content */}
-        {loading ? (
-          <div className="flex justify-center items-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-[#7C68EE]" />
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {invitations.length === 0 ? (
-              <div className="bg-[#F4F6F9] rounded-[24px] p-12 flex flex-col items-center justify-center text-center">
-                <Mail className="h-16 w-16 text-gray-300 mb-4" />
-                <h3 className="text-xl font-bold text-gray-900 mb-2">No pending invitations</h3>
-                <p className="text-gray-500">You don't have any pending invitations to join organizations.</p>
+      {/* Content */}
+      {loading ? (
+        <div className="flex justify-center items-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-[#3B82F6]" />
+        </div>
+      ) : (
+        <div className="max-w-4xl">
+          {invitations.length === 0 ? (
+            <div className="bg-[#1C1E24] border border-white/[0.04] rounded-2xl p-16 flex flex-col items-center justify-center text-center">
+              <div className="h-24 w-24 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-6">
+                <Mail className="h-10 w-10 text-white/20" />
               </div>
-            ) : (
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                {invitations.map(invite => (
-                  <div key={invite.id} className="bg-white rounded-[24px] border border-[#F0F2F5] p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
-                    <div>
-                      <div className="flex justify-between items-start mb-4">
+              <h3 className="text-xl font-bold text-white/90 mb-2">No pending invitations</h3>
+              <p className="text-white/40 max-w-md">You don't have any pending invitations right now. When an organization invites you, it will appear here.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {invitations.map((invite, index) => {
+                const colors = [
+                  "from-[#3B82F6] to-[#2563EB]",
+                  "from-[#22C55E] to-[#16A34A]",
+                  "from-[#F97316] to-[#EA580C]",
+                  "from-[#8B5CF6] to-[#7C3AED]"
+                ];
+                const colorClass = colors[index % colors.length];
+
+                return (
+                  <div key={invite.id} className="group bg-[#1C1E24] border border-white/[0.04] hover:border-white/10 rounded-2xl p-6 transition-colors relative overflow-hidden flex flex-col">
+                    <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${colorClass} opacity-5 rounded-full blur-2xl -mr-10 -mt-10 transition-opacity group-hover:opacity-10`}></div>
+                    
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start mb-6">
                         <div className="flex items-center gap-4">
-                          <div className="h-12 w-12 rounded-xl bg-gradient-to-tr from-[#7C68EE] to-[#4c3ab8] flex items-center justify-center text-white shadow-sm">
-                            <Building className="h-6 w-6" />
+                          <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${colorClass} p-[1px]`}>
+                            <div className="h-full w-full bg-[#1C1E24] rounded-xl flex items-center justify-center">
+                              <span className="text-xl font-bold text-white">{invite.organizationName.charAt(0)}</span>
+                            </div>
                           </div>
                           <div>
-                            <h3 className="text-lg font-bold text-gray-900">{invite.organizationName}</h3>
-                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">{invite.organizationCategory}</p>
+                            <h3 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors">{invite.organizationName}</h3>
+                            <p className="text-[11px] font-medium text-white/40 uppercase tracking-wider">{invite.organizationCategory || 'Organization'}</p>
                           </div>
                         </div>
                       </div>
                       
-                      <div className="bg-[#F4F6F9] rounded-xl p-4 mb-6">
-                        <p className="text-sm text-gray-600">
-                          You have been invited to join as a <strong className="text-gray-900">{invite.roleName}</strong>.
+                      <div className="bg-white/5 border border-white/5 rounded-xl p-4 mb-6 relative">
+                        <p className="text-sm text-white/70">
+                          You have been invited to join as a <strong className="text-white/90 font-bold">{invite.roleName}</strong>.
                         </p>
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between mt-auto">
-                      <div className="flex items-center gap-1.5 text-xs font-medium text-orange-500 bg-orange-50 px-3 py-1.5 rounded-full">
+                    <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/[0.04]">
+                      <div className="flex items-center gap-1.5 text-xs font-medium text-white/40">
                         <Clock className="h-3.5 w-3.5" />
                         {getDaysLeft(invite.expiresAt)}
                       </div>
-                      <Button 
-                        onClick={() => handleAccept(invite.token, invite.id)}
-                        disabled={processingId === invite.id}
-                        className="bg-[#34D399] hover:bg-[#2fb885] text-white rounded-[12px] px-6 shadow-sm font-medium"
-                      >
-                        {processingId === invite.id ? (
-                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        ) : (
-                          <CheckCircle2 className="h-4 w-4 mr-2" />
-                        )}
-                        Accept Invite
-                      </Button>
+                      
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          variant="ghost"
+                          className="bg-white/5 hover:bg-white/10 text-white/70 hover:text-white rounded-lg px-4 h-9 shadow-sm font-medium text-sm border border-transparent"
+                        >
+                          Decline
+                        </Button>
+                        <Button 
+                          onClick={() => handleAccept(invite.token, invite.id)}
+                          disabled={processingId === invite.id}
+                          className="bg-[#3B82F6] hover:bg-[#2563EB] text-white rounded-lg px-6 h-9 shadow-sm font-medium text-sm transition-colors"
+                        >
+                          {processingId === invite.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          ) : (
+                            <Check className="h-4 w-4 mr-2" />
+                          )}
+                          Accept Invite
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

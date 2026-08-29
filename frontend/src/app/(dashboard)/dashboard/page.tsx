@@ -7,7 +7,11 @@ import {
   Bell, ArrowRight, Clock, MoreHorizontal, Edit3 
 } from "lucide-react"
 
+import { useAuthStore } from "../../../store/auth.store"
+
 export default function DashboardOverviewPage() {
+  const { user } = useAuthStore();
+  
   return (
     <div className="flex-1 overflow-y-auto stylish-scrollbar-dark px-8 pb-8 pt-[104px] h-full bg-[#131417]">
       
@@ -120,33 +124,33 @@ export default function DashboardOverviewPage() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                { name: "CodeSphere", members: 24, projects: 8, color: "from-[#3B82F6] to-[#2563EB]" },
-                { name: "TechVanta", members: 12, projects: 3, color: "from-[#22C55E] to-[#16A34A]" },
-                { name: "DataPulse", members: 45, projects: 12, color: "from-[#F97316] to-[#EA580C]" },
-                { name: "CyberNexa", members: 8, projects: 2, color: "from-[#8B5CF6] to-[#7C3AED]" },
-              ].map((org, i) => (
-                <div key={i} className="group p-5 rounded-xl bg-white/5 border border-white/[0.04] hover:border-white/10 transition-colors cursor-pointer relative overflow-hidden">
-                  <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${org.color} opacity-5 rounded-full blur-2xl -mr-10 -mt-10 transition-opacity group-hover:opacity-10`}></div>
+              {user?.organization ? (
+                <div className="group p-5 rounded-xl bg-white/5 border border-white/[0.04] hover:border-white/10 transition-colors cursor-pointer relative overflow-hidden">
+                  <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#3B82F6] to-[#2563EB] opacity-5 rounded-full blur-2xl -mr-10 -mt-10 transition-opacity group-hover:opacity-10`}></div>
                   <div className="flex items-center gap-4 mb-4">
-                    <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${org.color} p-[1px]`}>
+                    <div className={`h-12 w-12 rounded-xl bg-gradient-to-br from-[#3B82F6] to-[#2563EB] p-[1px]`}>
                       <div className="h-full w-full bg-[#1C1E24] rounded-xl flex items-center justify-center">
-                        <span className="text-lg font-bold text-white">{org.name.charAt(0)}</span>
+                        <span className="text-lg font-bold text-white">{user.organization.name.charAt(0)}</span>
                       </div>
                     </div>
                     <div>
-                      <h3 className="text-sm font-semibold text-white group-hover:text-[#3B82F6] transition-colors">{org.name}</h3>
+                      <h3 className="text-sm font-semibold text-white group-hover:text-[#3B82F6] transition-colors">{user.organization.name}</h3>
                       <div className="text-[10px] text-white/40 mt-1 flex items-center gap-3">
-                        <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {org.members}</span>
-                        <span className="flex items-center gap-1"><FolderKanban className="h-3 w-3" /> {org.projects}</span>
+                        <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {user.organization.category || "Organization"}</span>
                       </div>
                     </div>
                   </div>
-                  <button className="w-full py-2 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-white/70 transition-colors">
-                    Go to Dashboard
-                  </button>
+                  <a href="/organization/dashboard">
+                    <button className="w-full py-2 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-medium text-white/70 transition-colors">
+                      Go to Dashboard
+                    </button>
+                  </a>
                 </div>
-              ))}
+              ) : (
+                <div className="col-span-full py-6 text-center text-white/40 text-sm">
+                  You haven't joined any organizations yet. Check your pending invitations!
+                </div>
+              )}
             </div>
           </div>
 

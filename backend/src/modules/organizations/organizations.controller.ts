@@ -38,6 +38,12 @@ export class OrganizationsController {
     return { isAvailable };
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('all')
+  async getAllOrganizations() {
+    return this.organizationsService.getAllOrganizations();
+  }
+
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('Organization Admin')
   @Get('members')

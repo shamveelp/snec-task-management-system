@@ -28,6 +28,7 @@ export class PrismaAuthRepository implements IAuthRepository {
     return this.prisma.user.findUnique({
       where: { email },
       include: {
+        organization: true,
         role: {
           include: {
             permissions: {
@@ -67,6 +68,7 @@ export class PrismaAuthRepository implements IAuthRepository {
     return this.prisma.user.findUnique({
       where: { id },
       include: {
+        organization: true,
         role: {
           include: {
             permissions: {

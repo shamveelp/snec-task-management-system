@@ -8,6 +8,14 @@ export interface OrganizationMember {
   status: string;
 }
 
+export interface OrganizationData {
+  id: string;
+  name: string;
+  category: string;
+  memberCount: number;
+  createdAt: string;
+}
+
 export interface DeveloperSearch {
   id: string;
   name: string;
@@ -44,4 +52,9 @@ export const organizationsApi = {
     const response = await api.get<{ id: string; name: string }[]>('/organizations/roles');
     return response.data;
   },
+
+  getAllOrganizations: async () => {
+    const response = await api.get<OrganizationData[]>('/organizations/all');
+    return response.data;
+  }
 };

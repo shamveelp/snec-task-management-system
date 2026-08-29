@@ -3,6 +3,8 @@
 import * as React from "react"
 import { Search, ChevronDown, ChevronRight, Star, Plus } from "lucide-react"
 import { cn } from "../../lib/utils"
+import { useAuthStore } from "../../store/auth.store"
+import { useRouter, usePathname } from "next/navigation"
 
 interface SecondarySidebarProps {
   isExpanded: boolean
@@ -11,6 +13,10 @@ interface SecondarySidebarProps {
 
 export function SecondarySidebar({ isExpanded, onExpand }: SecondarySidebarProps) {
   const searchInputRef = React.useRef<HTMLInputElement>(null)
+  const [searchQuery, setSearchQuery] = React.useState("")
+  const { user } = useAuthStore()
+  const router = useRouter()
+  const pathname = usePathname()
 
   const handleSearchClick = () => {
     if (onExpand) {
@@ -21,6 +27,12 @@ export function SecondarySidebar({ isExpanded, onExpand }: SecondarySidebarProps
       }, 300)
     }
   }
+
+  const organization = user?.organization
+
+  // Filter organization based on search query
+  const matchesSearch = organization?.name.toLowerCase().includes(searchQuery.toLowerCase()) || false
+
   return (
     <aside 
       className={cn(
@@ -47,6 +59,8 @@ export function SecondarySidebar({ isExpanded, onExpand }: SecondarySidebarProps
               ref={searchInputRef}
               type="text" 
               placeholder="Search organizations..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="bg-transparent border-none outline-none text-sm w-full text-white placeholder-white/40"
             />
           </div>
@@ -62,97 +76,80 @@ export function SecondarySidebar({ isExpanded, onExpand }: SecondarySidebarProps
         
         <div className={cn("overflow-y-auto stylish-scrollbar-dark h-[calc(100vh-180px)]", isExpanded ? "space-y-6 pr-2" : "space-y-8 flex flex-col items-center")}>
           
-          {/* Favourites */}
+          {/* Favourites / Joined */}
           <div className={cn(isExpanded ? "w-full" : "flex flex-col items-center gap-3")}>
             {isExpanded ? (
               <div className="flex items-center text-white/60 text-xs font-medium mb-3 cursor-pointer hover:text-white">
                 <ChevronDown className="h-3.5 w-3.5 mr-2" />
-                Favourites
+                Joined Organizations
               </div>
             ) : (
               <div className="h-px w-8 bg-white/10 mb-2"></div>
             )}
             
             <div className={cn(isExpanded ? "space-y-1" : "flex flex-col items-center gap-4")}>
-              {/* TechVanta */}
-              <div className={cn("cursor-pointer group flex items-center justify-between", isExpanded ? "px-3 py-2 rounded-lg hover:bg-white/5" : "justify-center")} title="TechVanta">
-                <div className="flex items-center gap-3">
-                  <div className={cn("rounded-full bg-[#22C55E]", isExpanded ? "h-2 w-2" : "h-3 w-3 shadow-[0_0_8px_#22C55E]")}></div>
-                  {isExpanded && <span className="text-sm text-white/80 group-hover:text-white transition-colors">TechVanta</span>}
+              {organization && matchesSearch ? (
+                <div 
+                  onClick={() => router.push('/organization/dashboard')}
+                  className={cn("cursor-pointer group flex items-center justify-between", isExpanded ? "px-3 py-2 rounded-lg hover:bg-white/5" : "justify-center")} 
+                  title={organization.name}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={cn("rounded-full bg-[#3B82F6]", isExpanded ? "h-2 w-2" : "h-3 w-3 shadow-[0_0_8px_#3B82F6]")}></div>
+                    {isExpanded && <span className="text-sm text-white/80 group-hover:text-white transition-colors">{organization.name}</span>}
+                  </div>
+                  {isExpanded && <Star className="h-3.5 w-3.5 text-[#EAB308] fill-[#EAB308]" />}
                 </div>
-                {isExpanded && <Star className="h-3.5 w-3.5 text-[#EAB308] fill-[#EAB308]" />}
-              </div>
-              
-              {/* DataPulse */}
-              <div className={cn("cursor-pointer group flex items-center justify-between", isExpanded ? "px-3 py-2 rounded-lg hover:bg-white/5" : "justify-center")} title="DataPulse">
-                <div className="flex items-center gap-3">
-                  <div className={cn("rounded-full bg-[#F97316]", isExpanded ? "h-2 w-2" : "h-3 w-3 shadow-[0_0_8px_#F97316]")}></div>
-                  {isExpanded && <span className="text-sm text-white/80 group-hover:text-white transition-colors">DataPulse</span>}
-                </div>
-                {isExpanded && <Star className="h-3.5 w-3.5 text-[#EAB308] fill-[#EAB308]" />}
-              </div>
+              ) : organization && !matchesSearch ? null : (
+                isExpanded && <div className="text-xs text-white/40 px-3">No organizations joined.</div>
+              )}
             </div>
           </div>
 
           {/* All Organizations */}
           <div className={cn(isExpanded ? "w-full" : "flex flex-col items-center gap-3")}>
             {isExpanded ? (
-              <div className="flex items-center text-white/60 text-xs font-medium mb-3 cursor-pointer hover:text-white">
-                <ChevronDown className="h-3.5 w-3.5 mr-2" />
+              <div 
+                onClick={() => router.push('/dashboard/organizations/all')}
+                className={cn("flex items-center text-xs font-medium mb-1 cursor-pointer py-2 px-2 rounded-lg transition-colors",
+                  pathname === '/dashboard/organizations/all' ? "text-white bg-white/10" : "text-white/60 hover:text-white hover:bg-white/5"
+                )}
+              >
+                <ChevronRight className="h-3.5 w-3.5 mr-2" />
                 All Organizations
               </div>
             ) : (
-              <div className="h-px w-8 bg-white/10 my-2"></div>
+              <>
+                <div className="h-px w-8 bg-white/10 my-2"></div>
+                <div 
+                  onClick={() => router.push('/dashboard/organizations/all')}
+                  className={cn("cursor-pointer group flex items-center justify-center h-8 w-8 rounded-full",
+                    pathname === '/dashboard/organizations/all' ? "bg-white/10 border border-white/20" : "hover:bg-white/5"
+                  )} 
+                  title="All Organizations"
+                >
+                  <span className="text-white/60 font-bold text-xs group-hover:text-white">All</span>
+                </div>
+              </>
             )}
-            
-            <div className={cn(isExpanded ? "space-y-1" : "flex flex-col items-center gap-4")}>
-              {/* TechVanta again? Keeping as is for consistency with previous */}
-              <div className={cn("cursor-pointer group flex items-center justify-between", isExpanded ? "px-3 py-2 rounded-lg hover:bg-white/5" : "justify-center")} title="TechVanta">
-                <div className="flex items-center gap-3">
-                  <div className={cn("rounded-full bg-[#22C55E]", isExpanded ? "h-2 w-2" : "h-3 w-3")}></div>
-                  {isExpanded && <span className="text-sm text-white/80 group-hover:text-white transition-colors">TechVanta</span>}
-                </div>
-                {isExpanded && <Star className="h-3.5 w-3.5 text-[#EAB308] fill-[#EAB308]" />}
-              </div>
-              
-              {/* CodeSphere */}
-              <div className={cn("cursor-pointer flex items-center justify-between", isExpanded ? "px-3 py-2 rounded-lg bg-white/10 border border-white/10" : "justify-center")} title="CodeSphere">
-                <div className="flex items-center gap-3">
-                  <div className={cn("rounded-full border-[#EAB308] bg-transparent", isExpanded ? "h-2 w-2 border-2" : "h-3 w-3 border-[3px] shadow-[0_0_8px_#EAB308]")}></div>
-                  {isExpanded && <span className="text-sm text-white font-medium">CodeSphere</span>}
-                </div>
-                {isExpanded && <Star className="h-3.5 w-3.5 text-white/40" />}
-              </div>
-
-              {/* CyberNexa */}
-              <div className={cn("cursor-pointer group flex items-center justify-between", isExpanded ? "px-3 py-2 rounded-lg hover:bg-white/5" : "justify-center")} title="CyberNexa">
-                <div className="flex items-center gap-3">
-                  <div className={cn("rounded-full bg-[#EF4444]", isExpanded ? "h-2 w-2" : "h-3 w-3")}></div>
-                  {isExpanded && <span className="text-sm text-white/80 group-hover:text-white transition-colors">CyberNexa</span>}
-                </div>
-                {isExpanded && <Star className="h-3.5 w-3.5 text-white/40" />}
-              </div>
-              
-              {/* ByteFlow */}
-              <div className={cn("cursor-pointer group flex items-center justify-between", isExpanded ? "px-3 py-2 rounded-lg hover:bg-white/5" : "justify-center")} title="ByteFlow">
-                <div className="flex items-center gap-3">
-                  <div className={cn("rounded-full bg-[#A855F7]", isExpanded ? "h-2 w-2" : "h-3 w-3")}></div>
-                  {isExpanded && <span className="text-sm text-white/80 group-hover:text-white transition-colors">ByteFlow</span>}
-                </div>
-                {isExpanded && <Star className="h-3.5 w-3.5 text-white/40" />}
-              </div>
-            </div>
           </div>
 
           {/* Pending Invitations */}
           <div className={cn(isExpanded ? "w-full" : "flex flex-col items-center")}>
             {isExpanded ? (
-              <div className="flex items-center text-white/60 text-xs font-medium mb-3 cursor-pointer hover:text-white mt-4">
+              <div 
+                onClick={() => router.push('/dashboard/invitations')}
+                className="flex items-center text-white/60 text-xs font-medium mb-3 cursor-pointer hover:text-white mt-4 py-2 px-2 rounded-lg hover:bg-white/5"
+              >
                 <ChevronRight className="h-3.5 w-3.5 mr-2" />
                 Pending Invitations
               </div>
             ) : (
-              <div className="mt-4 h-8 w-8 rounded-full border border-dashed border-white/20 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/5 cursor-pointer transition-colors" title="Pending Invitations">
+              <div 
+                onClick={() => router.push('/dashboard/invitations')}
+                className="mt-4 h-8 w-8 rounded-full border border-dashed border-white/20 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/5 cursor-pointer transition-colors" 
+                title="Pending Invitations"
+              >
                 <Plus className="h-4 w-4" />
               </div>
             )}

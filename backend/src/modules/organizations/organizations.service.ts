@@ -130,6 +130,25 @@ export class OrganizationsService {
     }
   }
 
+  async getAllOrganizations() {
+    const orgs = await this.prisma.organization.findMany({
+      include: {
+        _count: {
+          select: { users: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    return orgs.map(org => ({
+      id: org.id,
+      name: org.name,
+      category: org.category,
+      memberCount: org._count.users,
+      createdAt: org.createdAt
+    }));
+  }
+
   async getMembers(organizationId: string) {
     const users = await this.prisma.user.findMany({
       where: { organizationId },
