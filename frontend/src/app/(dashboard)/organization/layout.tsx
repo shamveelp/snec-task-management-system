@@ -18,7 +18,7 @@ export default function OrganizationLayout({
       <div className="flex h-screen w-screen overflow-hidden bg-[#E9ECF5] font-sans">
         <OrganizationSidebar />
         
-        <div className="flex flex-col flex-1 min-w-0 bg-white rounded-[40px] my-4 mr-4 shadow-sm overflow-hidden relative">
+        <div className="flex flex-col flex-1 min-w-0 bg-white overflow-hidden relative">
           <OrganizationNavbar />
           
           <main className="flex-1 overflow-y-auto outline-none scrollbar-hide">
