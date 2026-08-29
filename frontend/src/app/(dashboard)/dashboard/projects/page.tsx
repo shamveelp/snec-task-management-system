@@ -59,7 +59,7 @@ export default function MyProjectsPage() {
   }
 
   return (
-    <div className="flex-1 flex flex-col p-10 overflow-hidden bg-[#131417]">
+    <div className="flex-1 flex flex-col px-10 pb-10 pt-28 overflow-hidden bg-[#131417]">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white tracking-tight">My Projects</h1>

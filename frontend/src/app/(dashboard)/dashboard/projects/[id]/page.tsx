@@ -46,7 +46,7 @@ export default function UserProjectDetailsPage() {
   return (
     <div className="flex flex-col flex-1 bg-[#131417] overflow-hidden">
       {/* Header */}
-      <div className="px-10 py-6 border-b border-white/[0.04] flex-shrink-0 bg-[#0D0E12]">
+      <div className="px-10 py-6 pt-20 border-b border-white/[0.04] flex-shrink-0 bg-[#0D0E12]">
         <button 
           onClick={() => router.push('/dashboard/projects')}
           className="flex items-center text-sm font-medium text-[#8F96AE] hover:text-white mb-4 transition-colors"

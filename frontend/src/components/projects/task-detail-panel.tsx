@@ -196,7 +196,7 @@ export function TaskDetailPanel({ taskId, projectRole, project, onClose, onTaskU
                     <span className="text-sm font-semibold text-gray-500 w-28 flex-shrink-0">Status</span>
                     {updatingField === 'status' ? (
                       <Loader2 className="h-4 w-4 animate-spin text-[#7C68EE]" />
-                    ) : (
+                    ) : (canEditTask || task.assigneeId === user?.id) ? (
                       <AppSelect
                         value={task.status}
                         onChange={(e) => updateField('status', e.target.value)}
@@ -207,6 +207,10 @@ export function TaskDetailPanel({ taskId, projectRole, project, onClose, onTaskU
                         <option value="IN_REVIEW">In Review</option>
                         <option value="DONE">Done</option>
                       </AppSelect>
+                    ) : (
+                      <span className={`px-2.5 py-1 rounded-md text-xs font-semibold ${STATUS_MAP[task.status]?.color}`}>
+                        {STATUS_MAP[task.status]?.label}
+                      </span>
                     )}
                   </div>
 
