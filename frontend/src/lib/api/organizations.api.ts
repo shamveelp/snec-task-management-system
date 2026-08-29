@@ -16,9 +16,22 @@ export interface DeveloperSearch {
   role: string | null;
 }
 
+export interface OrganizationInvitation {
+  id: string;
+  email: string;
+  role: string;
+  status: string;
+  createdAt: string;
+}
+
 export const organizationsApi = {
   getMembers: async () => {
     const response = await api.get<OrganizationMember[]>('/organizations/members');
+    return response.data;
+  },
+
+  getInvitations: async () => {
+    const response = await api.get<OrganizationInvitation[]>('/organizations/invitations');
     return response.data;
   },
 
