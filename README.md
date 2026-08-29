@@ -1,137 +1,178 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FlowTask — SNEC Task Management System
 
-## Getting Started
+A multi-tenant Enterprise Project & Task Management platform built with **NestJS 10**, **Next.js 16 (Turbopack, React 19)**, **Prisma ORM**, **PostgreSQL**, and **TailwindCSS**.
 
-First, run the development server:
+---
 
+## 🌟 Key Features
+
+- **Multi-Tenant Architecture**: Organization-scoped projects, teams, invitations, and workspace controls.
+- **Dual-Tier Role-Based Access Control (RBAC)**:
+  - **Organization Level**: `Organization Admin`, `Member`.
+  - **Project Level**: `Project Manager`, `Team Lead`, `Developer`.
+- **Interactive Kanban Board**: Drag-and-drop task progression (`TODO` → `IN_PROGRESS` → `IN_REVIEW` → `DONE`).
+- **Rich Task Details Panel**:
+  - Live priority & status manipulation.
+  - Multi-user comment stream.
+  - Cloudinary-backed file attachment upload & preview.
+- **Organization & Team Management**:
+  - Email OTP authentication for organization onboarding.
+  - Member invitation flow.
+- **Modern Responsive UI**: Dark/Light aesthetic, glassmorphism, Google Geist typography, accessible modal date pickers with calendar integration.
+
+---
+
+## 🛠️ Technology Stack
+
+| Layer | Technologies |
+|---|---|
+| **Frontend** | Next.js 16.3.2, React 19, TypeScript, TailwindCSS 4, Zustand, Axios, Lucide Icons, Framer Motion |
+| **Backend** | NestJS 10, TypeScript, Prisma ORM (v7), Passport.js, JWT, Multer, Winston Logger, Bcrypt |
+| **Database** | PostgreSQL (Neon serverless with connection pooling) |
+| **Cloud Storage** | Cloudinary CDN for attachments |
+| **Email Gateway** | Nodemailer SMTP (OTP & Invitations) |
+| **DevOps & Containers** | Docker, Docker Compose, Multi-stage Alpine builds |
+
+---
+
+## 📁 Repository Structure
+
+```
+SNEC Task Management System/
+├── backend/                   # NestJS REST API
+│   ├── prisma/                # Schema, seed script & SQL migrations
+│   ├── src/                   # NestJS modules & domain services
+│   ├── Dockerfile             # Multi-stage production container
+│   ├── .env.example           # Sample backend environment
+│   └── package.json
+├── frontend/                  # Next.js Web Application
+│   ├── src/                   # App Router, UI components, Zustand stores
+│   ├── Dockerfile             # Optimized standalone Next.js container
+│   ├── .env.example           # Sample frontend environment
+│   └── package.json
+├── docs/                      # Full Project Documentation
+│   ├── architecture/          # Architecture diagrams (Mermaid & text)
+│   ├── database/              # ER Diagram & Schema dictionary
+│   ├── api/                   # REST API documentation & Postman JSON
+│   └── docker/                # Docker deployment guide
+├── docker-compose.yml         # Full-stack Docker orchestration
+└── README.md                  # This file
+```
+
+---
+
+## 🚀 Getting Started
+
+### 1. Prerequisites
+- **Node.js**: `v20.x` or higher
+- **npm**: `v10.x` or higher
+- **PostgreSQL**: (or a free cloud database like [Neon](https://neon.tech))
+- **Docker & Docker Compose** (Optional for containerized run)
+
+---
+
+### 2. Environment Setup
+
+#### Backend Configuration (`backend/.env`):
+```env
+PORT=5000
+DATABASE_URL="postgresql://user:password@localhost:5432/snec_db?schema=public"
+
+JWT_SECRET="SNEC_Secret_Key_2026"
+JWT_REFRESH_SECRET="SNEC_Refresh_Key_2026"
+
+ADMIN_EMAIL="admin-snec@gmail.com"
+ADMIN_PASS="Admin@123"
+
+APP_EMAIL="your_email@gmail.com"
+APP_PASSWORD="your_app_password"
+
+CLOUDINARY_CLOUD_NAME="your_cloudinary_name"
+CLOUDINARY_API_KEY="your_cloudinary_key"
+CLOUDINARY_API_SECRET="your_cloudinary_secret"
+CLOUDINARY_UPLOAD_PRESET="snec-task"
+```
+
+#### Frontend Configuration (`frontend/.env`):
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000
+```
+
+---
+
+### 3. Local Development (Step-by-Step)
+
+#### Step 3.1: Setup & Run Backend
 ```bash
+cd backend
+
+# Install dependencies
+npm install
+
+# Apply database migrations
+npx prisma migrate deploy
+
+# Seed initial Super Admin and Core Roles (Optional)
+npm run seed
+
+# Start NestJS development server (runs on port 5000)
+npm run start:dev
+```
+
+#### Step 3.2: Setup & Run Frontend
+```bash
+cd ../frontend
+
+# Install dependencies
+npm install
+
+# Start Next.js development server (runs on port 3000)
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4. Running with Docker Compose
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-
-
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
+To launch the complete platform in isolated containers:
 
 ```bash
-$ npm install
+# In the root directory:
+docker-compose up --build -d
+
+# Verify services:
+# - Frontend: http://localhost:3000
+# - Backend API: http://localhost:5000
+# - PostgreSQL: localhost:5432
 ```
 
-## Compile and run the project
-
+To stop containers:
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+docker-compose down
 ```
 
-## Run tests
+---
 
-```bash
-# unit tests
-$ npm run test
+## 🛡️ Role-Based Access Control (RBAC) Matrix
 
-# e2e tests
-$ npm run test:e2e
+| Action | Org Admin | Project Manager | Team Lead | Developer |
+|---|:---:|:---:|:---:|:---:|
+| **Create Project** | ✅ | ❌ | ❌ | ❌ |
+| **Manage Org Members** | ✅ | ❌ | ❌ | ❌ |
+| **Assign Roles in Project** | ✅ (All) | ✅ (TL, Dev) | ❌ | ❌ |
+| **Create Tasks** | ✅ | ✅ | ❌ | ❌ |
+| **Assign Tasks** | ✅ | ✅ | ✅ | ❌ |
+| **Update Task Status** | ✅ | ✅ | ✅ | ✅ |
+| **Comments & Attachments** | ✅ | ✅ | ✅ | ✅ |
 
-# test coverage
-$ npm run test:cov
-```
+---
 
-## Deployment
+## 📚 Detailed Documentation Links
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- 🏛️ **[System Architecture Documentation](docs/architecture/ARCHITECTURE.md)**
+- 🗄️ **[Entity-Relationship (ER) Diagram & Schema](docs/database/ER_DIAGRAM.md)**
+- 🔌 **[REST API Specifications](docs/api/API_DOCUMENTATION.md)**
+- 📮 **[Postman Collection (Importable JSON)](docs/api/postman_collection.json)**
+- 🐳 **[Docker Deployment Guide](docs/docker/DOCKER_GUIDE.md)**

@@ -1,0 +1,182 @@
+{
+  "info": {
+    "_postman_id": "8f5a11d2-a720-4e31-9a74-b52e3794695e",
+    "name": "SNEC Task Management System (FlowTask) API",
+    "description": "Comprehensive Postman collection for the SNEC Task Management API including Auth, Organizations, Projects, and Tasks with RBAC.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000", "type": "string" },
+    { "key": "accessToken", "value": "", "type": "string" },
+    { "key": "projectId", "value": "", "type": "string" },
+    { "key": "taskId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "1. Auth & Users",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"username\": \"johndoe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"Password@123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.accessToken) {",
+                  "    pm.collectionVariables.set('accessToken', jsonData.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin-snec@gmail.com\",\n  \"password\": \"Admin@123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Organizations",
+      "item": [
+        {
+          "name": "Send Org OTP",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"company@acme.com\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/organizations/send-otp", "host": ["{{baseUrl}}"], "path": ["organizations", "send-otp"] }
+          }
+        },
+        {
+          "name": "Register Organization",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme Corp\",\n  \"username\": \"acmecorp\",\n  \"email\": \"company@acme.com\",\n  \"mobile\": \"+1234567890\",\n  \"category\": \"IT\",\n  \"password\": \"Admin@123\",\n  \"otp\": \"123456\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/organizations/register", "host": ["{{baseUrl}}"], "path": ["organizations", "register"] }
+          }
+        },
+        {
+          "name": "Get Org Members",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/organizations/members", "host": ["{{baseUrl}}"], "path": ["organizations", "members"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Projects",
+      "item": [
+        {
+          "name": "List Org Projects",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/projects/organization", "host": ["{{baseUrl}}"], "path": ["projects", "organization"] }
+          }
+        },
+        {
+          "name": "Create Project",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Enterprise Cloud Portal\",\n  \"description\": \"Migrating on-prem infrastructure to multi-cloud\",\n  \"startDate\": \"2026-09-01\",\n  \"endDate\": \"2026-12-31\",\n  \"priority\": \"HIGH\",\n  \"status\": \"PLANNING\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/projects", "host": ["{{baseUrl}}"], "path": ["projects"] }
+          }
+        },
+        {
+          "name": "Get Project by ID",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/projects/{{projectId}}", "host": ["{{baseUrl}}"], "path": ["projects", "{{projectId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Tasks & Collaboration",
+      "item": [
+        {
+          "name": "Get Project Tasks",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/tasks/project/{{projectId}}", "host": ["{{baseUrl}}"], "path": ["tasks", "project", "{{projectId}}"] }
+          }
+        },
+        {
+          "name": "Create Task",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Setup Kubernetes Ingress\",\n  \"description\": \"Configure Traefik / Nginx ingress controller with SSL certs\",\n  \"projectId\": \"{{projectId}}\",\n  \"priority\": \"HIGH\",\n  \"status\": \"TODO\",\n  \"dueDate\": \"2026-09-10\",\n  \"estimatedHours\": 6\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/tasks", "host": ["{{baseUrl}}"], "path": ["tasks"] }
+          }
+        },
+        {
+          "name": "Update Task Status",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"IN_PROGRESS\",\n  \"actualHours\": 3.5\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/tasks/{{taskId}}", "host": ["{{baseUrl}}"], "path": ["tasks", "{{taskId}}"] }
+          }
+        },
+        {
+          "name": "Add Task Comment",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"SSL cert verification passed.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/tasks/{{taskId}}/comments", "host": ["{{baseUrl}}"], "path": ["tasks", "{{taskId}}", "comments"] }
+          }
+        }
+      ]
+    }
+  ]
+}

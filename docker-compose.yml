@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database Service
+  postgres:
+    image: postgres:16-alpine
+    container_name: snec-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-snec_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-snec_password}
+      POSTGRES_DB: ${POSTGRES_DB:-snec_task_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - snec-network
+
+  # NestJS Backend Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: snec-backend
+    restart: always
+    environment:
+      PORT: ${PORT:-5000}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://snec_user:snec_password@postgres:5432/snec_task_db?schema=public}
+      JWT_SECRET: ${JWT_SECRET:-your_jwt_secret}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-your_jwt_refresh_secret}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin-snec@gmail.com}
+      ADMIN_PASS: ${ADMIN_PASS:-Admin@123}
+      APP_EMAIL: ${APP_EMAIL:-}
+      APP_PASSWORD: ${APP_PASSWORD:-}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
+      CLOUDINARY_UPLOAD_PRESET: ${CLOUDINARY_UPLOAD_PRESET:-snec-task}
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+    networks:
+      - snec-network
+
+  # Next.js Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:5000}
+    container_name: snec-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - snec-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  snec-network:
+    driver: bridge
