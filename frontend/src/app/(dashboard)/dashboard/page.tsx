@@ -7,6 +7,7 @@ import { Button } from "../../../components/ui/button"
 import { Building2, Mail, FolderKanban, LogOut, Check, X } from "lucide-react"
 import axios from "axios"
 import { cn } from "../../../lib/utils"
+import { Navbar } from "../../../components/landing/navbar"
 
 export default function UserDashboardPage() {
   const { user, logout, checkAuth } = useAuthStore()
@@ -49,32 +50,9 @@ export default function UserDashboardPage() {
   return (
     <ProtectedRoute allowedRoles={["Developer", "Project Manager", "Team Lead"]}>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 font-sans">
-        
-        {/* Simple Navbar */}
-        <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-8 bg-blue-600 rounded-md flex items-center justify-center text-white font-bold text-lg shadow-sm">
-                F
-              </div>
-              <span className="font-semibold text-lg tracking-tight text-gray-900 dark:text-white">FlowTask</span>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <div className="text-right hidden sm:block">
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100 leading-none">{user?.name}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{user?.role?.name}</p>
-              </div>
-              <div className="h-8 w-px bg-gray-200 dark:bg-gray-800"></div>
-              <Button variant="ghost" size="sm" onClick={() => logout()} className="text-gray-600 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
-              </Button>
-            </div>
-          </div>
-        </header>
+        <Navbar />
 
-        <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 mt-10">
           
           <div className="flex flex-col md:flex-row gap-8">
             
