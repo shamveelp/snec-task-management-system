@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { projectsApi, ProjectData } from "../../../../lib/api/projects.api";
+import { projectsService, ProjectData } from "../../../../services/organization/projects.service";
 import { Loader2, LayoutGrid, Calendar, Users, Target, Flag } from "lucide-react";
 
 export default function MyProjectsPage() {
@@ -13,7 +13,7 @@ export default function MyProjectsPage() {
   React.useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const data = await projectsApi.getMyProjects();
+        const data = await projectsService.getMyProjects();
         setProjects(data);
       } catch (error) {
         console.error("Failed to fetch projects", error);

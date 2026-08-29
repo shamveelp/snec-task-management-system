@@ -15,7 +15,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export const usersApi = {
+export const usersService = {
   updateProfile: async (data: { name?: string; username?: string; mobile?: string; bio?: string }) => {
     const response = await api.put('/users/profile', data);
     return response.data;

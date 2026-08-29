@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { ProjectData, projectsApi, ProjectMemberData } from '../../lib/api/projects.api';
-import { organizationsApi } from '../../lib/api/organizations.api';
+import { ProjectData, projectsService, ProjectMemberData } from '../../services/organization/projects.service';
+import { organizationsService } from '../../services/organization/organizations.service';
 import { Loader2, Plus, UserX, Search, UserPlus, Shield, ChevronUp, ChevronDown, ArrowUpDown } from 'lucide-react';
 import { Button } from '../ui/button';
 import { AppInput, AppSelect } from '../ui/form-fields';
 import { useAuthStore } from '../../store/auth.store';
 import { useRouter } from 'next/navigation';
-import { tasksApi, ProjectUserRole } from '../../lib/api/tasks.api';
+import { tasksService, ProjectUserRole } from '../../services/organization/tasks.service';
 
 interface ProjectMembersProps {
   project: ProjectData;
@@ -52,8 +52,8 @@ export function ProjectMembers({ project, onUpdate }: ProjectMembersProps) {
     const init = async () => {
       try {
         const [members, role] = await Promise.all([
-          organizationsApi.getMembers(),
-          tasksApi.getMyProjectRole(project.id),
+          organizationsService.getMembers(),
+          tasksService.getMyProjectRole(project.id),
         ]);
         setOrgMembers(members);
         setProjectRole(role);
@@ -104,7 +104,7 @@ export function ProjectMembers({ project, onUpdate }: ProjectMembersProps) {
     setAdding(true);
     setAddError('');
     try {
-      await projectsApi.addMember(project.id, selectedUserId, selectedRole);
+      await projectsService.addMember(project.id, selectedUserId, selectedRole);
       setSelectedUserId('');
       setMemberSearch('');
       onUpdate();
@@ -117,7 +117,7 @@ export function ProjectMembers({ project, onUpdate }: ProjectMembersProps) {
 
   const handleUpdateRole = async (userId: string, role: string) => {
     try {
-      await projectsApi.updateMemberRole(project.id, userId, role);
+      await projectsService.updateMemberRole(project.id, userId, role);
       onUpdate();
     } catch (err) {
       console.error(err);
@@ -127,7 +127,7 @@ export function ProjectMembers({ project, onUpdate }: ProjectMembersProps) {
   const handleRemoveMember = async (userId: string) => {
     if (!confirm('Remove this member from the project?')) return;
     try {
-      await projectsApi.removeMember(project.id, userId);
+      await projectsService.removeMember(project.id, userId);
       onUpdate();
     } catch (err) {
       console.error(err);

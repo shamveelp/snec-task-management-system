@@ -1,6 +1,6 @@
-import api from './client';
+import api from '../core/api-client';
 
-export const authApi = {
+export const authService = {
   login: async (credentials: any) => {
     const { data } = await api.post('/auth/login', credentials);
     return data;

@@ -7,7 +7,7 @@ import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import { Loader2, ArrowLeft, MailCheck } from "lucide-react"
-import { authApi } from "../../lib/api/auth.api"
+import { authService } from "../../services/auth/auth.service"
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = React.useState("")
@@ -19,7 +19,7 @@ export function ForgotPasswordForm() {
     setLoading(true)
 
     try {
-      await authApi.forgotPassword(email)
+      await authService.forgotPassword(email)
       // We always show success to prevent email enumeration attacks
     } catch (err: any) {
       // Intentionally ignoring errors to prevent email enumeration

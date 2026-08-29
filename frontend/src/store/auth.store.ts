@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { authApi } from '../lib/api/auth.api';
+import { authService } from '../services/auth/auth.service';
 
 interface AuthState {
   user: any | null;
@@ -25,7 +25,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ user });
   },
   login: async (credentials) => {
-    const { user, tokens } = await authApi.login(credentials);
+    const { user, tokens } = await authService.login(credentials);
     localStorage.setItem('accessToken', tokens.accessToken);
     localStorage.setItem('refreshToken', tokens.refreshToken);
     set({ user, isAuthenticated: true, isLoading: false });
@@ -33,7 +33,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
   logout: async () => {
     try {
-      await authApi.logout();
+      await authService.logout();
     } finally {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
@@ -48,7 +48,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
     set({ isLoading: true });
     try {
-      const user = await authApi.getProfile();
+      const user = await authService.getProfile();
       set({ user, isAuthenticated: true });
     } catch (error) {
       set({ user: null, isAuthenticated: false });

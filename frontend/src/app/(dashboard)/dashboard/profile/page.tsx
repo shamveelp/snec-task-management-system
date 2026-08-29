@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useAuthStore } from "../../../../store/auth.store"
-import { usersApi } from "../../../../lib/api/users.api"
+import { usersService } from "../../../../services/auth/users.service"
 import { Camera, Save, Loader2, X, User, CheckCircle2, XCircle } from "lucide-react"
 import Cropper from 'react-easy-crop'
 import { getCroppedImg } from "../../../../lib/cropImage"
@@ -57,7 +57,7 @@ export default function ProfilePage() {
     setUsernameStatus('checking');
     const timer = setTimeout(async () => {
       try {
-        const { available } = await usersApi.checkUsername(formData.username);
+        const { available } = await usersService.checkUsername(formData.username);
         setUsernameStatus(available ? 'available' : 'taken');
       } catch (err) {
         setUsernameStatus('idle');
@@ -77,7 +77,7 @@ export default function ProfilePage() {
     setSuccessMsg('')
     setErrorMsg('')
     try {
-      const res = await usersApi.updateProfile(formData)
+      const res = await usersService.updateProfile(formData)
       updateUser(res.user)
       setSuccessMsg('Profile updated successfully!')
       setTimeout(() => setSuccessMsg(''), 3000)
@@ -108,7 +108,7 @@ export default function ProfilePage() {
     setIsUploading(true)
     try {
       const croppedImage = await getCroppedImg(imageSrc, croppedAreaPixels)
-      const res = await usersApi.updateProfilePicture(croppedImage)
+      const res = await usersService.updateProfilePicture(croppedImage)
       updateUser(res.user)
       setImageSrc(null) // close modal
       setSuccessMsg('Profile picture updated!')

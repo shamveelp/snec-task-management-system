@@ -4,7 +4,7 @@ import * as React from "react";
 import { useAuthStore } from "../../../../store/auth.store";
 import { Button } from "../../../../components/ui/button";
 import { Plus, Search, MoreHorizontal, Loader2, Users, Mailbox, CheckCircle2, XCircle, Clock, RefreshCw } from "lucide-react";
-import { organizationsApi, OrganizationMember, OrganizationInvitation } from "../../../../lib/api/organizations.api";
+import { organizationsService, OrganizationMember, OrganizationInvitation } from "../../../../services/organization/organizations.service";
 import { InviteMemberModal } from "../../../../components/organizations/invite-member-modal";
 
 export default function OrganizationTeamPage() {
@@ -21,8 +21,8 @@ export default function OrganizationTeamPage() {
     setLoading(true);
     try {
       const [membersData, invitationsData] = await Promise.all([
-        organizationsApi.getMembers(),
-        organizationsApi.getInvitations()
+        organizationsService.getMembers(),
+        organizationsService.getInvitations()
       ]);
       setMembers(membersData);
       setInvitations(invitationsData);

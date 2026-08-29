@@ -1,6 +1,6 @@
 import * as React from "react";
-import { tasksApi, TaskData, ProjectUserRole } from "../../lib/api/tasks.api";
-import { ProjectData } from "../../lib/api/projects.api";
+import { tasksService, TaskData, ProjectUserRole } from "../../services/organization/tasks.service";
+import { ProjectData } from "../../services/organization/projects.service";
 import { Loader2, Plus, MessageSquare, Paperclip, Calendar, Flag } from "lucide-react";
 import { Button } from "../ui/button";
 import { CreateTaskModal } from "./create-task-modal";
@@ -31,8 +31,8 @@ export function KanbanBoardDark({ projectId, project }: KanbanBoardDarkProps) {
   const fetchTasks = async () => {
     try {
       const [tasksData, roleData] = await Promise.all([
-        tasksApi.getTasksByProject(projectId),
-        tasksApi.getMyProjectRole(projectId).catch(() => 'DEVELOPER' as ProjectUserRole)
+        tasksService.getTasksByProject(projectId),
+        tasksService.getMyProjectRole(projectId).catch(() => 'DEVELOPER' as ProjectUserRole)
       ]);
       setTasks(tasksData);
       setProjectRole(roleData);
@@ -77,7 +77,7 @@ export function KanbanBoardDark({ projectId, project }: KanbanBoardDarkProps) {
     setTasks(tasks.map(t => t.id === draggedTaskId ? { ...t, status: status as any } : t));
 
     try {
-      await tasksApi.updateTask(draggedTaskId, { status });
+      await tasksService.updateTask(draggedTaskId, { status });
     } catch (error: any) {
       console.error(error);
       setTasks(previousTasks);

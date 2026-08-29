@@ -52,7 +52,9 @@ export class TasksService {
 
     const { dueDate, ...rest } = data;
 
-    return this.prisma.task.create({
+    const project = await this.prisma.project.findUnique({ where: { id: data.projectId } });
+
+    const task = await this.prisma.task.create({
       data: {
         ...rest,
         dueDate: dueDate ? new Date(dueDate) : undefined,
@@ -63,6 +65,20 @@ export class TasksService {
         reporter: { select: { id: true, name: true, profilePicture: true } },
       }
     });
+
+    if (project) {
+      await this.prisma.notification.create({
+        data: {
+          type: 'TASK_CREATED',
+          title: `Task created: ${task.title}`,
+          organizationId: project.organizationId,
+          actorId: userId,
+          metadata: { projectId: project.id, projectName: project.name, taskId: task.id, taskTitle: task.title }
+        }
+      });
+    }
+
+    return task;
   }
 
   async getTasksByProject(projectId: string) {
@@ -160,27 +176,53 @@ export class TasksService {
   }
 
   async addComment(taskId: string, userId: string, content: string) {
-    const task = await this.prisma.task.findUnique({ where: { id: taskId } });
+    const task = await this.prisma.task.findUnique({ where: { id: taskId }, include: { project: true } });
     if (!task) throw new NotFoundException('Task not found');
 
-    return this.prisma.taskComment.create({
+    const comment = await this.prisma.taskComment.create({
       data: { taskId, userId, content },
       include: {
         user: { select: { id: true, name: true, profilePicture: true } }
       }
     });
+
+    await this.prisma.notification.create({
+      data: {
+        type: 'COMMENT_ADDED',
+        title: `New comment on: ${task.title}`,
+        description: content,
+        organizationId: task.project.organizationId,
+        actorId: userId,
+        metadata: { projectId: task.projectId, projectName: task.project.name, taskId: task.id, taskTitle: task.title }
+      }
+    });
+
+    return comment;
   }
 
   async addAttachment(taskId: string, userId: string, fileUrl: string, fileName: string, fileSize?: number) {
-    const task = await this.prisma.task.findUnique({ where: { id: taskId } });
+    const task = await this.prisma.task.findUnique({ where: { id: taskId }, include: { project: true } });
     if (!task) throw new NotFoundException('Task not found');
 
-    return this.prisma.taskAttachment.create({
+    const attachment = await this.prisma.taskAttachment.create({
       data: { taskId, userId, fileUrl, fileName, fileSize },
       include: {
         user: { select: { id: true, name: true, profilePicture: true } }
       }
     });
+
+    await this.prisma.notification.create({
+      data: {
+        type: 'ATTACHMENT_UPLOADED',
+        title: `Attachment added to: ${task.title}`,
+        description: fileName,
+        organizationId: task.project.organizationId,
+        actorId: userId,
+        metadata: { projectId: task.projectId, projectName: task.project.name, taskId: task.id, taskTitle: task.title }
+      }
+    });
+
+    return attachment;
   }
 
   async deleteAttachment(attachmentId: string, userId: string) {

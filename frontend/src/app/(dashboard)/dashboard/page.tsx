@@ -10,10 +10,10 @@ import {
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuthStore } from "../../../store/auth.store"
-import { projectsApi, ProjectData } from "../../../lib/api/projects.api"
-import { tasksApi, TaskData } from "../../../lib/api/tasks.api"
-import { organizationsApi, OrganizationData } from "../../../lib/api/organizations.api"
-import { invitationsApi, PendingInvitation } from "../../../lib/api/invitations.api"
+import { projectsService, ProjectData } from "../../../services/organization/projects.service"
+import { tasksService, TaskData } from "../../../services/organization/tasks.service"
+import { organizationsService, OrganizationData } from "../../../services/organization/organizations.service"
+import { invitationsService, PendingInvitation } from "../../../services/user/invitations.service"
 
 export default function DashboardOverviewPage() {
   const { user } = useAuthStore()
@@ -29,10 +29,10 @@ export default function DashboardOverviewPage() {
   const fetchDashboardData = React.useCallback(async () => {
     try {
       const [projectsData, tasksData, orgsData, invitesData] = await Promise.all([
-        projectsApi.getMyProjects().catch(() => []),
-        tasksApi.getMyTasks().catch(() => []),
-        organizationsApi.getJoinedOrganizations().catch(() => []),
-        invitationsApi.getMyInvitations().catch(() => []),
+        projectsService.getMyProjects().catch(() => []),
+        tasksService.getMyTasks().catch(() => []),
+        organizationsService.getJoinedOrganizations().catch(() => []),
+        invitationsService.getMyInvitations().catch(() => []),
       ])
 
       setProjects(projectsData || [])
@@ -53,7 +53,7 @@ export default function DashboardOverviewPage() {
   const handleAcceptInvite = async (token: string) => {
     setActionLoading(token)
     try {
-      await invitationsApi.acceptInvitation(token)
+      await invitationsService.acceptInvitation(token)
       await fetchDashboardData()
     } catch (err) {
       console.error("Failed to accept invitation", err)

@@ -5,7 +5,7 @@ import { Search, ChevronDown, ChevronRight, Star, Plus, Building2 } from "lucide
 import { cn } from "../../lib/utils"
 import { useAuthStore } from "../../store/auth.store"
 import { useRouter, usePathname } from "next/navigation"
-import { organizationsApi, OrganizationData } from "../../lib/api/organizations.api"
+import { organizationsService, OrganizationData } from "../../services/organization/organizations.service"
 
 interface SecondarySidebarProps {
   isExpanded: boolean
@@ -23,7 +23,7 @@ export function SecondarySidebar({ isExpanded, onExpand, selectedOrgId, onSelect
   const pathname = usePathname()
 
   React.useEffect(() => {
-    organizationsApi.getJoinedOrganizations()
+    organizationsService.getJoinedOrganizations()
       .then((data) => {
         if (data && data.length > 0) {
           setJoinedOrgs(data)

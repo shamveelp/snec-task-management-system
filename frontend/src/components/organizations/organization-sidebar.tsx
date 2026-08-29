@@ -92,9 +92,9 @@ export function OrganizationSidebar() {
                           {item.name}
                         </span>
                       </div>
-                      {item.badge && (
+                      {(item as any).badge && (
                         <span className="bg-[#FF6B6B] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
-                          {item.badge}
+                          {(item as any).badge}
                         </span>
                       )}
                     </div>

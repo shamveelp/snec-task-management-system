@@ -1,4 +1,4 @@
-import api from './client';
+import api from '../core/api-client';
 
 export interface TaskCommentData {
   id: string;
@@ -55,7 +55,7 @@ export interface CreateTaskPayload {
 // Project role returned from GET /tasks/project/:id/my-role
 export type ProjectUserRole = 'ORG_ADMIN' | 'PROJECT_MANAGER' | 'TEAM_LEAD' | 'DEVELOPER' | 'NONE';
 
-export const tasksApi = {
+export const tasksService = {
   getMyTasks: async () => {
     const response = await api.get<TaskData[]>('/tasks/me');
     return response.data;

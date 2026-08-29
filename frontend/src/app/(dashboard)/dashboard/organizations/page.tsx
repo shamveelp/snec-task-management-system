@@ -4,7 +4,7 @@ import * as React from "react"
 import { SecondarySidebar } from "../../../../components/user-dashboard/secondary-sidebar"
 import { OrganizationContentView } from "../../../../components/user-dashboard/organization-content-view"
 import { DashboardSidebarContext } from "../layout"
-import { OrganizationData } from "../../../../lib/api/organizations.api"
+import { OrganizationData } from "../../../../services/organization/organizations.service"
 import { useAuthStore } from "../../../../store/auth.store"
 
 export default function OrganizationsPage() {

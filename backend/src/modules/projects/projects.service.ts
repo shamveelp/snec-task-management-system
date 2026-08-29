@@ -61,6 +61,20 @@ export class ProjectsService {
       },
     });
 
+    // Log notification
+    await this.prisma.notification.create({
+      data: {
+        type: 'PROJECT_CREATED',
+        title: `Project created: ${project.name}`,
+        organizationId: project.organizationId,
+        actorId: createdById,
+        metadata: {
+          projectId: project.id,
+          projectName: project.name
+        }
+      }
+    });
+
     return project;
   }
 

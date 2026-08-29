@@ -4,8 +4,8 @@ import {
   X, MessageSquare, Paperclip, Send, Upload, Trash2,
   Flag, Calendar, Clock, User, Tag, ExternalLink, Loader2, CheckCircle2
 } from 'lucide-react';
-import { tasksApi, TaskData, TaskCommentData, TaskAttachmentData, ProjectUserRole } from '../../lib/api/tasks.api';
-import { ProjectData } from '../../lib/api/projects.api';
+import { tasksService, TaskData, TaskCommentData, TaskAttachmentData, ProjectUserRole } from '../../services/organization/tasks.service';
+import { ProjectData } from '../../services/organization/projects.service';
 import { useAuthStore } from '../../store/auth.store';
 import { AppSelect } from '../ui/form-fields';
 
@@ -55,7 +55,7 @@ export function TaskDetailPanel({ taskId, projectRole, project, onClose, onTaskU
     if (!taskId) return;
     setLoading(true);
     try {
-      const data = await tasksApi.getTaskById(taskId);
+      const data = await tasksService.getTaskById(taskId);
       setTask(data);
     } finally {
       setLoading(false);
@@ -72,7 +72,7 @@ export function TaskDetailPanel({ taskId, projectRole, project, onClose, onTaskU
     if (!task) return;
     setUpdatingField(field);
     try {
-      await tasksApi.updateTask(task.id, { [field]: value });
+      await tasksService.updateTask(task.id, { [field]: value });
       setTask((prev) => prev ? { ...prev, [field]: value } : prev);
       onTaskUpdated();
     } catch (e) {
@@ -86,7 +86,7 @@ export function TaskDetailPanel({ taskId, projectRole, project, onClose, onTaskU
     if (!task || !newComment.trim()) return;
     setSubmittingComment(true);
     try {
-      const comment = await tasksApi.addComment(task.id, newComment.trim());
+      const comment = await tasksService.addComment(task.id, newComment.trim());
       setTask((prev) => prev ? { ...prev, comments: [...(prev.comments || []), comment] } : prev);
       setNewComment('');
     } finally {
@@ -99,7 +99,7 @@ export function TaskDetailPanel({ taskId, projectRole, project, onClose, onTaskU
     const file = e.target.files[0];
     setUploadingFile(true);
     try {
-      const attachment = await tasksApi.addAttachment(task.id, file);
+      const attachment = await tasksService.addAttachment(task.id, file);
       setTask((prev) => prev ? { ...prev, attachments: [...(prev.attachments || []), attachment] } : prev);
     } catch (err) {
       console.error(err);
@@ -111,7 +111,7 @@ export function TaskDetailPanel({ taskId, projectRole, project, onClose, onTaskU
 
   const handleDeleteAttachment = async (attachmentId: string) => {
     if (!task) return;
-    await tasksApi.deleteAttachment(attachmentId);
+    await tasksService.deleteAttachment(attachmentId);
     setTask((prev) => prev ? { ...prev, attachments: prev.attachments?.filter(a => a.id !== attachmentId) } : prev);
   };
 
@@ -227,7 +227,7 @@ export function TaskDetailPanel({ taskId, projectRole, project, onClose, onTaskU
                         className="flex-1 py-1.5 text-xs"
                       >
                         <option value="">Unassigned</option>
-                        {project.members?.map((m) => (
+                        {project.members?.map((m: any) => (
                           <option key={m.userId} value={m.userId}>{m.user.name}</option>
                         ))}
                       </AppSelect>

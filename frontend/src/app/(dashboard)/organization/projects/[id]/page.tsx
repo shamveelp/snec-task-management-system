@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
-import { projectsApi, ProjectData } from "@/lib/api/projects.api";
+import { projectsService, ProjectData } from "../../../../../services/organization/projects.service";
 import { Loader2, ArrowLeft, LayoutGrid, Users, Settings } from "lucide-react";
 import { KanbanBoard } from "@/components/projects/kanban-board";
 import { ProjectMembers } from "@/components/projects/project-members";
@@ -17,7 +17,7 @@ export default function ProjectDetailsPage() {
   const fetchProject = async () => {
     try {
       setLoading(true);
-      const data = await projectsApi.getProjectById(id);
+      const data = await projectsService.getProjectById(id);
       setProject(data);
     } catch (error) {
       console.error(error);

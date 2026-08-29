@@ -3,7 +3,7 @@ import * as React from 'react';
 import { X, Loader2, Flag, Target, Sparkles } from 'lucide-react';
 import { Button } from '../ui/button';
 import { AppInput, AppSelect, AppDatePicker } from '../ui/form-fields';
-import { projectsApi, CreateProjectPayload } from '../../lib/api/projects.api';
+import { projectsService, CreateProjectPayload } from '../../services/organization/projects.service';
 
 interface CreateProjectModalProps {
   isOpen: boolean;
@@ -63,7 +63,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
       const payload = { ...formData };
       if (!payload.startDate) delete payload.startDate;
       if (!payload.endDate) delete payload.endDate;
-      await projectsApi.createProject(payload);
+      await projectsService.createProject(payload);
       onSuccess();
       handleClose();
     } catch (err: any) {

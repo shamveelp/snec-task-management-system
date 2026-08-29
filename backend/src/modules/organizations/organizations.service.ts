@@ -251,55 +251,23 @@ export class OrganizationsService {
   }
 
   async getOrganizationNotifications(organizationId: string) {
-    // Fetch recent activities across the organization
-    
-    // 1. New Projects
-    const projects = await this.prisma.project.findMany({
+    const notifications = await this.prisma.notification.findMany({
       where: { organizationId },
-      include: { createdBy: true },
+      include: {
+        actor: { select: { name: true, profilePicture: true } },
+      },
       orderBy: { createdAt: 'desc' },
-      take: 20
+      take: 50,
     });
 
-    // 2. New Tasks
-    const tasks = await this.prisma.task.findMany({
-      where: { project: { organizationId } },
-      include: { reporter: true, project: true },
-      orderBy: { createdAt: 'desc' },
-      take: 20
-    });
-
-    // 3. New Comments
-    const comments = await this.prisma.taskComment.findMany({
-      where: { task: { project: { organizationId } } },
-      include: { user: true, task: { include: { project: true } } },
-      orderBy: { createdAt: 'desc' },
-      take: 20
-    });
-
-    // 4. New Attachments
-    const attachments = await this.prisma.taskAttachment.findMany({
-      where: { task: { project: { organizationId } } },
-      include: { user: true, task: { include: { project: true } } },
-      orderBy: { createdAt: 'desc' },
-      take: 20
-    });
-
-    // 5. New Members
-    const members = await this.prisma.user.findMany({
-      where: { organizationId },
-      orderBy: { createdAt: 'desc' },
-      take: 20
-    });
-
-    const notifications = [
-      ...projects.map(p => ({ id: `proj_${p.id}`, type: 'PROJECT_CREATED', title: `Project created: ${p.name}`, user: { name: p.createdBy.name, profilePicture: p.createdBy.profilePicture }, createdAt: p.createdAt, metadata: { projectId: p.id, projectName: p.name } })),
-      ...tasks.map(t => ({ id: `task_${t.id}`, type: 'TASK_CREATED', title: `Task created: ${t.title}`, user: { name: t.reporter.name, profilePicture: t.reporter.profilePicture }, createdAt: t.createdAt, metadata: { projectId: t.projectId, projectName: t.project.name, taskId: t.id, taskTitle: t.title } })),
-      ...comments.map(c => ({ id: `comment_${c.id}`, type: 'COMMENT_ADDED', title: `New comment on: ${c.task.title}`, description: c.content, user: { name: c.user.name, profilePicture: c.user.profilePicture }, createdAt: c.createdAt, metadata: { projectId: c.task.projectId, projectName: c.task.project.name, taskId: c.taskId, taskTitle: c.task.title } })),
-      ...attachments.map(a => ({ id: `attachment_${a.id}`, type: 'ATTACHMENT_UPLOADED', title: `Attachment added to: ${a.task.title}`, description: a.fileName, user: { name: a.user.name, profilePicture: a.user.profilePicture }, createdAt: a.createdAt, metadata: { projectId: a.task.projectId, projectName: a.task.project.name, taskId: a.taskId, taskTitle: a.task.title } })),
-      ...members.map(m => ({ id: `member_${m.id}`, type: 'MEMBER_JOINED', title: `New member joined: ${m.name}`, user: { name: m.name, profilePicture: m.profilePicture }, createdAt: m.createdAt }))
-    ];
-
-    return notifications.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).slice(0, 50);
+    return notifications.map(n => ({
+      id: n.id,
+      type: n.type,
+      title: n.title,
+      description: n.description,
+      user: n.actor,
+      metadata: n.metadata,
+      createdAt: n.createdAt,
+    }));
   }
 }

@@ -7,7 +7,7 @@ import { Button } from "../ui/button"
 import { Label } from "../ui/label"
 import { PasswordInput } from "../ui/password-input"
 import { Loader2, CheckCircle2 } from "lucide-react"
-import { authApi } from "../../lib/api/auth.api"
+import { authService } from "../../services/auth/auth.service"
 import { useSearchParams } from "next/navigation"
 
 export function ResetPasswordForm() {
@@ -43,7 +43,7 @@ export function ResetPasswordForm() {
     setLoading(true)
 
     try {
-      await authApi.resetPassword({ token, email, newPassword })
+      await authService.resetPassword({ token, email, newPassword })
       setSuccess(true)
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to reset password. The link might be expired.")

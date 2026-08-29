@@ -4,7 +4,7 @@ import * as React from "react";
 import { useAuthStore } from "../../../../store/auth.store";
 import { Button } from "../../../../components/ui/button";
 import { Plus, Search, MoreHorizontal, Loader2, LayoutGrid, Calendar, Users, Target, Flag } from "lucide-react";
-import { projectsApi, ProjectData } from "../../../../lib/api/projects.api";
+import { projectsService, ProjectData } from "../../../../services/organization/projects.service";
 import { CreateProjectModal } from "../../../../components/projects/create-project-modal";
 import { useRouter } from "next/navigation";
 
@@ -20,7 +20,7 @@ export default function OrganizationProjectsPage() {
   const fetchProjects = async () => {
     setLoading(true);
     try {
-      const data = await projectsApi.getOrganizationProjects();
+      const data = await projectsService.getOrganizationProjects();
       setProjects(data);
     } catch (error) {
       console.error("Failed to fetch projects", error);

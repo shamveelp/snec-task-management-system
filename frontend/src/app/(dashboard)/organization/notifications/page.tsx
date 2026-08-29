@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { RefreshCw, Bell, MessageSquare, Paperclip, FolderKanban, CheckSquare, UserPlus, Clock } from 'lucide-react';
-import { organizationsApi } from '../../../../lib/api/organizations.api';
+import { organizationsService } from '../../../../services/organization/organizations.service';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function OrganizationNotificationsPage() {
@@ -13,7 +13,7 @@ export default function OrganizationNotificationsPage() {
   const fetchNotifications = useCallback(async (isManualRefresh = false) => {
     if (isManualRefresh) setIsRefreshing(true);
     try {
-      const data = await organizationsApi.getNotifications();
+      const data = await organizationsService.getNotifications();
       setNotifications(data);
     } catch (error) {
       console.error('Failed to fetch notifications:', error);

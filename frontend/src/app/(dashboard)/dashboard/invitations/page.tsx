@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useAuthStore } from "../../../../store/auth.store";
 import { Button } from "../../../../components/ui/button";
-import { invitationsApi, PendingInvitation } from "../../../../lib/api/invitations.api";
+import { invitationsService, PendingInvitation } from "../../../../services/user/invitations.service";
 import { Loader2, Mail, Building, Clock, Check, X, ArrowRight, RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -17,7 +17,7 @@ export default function UserInvitationsPage() {
   const fetchInvitations = async () => {
     setLoading(true);
     try {
-      const data = await invitationsApi.getMyInvitations();
+      const data = await invitationsService.getMyInvitations();
       setInvitations(data);
     } catch (error) {
       console.error("Failed to fetch invitations", error);
@@ -33,7 +33,7 @@ export default function UserInvitationsPage() {
   const handleAccept = async (token: string, id: string) => {
     setProcessingId(id);
     try {
-      await invitationsApi.acceptInvitation(token);
+      await invitationsService.acceptInvitation(token);
       setInvitations(prev => prev.filter(inv => inv.id !== id));
       router.push('/dashboard');
     } catch (error) {

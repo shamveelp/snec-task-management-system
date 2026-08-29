@@ -8,9 +8,9 @@ import {
 } from "lucide-react"
 import { cn } from "../../lib/utils"
 import { useAuthStore } from "../../store/auth.store"
-import { projectsApi, ProjectData } from "../../lib/api/projects.api"
-import { tasksApi, TaskData, TaskCommentData, TaskAttachmentData } from "../../lib/api/tasks.api"
-import { organizationsApi, OrganizationMember, OrganizationData } from "../../lib/api/organizations.api"
+import { projectsService, ProjectData } from "../../services/organization/projects.service"
+import { tasksService, TaskData, TaskCommentData, TaskAttachmentData } from "../../services/organization/tasks.service"
+import { organizationsService, OrganizationMember, OrganizationData } from "../../services/organization/organizations.service"
 import { useRouter } from "next/navigation"
 import { TaskDetailPanel } from "../projects/task-detail-panel"
 
@@ -54,9 +54,9 @@ export function OrganizationContentView({ organization }: OrganizationContentVie
     setLoading(true)
     try {
       const [projectsData, tasksData, membersData] = await Promise.all([
-        projectsApi.getMyProjects().catch(() => []),
-        tasksApi.getMyTasks().catch(() => []),
-        organizationsApi.getMembers().catch(() => []),
+        projectsService.getMyProjects().catch(() => []),
+        tasksService.getMyTasks().catch(() => []),
+        organizationsService.getMembers().catch(() => []),
       ])
 
       // Filter projects that belong to this organization or user
@@ -102,7 +102,7 @@ export function OrganizationContentView({ organization }: OrganizationContentVie
     const prev = [...myTasks]
     setMyTasks(myTasks.map(t => (t.id === draggedTaskId ? { ...t, status: status as any } : t)))
     try {
-      await tasksApi.updateTask(draggedTaskId, { status })
+      await tasksService.updateTask(draggedTaskId, { status })
     } catch {
       setMyTasks(prev)
     }

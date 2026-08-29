@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
-import { projectsApi, ProjectData } from "@/lib/api/projects.api";
+import { projectsService, ProjectData } from "../../../../../services/organization/projects.service";
 import { Loader2, ArrowLeft, LayoutGrid, Users } from "lucide-react";
 import { KanbanBoardDark } from "@/components/projects/kanban-board-dark";
 
@@ -15,7 +15,7 @@ export default function UserProjectDetailsPage() {
   React.useEffect(() => {
     const fetchProject = async () => {
       try {
-        const data = await projectsApi.getProjectById(id);
+        const data = await projectsService.getProjectById(id);
         setProject(data);
       } catch (error) {
         console.error(error);

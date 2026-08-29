@@ -1,4 +1,4 @@
-import api from './client';
+import api from '../core/api-client';
 
 export interface PendingInvitation {
   id: string;
@@ -10,7 +10,7 @@ export interface PendingInvitation {
   expiresAt: string;
 }
 
-export const invitationsApi = {
+export const invitationsService = {
   createInvitation: async (email: string, roleId: string) => {
     const response = await api.post('/invitations', { email, roleId });
     return response.data;

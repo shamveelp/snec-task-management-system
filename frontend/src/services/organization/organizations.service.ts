@@ -1,4 +1,4 @@
-import api from './client';
+import api from '../core/api-client';
 
 export interface OrganizationMember {
   id: string;
@@ -32,7 +32,7 @@ export interface OrganizationInvitation {
   createdAt: string;
 }
 
-export const organizationsApi = {
+export const organizationsService = {
   getMembers: async () => {
     const response = await api.get<OrganizationMember[]>('/organizations/members');
     return response.data;

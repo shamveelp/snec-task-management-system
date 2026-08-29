@@ -3,8 +3,8 @@ import * as React from 'react';
 import { X, Loader2, Calendar as CalendarIcon, Target, Flag, Clock } from 'lucide-react';
 import { Button } from '../ui/button';
 import { AppInput, AppSelect, AppDatePicker } from '../ui/form-fields';
-import { tasksApi, CreateTaskPayload } from '../../lib/api/tasks.api';
-import { projectsApi, ProjectData } from '../../lib/api/projects.api';
+import { tasksService, CreateTaskPayload } from '../../services/organization/tasks.service';
+import { projectsService, ProjectData } from '../../services/organization/projects.service';
 
 interface CreateTaskModalProps {
   isOpen: boolean;
@@ -31,7 +31,7 @@ export function CreateTaskModal({ isOpen, onClose, onSuccess, projectId }: Creat
 
   React.useEffect(() => {
     if (isOpen) {
-      projectsApi.getProjectById(projectId).then(setProject).catch(console.error);
+      projectsService.getProjectById(projectId).then(setProject).catch(console.error);
     }
   }, [isOpen, projectId]);
 
@@ -54,7 +54,7 @@ export function CreateTaskModal({ isOpen, onClose, onSuccess, projectId }: Creat
       if (!payload.estimatedHours) delete payload.estimatedHours;
       else payload.estimatedHours = Number(payload.estimatedHours);
 
-      await tasksApi.createTask(payload);
+      await tasksService.createTask(payload);
       onSuccess();
       onClose();
     } catch (err: any) {

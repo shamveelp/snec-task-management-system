@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { Search, Building2, Users, Calendar, ArrowUpDown, MoreHorizontal, ArrowRight, Star } from "lucide-react"
-import { organizationsApi, OrganizationData } from "../../../../../lib/api/organizations.api"
+import { organizationsService, OrganizationData } from "../../../../../services/organization/organizations.service"
 import { useAuthStore } from "../../../../../store/auth.store"
 import { SecondarySidebar } from "../../../../../components/user-dashboard/secondary-sidebar"
 import { DashboardSidebarContext } from "../../layout"
@@ -26,7 +26,7 @@ export default function AllOrganizationsPage() {
   const loadOrganizations = async () => {
     try {
       setIsLoading(true)
-      const data = await organizationsApi.getJoinedOrganizations()
+      const data = await organizationsService.getJoinedOrganizations()
       setOrganizations(data)
     } catch (error) {
       console.error("Failed to load organizations:", error)

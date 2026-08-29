@@ -1,4 +1,4 @@
-import api from './client';
+import api from '../core/api-client';
 
 export interface ProjectData {
   id: string;
@@ -41,7 +41,7 @@ export interface CreateProjectPayload {
   memberIds?: string[];
 }
 
-export const projectsApi = {
+export const projectsService = {
   getOrganizationProjects: async () => {
     const response = await api.get<ProjectData[]>('/projects/organization');
     return response.data;
