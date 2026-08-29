@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../database/prisma.service';
-import { BaseRepository } from '../../../core/repositories/base.repository';
 
 @Injectable()
-export class InvitationsRepository extends BaseRepository<any, any, any> {
+export class InvitationsRepository {
   constructor(protected readonly prisma: PrismaService) {
-    super(prisma.invitation);
-  }
+      }
 }

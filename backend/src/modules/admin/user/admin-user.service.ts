@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { plainToInstance } from 'class-transformer';
+import { AdminUserResponseDto } from './dtos/admin-user-response.dto';
 import { AdminUserRepository } from './admin-user.repository';
 import { CreateAdminUserDto } from './dtos/create-admin-user.dto';
 import { UpdateAdminUserDto } from './dtos/update-admin-user.dto';
@@ -50,17 +52,7 @@ export class AdminUserService {
     ]);
 
     return {
-      data: users.map(u => ({
-        id: u.id,
-        name: u.name,
-        username: u.username,
-        email: u.email,
-        mobile: u.mobile,
-        status: u.status,
-        profilePicture: u.profilePicture,
-        role: u.role ? { id: u.role.id, name: u.role.name } : null,
-        createdAt: u.createdAt,
-      })),
+      data: users.map(u => plainToInstance(AdminUserResponseDto, u, { excludeExtraneousValues: true })),
       meta: {
         total,
         page,
@@ -87,7 +79,7 @@ export class AdminUserService {
       status: data.status || 'ACTIVE'
     });
 
-    return user;
+    return plainToInstance(AdminUserResponseDto, user, { excludeExtraneousValues: true });
   }
 
   async updateUser(id: string, data: UpdateAdminUserDto) {
@@ -105,7 +97,7 @@ export class AdminUserService {
     }
 
     const updated = await this.userRepository.update(id, data);
-    return updated;
+    return plainToInstance(AdminUserResponseDto, updated, { excludeExtraneousValues: true });
   }
 
   async updateUserStatus(id: string, status: string) {

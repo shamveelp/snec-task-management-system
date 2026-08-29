@@ -1,3 +1,5 @@
+import { plainToInstance } from 'class-transformer';
+import { AdminOrganizationResponseDto } from './dtos/admin-organization-response.dto';
 import { Injectable } from '@nestjs/common';
 import { AdminOrganizationRepository } from './admin-organization.repository';
 
@@ -27,7 +29,7 @@ export class AdminOrganizationService {
     ]);
 
     return {
-      data: orgs,
+      data: orgs.map(org => plainToInstance(AdminOrganizationResponseDto, org, { excludeExtraneousValues: true })),
       meta: {
         total,
         page,
