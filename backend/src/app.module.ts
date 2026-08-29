@@ -9,9 +9,10 @@ import { InvitationsModule } from './modules/invitations/invitations.module';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 import { ProjectsModule } from './modules/projects/projects.module';
 import { TasksModule } from './modules/tasks/tasks.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), AuthModule, UsersModule, OrganizationsModule, InvitationsModule, CloudinaryModule, ProjectsModule, TasksModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), AuthModule, UsersModule, OrganizationsModule, InvitationsModule, CloudinaryModule, ProjectsModule, TasksModule, AdminModule],
   controllers: [AppController],
   providers: [AppService],
 })
