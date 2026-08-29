@@ -31,7 +31,7 @@ const sidebarSections = [
   {
     title: "COLLABORATION",
     items: [
-      { name: "Team", href: "/organization/dashboard#team", icon: Users },
+      { name: "Team", href: "/organization/team", icon: Users },
       { name: "Notifications", href: "/organization/dashboard#notifications", icon: Bell, badge: "3" },
     ]
   },

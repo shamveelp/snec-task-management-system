@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Bell, HelpCircle, FolderKanban, Menu, ChevronLeft, LayoutDashboard, User } from "lucide-react"
+import { Bell, HelpCircle, FolderKanban, Menu, ChevronLeft, LayoutDashboard, User, UserPlus } from "lucide-react"
 import { cn } from "../../lib/utils"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -57,6 +57,13 @@ export function PrimarySidebar({ isExpanded, onToggle }: PrimarySidebarProps) {
           label="Profile" 
           href="/dashboard/profile"
           active={pathname?.startsWith("/dashboard/profile")} 
+          isExpanded={isExpanded} 
+        />
+        <SidebarItem 
+          icon={UserPlus} 
+          label="Invitations" 
+          href="/dashboard/invitations"
+          active={pathname?.startsWith("/dashboard/invitations")} 
           isExpanded={isExpanded} 
         />
         <SidebarItem 
