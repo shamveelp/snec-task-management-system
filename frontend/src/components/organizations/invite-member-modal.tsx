@@ -1,9 +1,7 @@
 import * as React from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "../ui/button"
-import { Input } from "../ui/input"
-import { Label } from "../ui/label"
-import { Loader2, X, Search, Check } from "lucide-react"
+import { Loader2, X, Search, Mail, Shield } from "lucide-react"
 import axios from "axios"
 
 interface InviteMemberModalProps {
@@ -19,7 +17,7 @@ export function InviteMemberModal({ isOpen, onClose, onSuccess }: InviteMemberMo
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState("")
   const [success, setSuccess] = React.useState("")
-  
+
   const [searchResults, setSearchResults] = React.useState<any[]>([])
   const [isSearching, setIsSearching] = React.useState(false)
   const [showDropdown, setShowDropdown] = React.useState(false)
@@ -52,7 +50,7 @@ export function InviteMemberModal({ isOpen, onClose, onSuccess }: InviteMemberMo
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setEmail(value)
-    
+
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current)
     }
@@ -114,102 +112,122 @@ export function InviteMemberModal({ isOpen, onClose, onSuccess }: InviteMemberMo
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          className="bg-card w-full max-w-md rounded-xl shadow-lg border overflow-visible relative"
+          initial={{ opacity: 0, scale: 0.95, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 10 }}
+          className="bg-gray-900 w-full max-w-md rounded-3xl shadow-2xl overflow-visible relative text-white"
         >
-          <div className="p-6 border-b flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Invite Team Member</h2>
-            <Button variant="ghost" size="icon" onClick={onClose}>
+          {/* Header */}
+          <div className="px-8 py-6 border-b border-gray-700 bg-gray-800 rounded-t-3xl flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-white">Invite Team Member</h2>
+              <p className="text-sm text-gray-300 mt-1">Send an invitation to join your organization.</p>
+            </div>
+            <button
+              onClick={onClose}
+              className="h-8 w-8 rounded-full bg-gray-700 border border-gray-600 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-600 transition-colors"
+            >
               <X className="h-4 w-4" />
-            </Button>
+            </button>
           </div>
-          
-          <div className="p-6 overflow-visible">
-            <form onSubmit={handleSubmit} className="space-y-4">
+
+          {/* Body */}
+          <div className="p-8 overflow-visible bg-gray-900 rounded-b-3xl">
+            <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
-                <div className="p-3 rounded-md bg-destructive/15 text-destructive text-sm font-medium">
+                <div className="p-4 rounded-xl bg-red-900/40 border border-red-700 text-red-300 text-sm font-medium">
                   {error}
                 </div>
               )}
               {success && (
-                <div className="p-3 rounded-md bg-green-500/15 text-green-500 text-sm font-medium">
+                <div className="p-4 rounded-xl bg-emerald-900/40 border border-emerald-700 text-emerald-300 text-sm font-medium">
                   {success}
                 </div>
               )}
-              
+
+              {/* Email Search */}
               <div className="space-y-2 relative">
-                <Label htmlFor="email">Email Address or Username</Label>
+                <label className="block text-sm font-bold text-gray-300">
+                  <Mail className="inline h-4 w-4 mr-1.5 text-gray-400" />
+                  Email Address or Username
+                </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <Input
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                  <input
                     id="email"
                     type="text"
                     placeholder="Search or enter email..."
                     value={email}
                     onChange={handleEmailChange}
-                    className="pl-9"
+                    className="w-full pl-9 pr-10 py-3 bg-gray-800 border border-gray-700 rounded-xl text-sm text-white placeholder:text-gray-500 focus:ring-2 focus:ring-[#7C68EE] focus:border-[#7C68EE] outline-none transition-all"
                     required
                     autoComplete="off"
                   />
                   {isSearching && (
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                      <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
                     </div>
                   )}
                 </div>
 
+                {/* Dropdown */}
                 {showDropdown && (
-                  <div className="absolute z-[100] w-full mt-1 bg-card border rounded-md shadow-lg overflow-hidden">
+                  <div className="absolute z-[100] w-full mt-1 bg-gray-800 border border-gray-700 rounded-xl shadow-2xl overflow-hidden">
                     {searchResults.length > 0 ? (
                       <ul className="max-h-60 overflow-auto py-1">
-                        {searchResults.map((user) => (
+                        {searchResults.map((u) => (
                           <li
-                            key={user.id}
-                            className="px-4 py-2 hover:bg-muted cursor-pointer flex flex-col transition-colors"
-                            onClick={() => selectUser(user)}
+                            key={u.id}
+                            className="px-4 py-3 hover:bg-gray-700 cursor-pointer flex flex-col transition-colors"
+                            onClick={() => selectUser(u)}
                           >
-                            <span className="font-medium text-sm">{user.name}</span>
-                            <span className="text-xs text-muted-foreground">{user.email}</span>
+                            <span className="font-semibold text-sm text-white">{u.name}</span>
+                            <span className="text-xs text-gray-400">{u.email}</span>
                           </li>
                         ))}
                       </ul>
                     ) : !isSearching ? (
-                      <div className="px-4 py-3 text-sm text-muted-foreground">
-                        No registered developers found. 
+                      <div className="px-4 py-4 text-sm text-gray-400">
+                        No registered developers found.
                         <br />
-                        <span className="text-xs">They will receive an email invitation to join.</span>
+                        <span className="text-xs text-gray-500">They will receive an email invitation to join.</span>
                       </div>
                     ) : null}
                   </div>
                 )}
               </div>
 
-              <div className="space-y-2 pt-2">
-                <Label htmlFor="role">Role</Label>
+              {/* Role Select */}
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-gray-300">
+                  <Shield className="inline h-4 w-4 mr-1.5 text-gray-400" />
+                  Role
+                </label>
                 <select
                   id="role"
                   value={roleId}
                   onChange={(e) => setRoleId(e.target.value)}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-sm text-white focus:ring-2 focus:ring-[#7C68EE] focus:border-[#7C68EE] outline-none transition-all appearance-none font-medium"
                   required
                 >
                   {roles.map(role => (
-                    <option key={role.id} value={role.id}>
+                    <option key={role.id} value={role.id} className="bg-gray-800 text-white">
                       {role.name}
                     </option>
                   ))}
                 </select>
               </div>
 
-              <Button type="submit" className="w-full mt-2" disabled={loading}>
+              {/* Submit */}
+              <Button
+                type="submit"
+                className="w-full bg-[#7C68EE] hover:bg-[#6b58dd] text-white rounded-xl py-3 h-auto font-semibold shadow-sm transition-all"
+                disabled={loading}
+              >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                Send Invitation
+                {loading ? "Sending..." : "Send Invitation"}
               </Button>
             </form>
           </div>

@@ -129,7 +129,8 @@ export default function OrganizationTeamPage() {
             placeholder="Search by name, email, role..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full sm:w-72 pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#7C68EE] outline-none transition-all shadow-sm"
+            style={{ colorScheme: 'light' }}
+            className="w-full sm:w-72 pl-9 pr-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-[#7C68EE] focus:border-[#7C68EE] outline-none transition-all shadow-sm"
           />
         </div>
       </div>

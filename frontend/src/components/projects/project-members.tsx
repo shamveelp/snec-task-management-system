@@ -1,8 +1,9 @@
 import * as React from "react";
 import { ProjectData, projectsApi } from "../../lib/api/projects.api";
 import { organizationsApi, OrganizationMember } from "../../lib/api/organizations.api";
-import { Loader2, Plus, UserX, Shield, Search } from "lucide-react";
+import { Loader2, Plus, UserX, Shield } from "lucide-react";
 import { Button } from "../ui/button";
+import { AppInput, AppSelect } from "../ui/form-fields";
 import { useAuthStore } from "../../store/auth.store";
 
 interface ProjectMembersProps {
@@ -83,37 +84,34 @@ export function ProjectMembers({ project, onUpdate }: ProjectMembersProps) {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
           <h2 className="text-lg font-bold text-gray-900 mb-4">Add Project Member</h2>
           <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input 
-                type="text"
+            <div className="flex-1">
+              <AppInput
                 placeholder="Search organization members..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#7C68EE] outline-none"
               />
             </div>
-            
-            <select
+
+            <AppSelect
               value={selectedUser}
               onChange={(e) => setSelectedUser(e.target.value)}
-              className="w-full sm:w-64 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#7C68EE] outline-none"
+              className="sm:w-64"
             >
               <option value="">Select a member...</option>
-              {availableMembers.map(m => (
+              {availableMembers.map((m) => (
                 <option key={m.id} value={m.id}>{m.name} ({m.email})</option>
               ))}
-            </select>
+            </AppSelect>
 
-            <select
+            <AppSelect
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
-              className="w-full sm:w-48 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#7C68EE] outline-none"
+              className="sm:w-48"
             >
               <option value="DEVELOPER">Developer</option>
               <option value="TEAM_LEAD">Team Lead</option>
               <option value="PROJECT_MANAGER">Project Manager</option>
-            </select>
+            </AppSelect>
 
             <Button 
               onClick={handleAddMember} 
@@ -160,7 +158,8 @@ export function ProjectMembers({ project, onUpdate }: ProjectMembersProps) {
                       <select
                         value={member.role}
                         onChange={(e) => handleUpdateRole(member.user.id, e.target.value)}
-                        className="bg-transparent border-none text-sm font-semibold text-gray-700 cursor-pointer focus:ring-0 outline-none"
+                        style={{ colorScheme: 'light' }}
+                        className="bg-white border border-gray-200 text-sm font-semibold text-gray-700 cursor-pointer rounded-lg px-2 py-1 focus:ring-2 focus:ring-[#7C68EE] outline-none"
                       >
                         <option value="DEVELOPER">Developer</option>
                         <option value="TEAM_LEAD">Team Lead</option>

@@ -1,6 +1,8 @@
+'use client';
 import * as React from 'react';
 import { X, Loader2, Calendar as CalendarIcon, Target, Flag, Clock } from 'lucide-react';
 import { Button } from '../ui/button';
+import { AppInput, AppSelect, AppDatePicker } from '../ui/form-fields';
 import { tasksApi, CreateTaskPayload } from '../../lib/api/tasks.api';
 import { projectsApi, ProjectData } from '../../lib/api/projects.api';
 
@@ -20,9 +22,9 @@ export function CreateTaskModal({ isOpen, onClose, onSuccess, projectId }: Creat
     priority: 'MEDIUM',
     status: 'TODO',
     dueDate: '',
-    estimatedHours: undefined
+    estimatedHours: undefined,
   });
-  
+
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
   const [project, setProject] = React.useState<ProjectData | null>(null);
@@ -41,10 +43,10 @@ export function CreateTaskModal({ isOpen, onClose, onSuccess, projectId }: Creat
       setError('Task title is required');
       return;
     }
-    
+
     setLoading(true);
     setError('');
-    
+
     try {
       const payload = { ...formData, projectId };
       if (!payload.assigneeId) delete payload.assigneeId;
@@ -63,159 +65,156 @@ export function CreateTaskModal({ isOpen, onClose, onSuccess, projectId }: Creat
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        
-        {/* Header */}
-        <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center bg-[#F8FAFC]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
+      <div className="w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] rounded-3xl"
+        style={{ animation: 'modal-pop 0.2s cubic-bezier(0.34,1.56,0.64,1)' }}>
+        <style>{`
+          @keyframes modal-pop {
+            from { opacity: 0; transform: scale(0.92) translateY(12px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+          }
+        `}</style>
+
+        {/* Gradient Header */}
+        <div
+          className="px-8 py-7 flex justify-between items-start flex-shrink-0"
+          style={{ background: 'linear-gradient(135deg, #0f2335 0%, #1a3a5c 50%, #0d1f35 100%)' }}
+        >
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Create Task</h2>
-            <p className="text-sm text-gray-500 mt-1">Add a new actionable item to the project.</p>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[#60a5fa] text-xs font-bold uppercase tracking-widest">Add Task</span>
+            </div>
+            <h2 className="text-2xl font-bold text-white leading-tight">Create Task</h2>
+            <p className="text-[#8ba3c7] text-sm mt-1">Add a new actionable item to the project.</p>
           </div>
-          <button 
+          <button
             onClick={onClose}
-            className="h-8 w-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors shadow-sm"
+            className="h-8 w-8 rounded-full flex items-center justify-center transition-colors mt-1"
+            style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4 text-white/70" />
           </button>
         </div>
 
         {/* Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto stylish-scrollbar p-8">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto stylish-scrollbar p-8 bg-white">
           {error && (
-            <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm font-medium">
+            <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-medium">
               {error}
             </div>
           )}
 
-          <div className="space-y-6">
+          <div className="space-y-5">
             {/* Title */}
-            <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">Title *</label>
-              <input
-                type="text"
-                placeholder="e.g. Implement authentication"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#7C68EE] focus:border-[#7C68EE] outline-none transition-all placeholder:text-gray-400"
-                required
-              />
-            </div>
+            <AppInput
+              label="Title *"
+              placeholder="e.g. Implement authentication"
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              required
+            />
 
             {/* Description */}
-            <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">Description</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-gray-700">Description</label>
               <textarea
                 placeholder="Details about the task..."
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#7C68EE] focus:border-[#7C68EE] outline-none transition-all placeholder:text-gray-400 min-h-[100px] resize-none"
+                style={{ colorScheme: 'light' }}
+                className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 outline-none transition-all focus:border-[#7C68EE] focus:ring-2 focus:ring-[#7C68EE]/20 min-h-[90px] resize-none"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
-              {/* Assignee */}
-              <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2">Assignee</label>
-                <select
-                  value={formData.assigneeId}
-                  onChange={(e) => setFormData({ ...formData, assigneeId: e.target.value })}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#7C68EE] outline-none transition-all text-gray-900 appearance-none font-medium"
-                >
-                  <option value="">Unassigned</option>
-                  {project?.members?.map(m => (
-                    <option key={m.userId} value={m.userId}>{m.user.name}</option>
-                  ))}
-                </select>
-              </div>
+            {/* Assignee & Status */}
+            <div className="grid grid-cols-2 gap-4">
+              <AppSelect
+                label="Assignee"
+                value={formData.assigneeId}
+                onChange={(e) => setFormData({ ...formData, assigneeId: e.target.value })}
+              >
+                <option value="">Unassigned</option>
+                {project?.members?.map((m) => (
+                  <option key={m.userId} value={m.userId}>{m.user.name}</option>
+                ))}
+              </AppSelect>
 
-              {/* Status */}
-              <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
-                  <Target className="h-4 w-4 text-gray-400" /> Status
-                </label>
-                <select
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#7C68EE] outline-none transition-all text-gray-900 appearance-none font-medium"
-                >
-                  <option value="TODO">To Do</option>
-                  <option value="IN_PROGRESS">In Progress</option>
-                  <option value="IN_REVIEW">In Review</option>
-                  <option value="DONE">Done</option>
-                </select>
-              </div>
+              <AppSelect
+                label="Status"
+                icon={<Target className="h-4 w-4" />}
+                value={formData.status}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+              >
+                <option value="TODO">To Do</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="IN_REVIEW">In Review</option>
+                <option value="DONE">Done</option>
+              </AppSelect>
             </div>
 
-            <div className="grid grid-cols-3 gap-6">
-              {/* Priority */}
-              <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
-                  <Flag className="h-4 w-4 text-gray-400" /> Priority
-                </label>
-                <select
-                  value={formData.priority}
-                  onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#7C68EE] outline-none transition-all text-gray-900 appearance-none font-medium"
-                >
-                  <option value="LOW">Low</option>
-                  <option value="MEDIUM">Medium</option>
-                  <option value="HIGH">High</option>
-                  <option value="URGENT">Urgent</option>
-                </select>
-              </div>
+            {/* Priority, Due Date, Estimated Hours */}
+            <div className="grid grid-cols-3 gap-4">
+              <AppSelect
+                label="Priority"
+                icon={<Flag className="h-4 w-4" />}
+                value={formData.priority}
+                onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+              >
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
+                <option value="URGENT">Urgent</option>
+              </AppSelect>
 
-              {/* Due Date */}
-              <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
-                  <CalendarIcon className="h-4 w-4 text-gray-400" /> Due Date
-                </label>
-                <input
-                  type="date"
-                  value={formData.dueDate}
-                  onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#7C68EE] outline-none transition-all text-gray-700"
-                />
-              </div>
+              <AppDatePicker
+                label="Due Date"
+                value={formData.dueDate || ''}
+                onChange={(v) => setFormData({ ...formData, dueDate: v })}
+                placeholder="Pick due date"
+              />
 
-              {/* Estimated Hours */}
-              <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-gray-400" /> Est. Hours
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.5"
-                  value={formData.estimatedHours || ''}
-                  onChange={(e) => setFormData({ ...formData, estimatedHours: e.target.value ? Number(e.target.value) : undefined })}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#7C68EE] outline-none transition-all text-gray-700"
-                  placeholder="e.g. 4.5"
-                />
-              </div>
+              <AppInput
+                label="Est. Hours"
+                type="number"
+                min="0"
+                step="0.5"
+                placeholder="e.g. 4.5"
+                value={formData.estimatedHours || ''}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    estimatedHours: e.target.value ? Number(e.target.value) : undefined,
+                  })
+                }
+              />
             </div>
           </div>
         </form>
 
         {/* Footer */}
-        <div className="px-8 py-5 border-t border-gray-100 bg-[#F8FAFC] flex justify-end gap-3">
-          <Button 
-            variant="ghost" 
+        <div className="px-8 py-5 flex justify-end gap-3 flex-shrink-0"
+          style={{ background: '#f8f9fc', borderTop: '1px solid #e5e7eb' }}>
+          <button
+            type="button"
             onClick={onClose}
-            className="rounded-xl px-6 font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            className="px-6 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all"
           >
             Cancel
-          </Button>
-          <Button 
+          </button>
+          <button
+            type="button"
             onClick={handleSubmit}
             disabled={loading}
-            className="bg-[#7C68EE] hover:bg-[#6b58dd] text-white rounded-xl px-8 shadow-sm font-medium transition-all"
+            className="flex items-center gap-2 px-8 py-2.5 rounded-xl text-sm font-bold text-white shadow-lg transition-all disabled:opacity-60"
+            style={{
+              background: loading ? '#1a3a5c' : 'linear-gradient(135deg, #1a3a5c 0%, #0f2335 100%)',
+              boxShadow: '0 4px 15px rgba(26,58,92,0.4)',
+            }}
           >
-            {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
-            {loading ? 'Saving...' : 'Create Task'}
-          </Button>
+            {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+            {loading ? 'Saving...' : '✦ Create Task'}
+          </button>
         </div>
-
       </div>
     </div>
   );
