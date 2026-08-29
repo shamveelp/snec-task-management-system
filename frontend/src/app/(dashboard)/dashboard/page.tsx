@@ -5,7 +5,7 @@ import { Users, Briefcase, Activity, TrendingUp, Calendar } from "lucide-react"
 
 export default function DashboardOverviewPage() {
   return (
-    <div className="flex-1 overflow-y-auto stylish-scrollbar-dark p-8 h-full bg-[#131417]">
+    <div className="flex-1 overflow-y-auto stylish-scrollbar-dark px-8 pb-8 pt-[104px] h-full bg-[#131417]">
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight text-white/90">Dashboard</h1>

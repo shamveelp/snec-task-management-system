@@ -55,8 +55,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Navbar />
           </div>
 
-          {/* Children container (pushed down by pt-20 to clear the Navbar) */}
-          <div className="flex-1 flex pt-20 overflow-hidden">
+          {/* Children container */}
+          <div className="flex-1 flex overflow-hidden">
             {/* We pass the sidebar toggle state to children if they need it (like SecondarySidebar) */}
             {/* But wait, we can't pass props to children in a layout easily. 
                 Instead, we can use React Context, OR we can just let the SecondarySidebar render unconditionally in the child page, 
