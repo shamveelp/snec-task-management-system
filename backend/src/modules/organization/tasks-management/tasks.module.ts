@@ -7,10 +7,13 @@ import { TasksController } from './tasks.controller';
 import { DatabaseModule } from '../../../database/database.module';
 import { ProjectsModule } from '../projects-management/projects.module';
 
+import { AuditLogsModule } from '../audit-logs/audit-logs.module';
+
 @Module({
   imports: [
     DatabaseModule,
     ProjectsModule,
+    AuditLogsModule,
     MulterModule.register({ storage: memoryStorage() }),
   ],
   controllers: [TasksController],

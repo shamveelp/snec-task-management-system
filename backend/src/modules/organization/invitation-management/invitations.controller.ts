@@ -12,7 +12,6 @@ export class InvitationsController {
   @Roles('Organization Admin')
   @Post()
   async createInvitation(@Req() req, @Body() body: { email: string, roleId: string }) {
-    // Organization Admin's organization ID is stored in req.user.organizationId
     const organizationId = req.user.organizationId;
     return this.invitationsService.createInvitation(organizationId, body.email, body.roleId);
   }

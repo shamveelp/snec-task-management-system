@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../../database/prisma.service';
 import { TasksRepository } from './tasks.repository';
-import { TaskPriority, TaskStatus, ProjectRole } from '@prisma/client';
+import { TaskPriority, TaskStatus, ProjectRole, AuditAction } from '@prisma/client';
+import { AuditLogsService } from '../audit-logs/audit-logs.service';
 
 export interface CreateTaskDto {
   title: string;
@@ -27,7 +28,10 @@ export interface UpdateTaskDto {
 
 @Injectable()
 export class TasksService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private auditLogsService: AuditLogsService
+  ) {}
 
   async getProjectMemberRole(projectId: string, userId: string): Promise<ProjectRole | null> {
     const member = await this.prisma.projectMember.findUnique({
@@ -76,6 +80,15 @@ export class TasksService {
           actorId: userId,
           metadata: { projectId: project.id, projectName: project.name, taskId: task.id, taskTitle: task.title }
         }
+      });
+
+      await this.auditLogsService.logAction({
+        userId,
+        organizationId: project.organizationId,
+        action: AuditAction.CREATE,
+        entityType: 'TASK',
+        entityId: task.id,
+        details: `Task "${task.title}" created`,
       });
     }
 
@@ -163,7 +176,7 @@ export class TasksService {
 
     const { dueDate, ...rest } = data;
 
-    return this.prisma.task.update({
+    const updatedTask = await this.prisma.task.update({
       where: { id: taskId },
       data: {
         ...rest,
@@ -172,8 +185,20 @@ export class TasksService {
       include: {
         assignee: { select: { id: true, name: true, profilePicture: true } },
         reporter: { select: { id: true, name: true, profilePicture: true } },
+        project: { select: { organizationId: true } }
       }
     });
+
+    await this.auditLogsService.logAction({
+      userId,
+      organizationId: updatedTask.project.organizationId,
+      action: AuditAction.UPDATE,
+      entityType: 'TASK',
+      entityId: taskId,
+      details: `Task "${updatedTask.title}" updated`,
+    });
+
+    return updatedTask;
   }
 
   async addComment(taskId: string, userId: string, content: string) {

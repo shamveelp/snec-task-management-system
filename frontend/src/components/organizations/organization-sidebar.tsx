@@ -26,6 +26,7 @@ const sidebarSections = [
     title: "OVERVIEW",
     items: [
       { name: "Dashboard", href: "/organization/dashboard", icon: LayoutDashboard },
+      { name: "Reports", href: "/organization/reports", icon: BarChart2 },
     ]
   },
   {
@@ -39,6 +40,12 @@ const sidebarSections = [
     title: "WORKSPACE",
     items: [
       { name: "Projects", href: "/organization/projects", icon: FolderKanban },
+    ]
+  },
+  {
+    title: "ADMINISTRATION",
+    items: [
+      { name: "Audit Logs", href: "/organization/audit-logs", icon: Shield },
     ]
   }
 ]

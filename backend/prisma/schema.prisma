@@ -11,54 +11,55 @@ datasource db {
   provider = "postgresql"
 }
 
-
 // Models
 
 model User {
-  id                 String    @id @default(uuid())
+  id                 String        @id @default(uuid())
   name               String
-  username           String?   @unique
-  email              String    @unique
+  username           String?       @unique
+  email              String        @unique
   password           String
   mobile             String?
   bio                String?
   profilePicture     String?
-  status             UserStatus @default(ACTIVE)
+  status             UserStatus    @default(ACTIVE)
   roleId             String?
-  role               Role?      @relation(fields: [roleId], references: [id])
+  role               Role?         @relation(fields: [roleId], references: [id])
   organizationId     String?
   organization       Organization? @relation(fields: [organizationId], references: [id])
   hashedRefreshToken String?
   resetToken         String?
   resetTokenExpiry   DateTime?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
   deletedAt          DateTime?
 
-  createdProjects    Project[]         @relation("ProjectCreator")
-  projectMembers     ProjectMember[]
-  assignedTasks      Task[]            @relation("TaskAssignee")
-  reportedTasks      Task[]            @relation("TaskReporter")
-  taskComments       TaskComment[]
-  taskAttachments    TaskAttachment[]
-  notificationsTriggered Notification[] @relation("NotificationActor")
+  createdProjects        Project[]        @relation("ProjectCreator")
+  projectMembers         ProjectMember[]
+  assignedTasks          Task[]           @relation("TaskAssignee")
+  reportedTasks          Task[]           @relation("TaskReporter")
+  taskComments           TaskComment[]
+  taskAttachments        TaskAttachment[]
+  notificationsTriggered Notification[]   @relation("NotificationActor")
+  auditLogs              AuditLog[]
 
   @@index([email])
   @@index([username])
 }
 
 model Organization {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  mobile    String?
-  category  String
-  users     User[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  invitations Invitation[]
-  projects    Project[]
+  id            String         @id @default(uuid())
+  name          String
+  email         String         @unique
+  mobile        String?
+  category      String
+  users         User[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  invitations   Invitation[]
+  projects      Project[]
   notifications Notification[]
+  auditLogs     AuditLog[]
 }
 
 enum UserStatus {
@@ -269,4 +270,29 @@ model Notification {
 
   @@index([organizationId])
   @@index([createdAt])
+}
+
+enum AuditAction {
+  LOGIN
+  LOGOUT
+  CREATE
+  UPDATE
+  DELETE
+  OTHER
+}
+
+model AuditLog {
+  id             String        @id @default(uuid())
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action         AuditAction
+  entityType     String // e.g. "USER", "PROJECT", "TASK", "AUTH"
+  entityId       String?
+  details        String? // Stringified JSON or simple text
+  createdAt      DateTime      @default(now())
+
+  @@index([organizationId])
+  @@index([userId])
 }

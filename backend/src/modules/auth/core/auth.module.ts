@@ -10,12 +10,15 @@ import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { DatabaseModule } from '../../../database/database.module';
 import { EmailModule } from '../../email/email.module';
 
+import { AuditLogsModule } from '../../organization/audit-logs/audit-logs.module';
+
 @Module({
   imports: [
     DatabaseModule,
     PassportModule,
     JwtModule.register({}),
     EmailModule,
+    AuditLogsModule,
   ],
   controllers: [AuthController],
   providers: [

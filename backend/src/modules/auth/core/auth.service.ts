@@ -11,7 +11,8 @@ import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { EmailService } from '../../email/email.service';
 import { VerifyUserRegistrationDto } from './dtos/verify-user-registration.dto';
 import { PrismaService } from '../../../database/prisma.service';
-
+import { AuditLogsService } from '../../organization/audit-logs/audit-logs.service';
+import { AuditAction } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +21,7 @@ export class AuthService {
     private readonly tokenService: TokenService,
     private readonly emailService: EmailService,
     private readonly prisma: PrismaService,
+    private readonly auditLogsService: AuditLogsService,
   ) {}
 
   async checkUsername(username: string) {
@@ -128,6 +130,15 @@ export class AuthService {
     // Filter out password before sending
     const { password, hashedRefreshToken: _, resetToken, resetTokenExpiry, ...userWithoutSecrets } = user;
 
+    await this.auditLogsService.logAction({
+      userId: user.id,
+      organizationId: user.organizationId || undefined,
+      action: AuditAction.LOGIN,
+      entityType: 'AUTH',
+      entityId: user.id,
+      details: 'User logged in',
+    });
+
     return {
       user: userWithoutSecrets,
       tokens,
@@ -135,7 +146,19 @@ export class AuthService {
   }
 
   async logout(userId: string) {
+    const user = await this.authRepository.findById(userId);
     await this.authRepository.updateRefreshToken(userId, null);
+    
+    if (user) {
+      await this.auditLogsService.logAction({
+        userId,
+        organizationId: user.organizationId || undefined,
+        action: AuditAction.LOGOUT,
+        entityType: 'AUTH',
+        entityId: userId,
+        details: 'User logged out',
+      });
+    }
   }
 
   async refreshToken(userId: string, refreshToken: string) {

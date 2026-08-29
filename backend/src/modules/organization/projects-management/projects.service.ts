@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../../database/prisma.service';
 import { ProjectsRepository } from './projects.repository';
-import { ProjectPriority, ProjectStatus, ProjectRole } from '@prisma/client';
+import { ProjectPriority, ProjectStatus, ProjectRole, AuditAction } from '@prisma/client';
+import { AuditLogsService } from '../audit-logs/audit-logs.service';
 
 export interface CreateProjectDto {
   name: string;
@@ -24,7 +25,10 @@ export interface UpdateProjectDto {
 
 @Injectable()
 export class ProjectsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private auditLogsService: AuditLogsService,
+  ) {}
 
   async createProject(organizationId: string, createdById: string, data: CreateProjectDto) {
     const { memberIds, startDate, endDate, ...projectData } = data;
@@ -74,6 +78,15 @@ export class ProjectsService {
           projectName: project.name
         }
       }
+    });
+
+    await this.auditLogsService.logAction({
+      userId: createdById,
+      organizationId,
+      action: AuditAction.CREATE,
+      entityType: 'PROJECT',
+      entityId: project.id,
+      details: `Project "${project.name}" created`,
     });
 
     return project;
@@ -133,9 +146,9 @@ export class ProjectsService {
     return project;
   }
 
-  async updateProject(projectId: string, data: UpdateProjectDto) {
+  async updateProject(projectId: string, data: UpdateProjectDto, userId?: string, organizationId?: string) {
     const { startDate, endDate, ...rest } = data;
-    return this.prisma.project.update({
+    const project = await this.prisma.project.update({
       where: { id: projectId },
       data: {
         ...rest,
@@ -143,15 +156,28 @@ export class ProjectsService {
         ...(endDate !== undefined ? { endDate: endDate ? new Date(endDate) : null } : {}),
       },
     });
+
+    if (userId && organizationId) {
+      await this.auditLogsService.logAction({
+        userId,
+        organizationId,
+        action: AuditAction.UPDATE,
+        entityType: 'PROJECT',
+        entityId: projectId,
+        details: `Project "${project.name}" updated`,
+      });
+    }
+
+    return project;
   }
 
-  async addProjectMember(projectId: string, userId: string, role: ProjectRole) {
+  async addProjectMember(projectId: string, targetUserId: string, role: ProjectRole, actorId?: string, organizationId?: string) {
     // Check if user exists in the org first (Optional depending on strictly bounded APIs, but good practice)
     
     // Check if already a member
     const existing = await this.prisma.projectMember.findUnique({
       where: {
-        projectId_userId: { projectId, userId },
+        projectId_userId: { projectId, userId: targetUserId },
       },
     });
 
@@ -159,41 +185,80 @@ export class ProjectsService {
       throw new BadRequestException('User is already a member of this project');
     }
 
-    return this.prisma.projectMember.create({
+    const member = await this.prisma.projectMember.create({
       data: {
         projectId,
-        userId,
+        userId: targetUserId,
         role,
       },
       include: {
         user: { select: { id: true, name: true, email: true, profilePicture: true } }
       }
     });
+
+    if (actorId && organizationId) {
+      await this.auditLogsService.logAction({
+        userId: actorId,
+        organizationId,
+        action: AuditAction.UPDATE,
+        entityType: 'PROJECT',
+        entityId: projectId,
+        details: `Added user ${member.user.name} to project with role ${role}`,
+      });
+    }
+
+    return member;
   }
 
-  async updateMemberRole(projectId: string, userId: string, role: ProjectRole) {
+  async updateMemberRole(projectId: string, targetUserId: string, role: ProjectRole, actorId?: string, organizationId?: string) {
     const member = await this.prisma.projectMember.findUnique({
-      where: { projectId_userId: { projectId, userId } },
+      where: { projectId_userId: { projectId, userId: targetUserId } },
     });
 
     if (!member) {
       throw new NotFoundException('Project member not found');
     }
 
-    return this.prisma.projectMember.update({
-      where: { projectId_userId: { projectId, userId } },
+    const updated = await this.prisma.projectMember.update({
+      where: { projectId_userId: { projectId, userId: targetUserId } },
       data: { role },
       include: {
         user: { select: { id: true, name: true, email: true, profilePicture: true } }
       }
     });
+
+    if (actorId && organizationId) {
+      await this.auditLogsService.logAction({
+        userId: actorId,
+        organizationId,
+        action: AuditAction.UPDATE,
+        entityType: 'PROJECT',
+        entityId: projectId,
+        details: `Updated user ${updated.user.name} role to ${role}`,
+      });
+    }
+
+    return updated;
   }
 
-  async removeMember(projectId: string, userId: string) {
+  async removeMember(projectId: string, targetUserId: string, actorId?: string, organizationId?: string) {
     try {
-      await this.prisma.projectMember.delete({
-        where: { projectId_userId: { projectId, userId } },
+      const deleted = await this.prisma.projectMember.delete({
+        where: { projectId_userId: { projectId, userId: targetUserId } },
+        include: { user: { select: { name: true } } }
       });
+
+      if (actorId && organizationId) {
+        await this.auditLogsService.logAction({
+          userId: actorId,
+          organizationId,
+          action: AuditAction.UPDATE,
+          entityType: 'PROJECT',
+          entityId: projectId,
+          details: `Removed user ${deleted.user.name} from project`,
+        });
+      }
+
       return { success: true };
     } catch (error) {
       throw new NotFoundException('Project member not found');
