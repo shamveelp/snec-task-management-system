@@ -110,3 +110,33 @@
   background-image: linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
 }
+
+@layer utilities {
+  .stylish-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #A5B4FC transparent;
+  }
+  
+  .stylish-scrollbar::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  .stylish-scrollbar::-webkit-scrollbar-track {
+    background: #F4F6F9;
+    border-radius: 100px;
+    margin: 8px;
+  }
+
+  .stylish-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #A5B4FC 0%, #7C68EE 100%);
+    border-radius: 100px;
+    border: 3px solid #F4F6F9;
+    background-clip: content-box;
+  }
+
+  .stylish-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #818CF8 0%, #6b58dd 100%);
+    border: 2px solid #F4F6F9;
+  }
+}

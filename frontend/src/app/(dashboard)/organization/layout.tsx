@@ -21,7 +21,7 @@ export default function OrganizationLayout({
         <div className="flex flex-col flex-1 min-w-0 bg-white overflow-hidden relative">
           <OrganizationNavbar />
           
-          <main className="flex-1 overflow-y-auto outline-none scrollbar-hide">
+          <main className="flex-1 overflow-y-auto outline-none stylish-scrollbar">
             {children}
           </main>
         </div>

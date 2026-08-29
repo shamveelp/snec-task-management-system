@@ -17,7 +17,7 @@ export default function OrganizationDashboardPage() {
     <div className="flex flex-col xl:flex-row h-full px-10 pb-10 gap-10 bg-white">
       
       {/* Main Content Column */}
-      <div className="flex-1 space-y-10 overflow-y-auto pr-2 scrollbar-hide">
+      <div className="flex-1 space-y-10 overflow-y-auto pr-2 stylish-scrollbar">
         
         {/* Dashboard Header */}
         <div className="flex justify-between items-center mt-2">
