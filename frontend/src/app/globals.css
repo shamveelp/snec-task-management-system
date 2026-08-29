@@ -139,4 +139,31 @@
     background: linear-gradient(180deg, #818CF8 0%, #6b58dd 100%);
     border: 2px solid #F4F6F9;
   }
+  .stylish-scrollbar-dark {
+    scrollbar-width: thin;
+    scrollbar-color: #3f3f46 transparent;
+  }
+  
+  .stylish-scrollbar-dark::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .stylish-scrollbar-dark::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 100px;
+    margin: 4px;
+  }
+
+  .stylish-scrollbar-dark::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 100px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  .stylish-scrollbar-dark::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border: 2px solid transparent;
+  }
 }
