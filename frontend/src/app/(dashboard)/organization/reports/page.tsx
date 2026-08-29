@@ -54,11 +54,12 @@ export default function ReportsPage() {
   const completionRate = taskStats?.TOTAL ? Math.round((taskStats.DONE / taskStats.TOTAL) * 100) : 0;
 
   return (
-    <div className="p-6 pt-28 max-w-7xl mx-auto space-y-8 text-black">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col h-full px-10 pb-10 gap-8 bg-[#F8F9FA] overflow-y-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between mt-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-black">Organization Reports</h1>
-          <p className="text-muted-foreground mt-2 text-black/70">
+          <h1 className="text-[22px] font-bold text-gray-900">Organization Reports</h1>
+          <p className="text-sm text-gray-500 mt-1">
             Overview of project progress, user productivity, and task statistics.
           </p>
         </div>
@@ -66,6 +67,7 @@ export default function ReportsPage() {
           variant="outline" 
           onClick={() => fetchReports(true)}
           disabled={isRefreshing}
+          className="bg-white"
         >
           <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
           Refresh Data
@@ -74,71 +76,72 @@ export default function ReportsPage() {
 
       {/* Task Completion Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="bg-white rounded-[20px] shadow-sm border border-gray-100 p-6">
           <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <h3 className="text-sm font-medium">Total Tasks</h3>
-            <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
+            <h3 className="text-[14px] font-bold text-gray-600">Total Tasks</h3>
+            <LayoutDashboard className="h-4 w-4 text-gray-400" />
           </div>
           <div>
-            <div className="text-2xl font-bold">{taskStats?.TOTAL || 0}</div>
+            <div className="text-[28px] font-black text-gray-900">{taskStats?.TOTAL || 0}</div>
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="bg-white rounded-[20px] shadow-sm border border-gray-100 p-6">
           <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <h3 className="text-sm font-medium">Completed</h3>
-            <CheckCircle2 className="h-4 w-4 text-green-500" />
+            <h3 className="text-[14px] font-bold text-gray-600">Completed</h3>
+            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
           </div>
           <div>
-            <div className="text-2xl font-bold">{taskStats?.DONE || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">{completionRate}% completion rate</p>
+            <div className="text-[28px] font-black text-gray-900">{taskStats?.DONE || 0}</div>
+            <p className="text-[12px] text-gray-500 font-medium mt-1">{completionRate}% completion rate</p>
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="bg-white rounded-[20px] shadow-sm border border-gray-100 p-6">
           <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <h3 className="text-sm font-medium">In Progress</h3>
+            <h3 className="text-[14px] font-bold text-gray-600">In Progress</h3>
             <TrendingUp className="h-4 w-4 text-blue-500" />
           </div>
           <div>
-            <div className="text-2xl font-bold">{taskStats?.IN_PROGRESS || 0}</div>
+            <div className="text-[28px] font-black text-gray-900">{taskStats?.IN_PROGRESS || 0}</div>
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-red-200 p-6">
+        <div className="bg-white rounded-[20px] shadow-sm border border-red-200 p-6 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-1 h-full bg-red-500"></div>
           <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <h3 className="text-sm font-medium text-red-700">Overdue Tasks</h3>
+            <h3 className="text-[14px] font-bold text-red-600">Overdue Tasks</h3>
             <Clock className="h-4 w-4 text-red-500" />
           </div>
           <div>
-            <div className="text-2xl font-bold text-red-700">{overdueTasks.length}</div>
+            <div className="text-[28px] font-black text-red-600">{overdueTasks.length}</div>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Project Progress */}
-        <div className="col-span-1 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="col-span-1 bg-white rounded-[20px] shadow-sm border border-gray-100 overflow-hidden">
           <div className="p-6 border-b border-gray-100">
-            <h3 className="flex items-center gap-2 text-lg font-semibold">
+            <h3 className="flex items-center gap-2 text-lg font-bold text-gray-900">
               <LayoutDashboard className="h-5 w-5 text-primary" />
               Project Progress
             </h3>
-            <p className="text-sm text-muted-foreground mt-1">Completion percentage of active projects.</p>
+            <p className="text-sm text-gray-500 mt-1">Completion percentage of active projects.</p>
           </div>
           <div className="p-6 space-y-6">
             {projectProgress.length === 0 ? (
-              <p className="text-muted-foreground text-sm">No projects found.</p>
+              <p className="text-gray-500 text-sm">No projects found.</p>
             ) : (
               projectProgress.map(project => (
                 <div key={project.projectId} className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="font-medium">{project.projectName}</span>
-                    <span className="text-muted-foreground">{project.progress}%</span>
+                    <span className="font-bold text-gray-900">{project.projectName}</span>
+                    <span className="text-gray-500 font-medium">{project.progress}%</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-gray-100 rounded-full h-2">
                     <div className="bg-primary h-2 rounded-full" style={{ width: `${project.progress}%` }}></div>
                   </div>
-                  <div className="flex justify-between text-xs text-muted-foreground">
+                  <div className="flex justify-between text-xs text-gray-500">
                     <span>{project.completedTasks} of {project.totalTasks} tasks done</span>
-                    <Badge variant="outline" className="text-[10px] uppercase">{project.status}</Badge>
+                    <Badge variant="outline" className="text-[10px] uppercase font-bold text-gray-600 bg-gray-50">{project.status}</Badge>
                   </div>
                 </div>
               ))
@@ -147,13 +150,13 @@ export default function ReportsPage() {
         </div>
 
         {/* User Productivity */}
-        <div className="col-span-1 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="col-span-1 bg-white rounded-[20px] shadow-sm border border-gray-100 overflow-hidden">
           <div className="p-6 border-b border-gray-100">
-            <h3 className="flex items-center gap-2 text-lg font-semibold">
+            <h3 className="flex items-center gap-2 text-lg font-bold text-gray-900">
               <Users className="h-5 w-5 text-primary" />
               Top Contributors
             </h3>
-            <p className="text-sm text-muted-foreground mt-1">Team members ranked by completed tasks.</p>
+            <p className="text-sm text-gray-500 mt-1">Team members ranked by completed tasks.</p>
           </div>
           <div className="p-6">
             {userProductivity.length === 0 ? (
@@ -172,13 +175,13 @@ export default function ReportsPage() {
                         )}
                       </div>
                       <div>
-                        <p className="text-sm font-medium leading-none">{prod.user.name}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{prod.user.email}</p>
+                        <p className="text-[14px] font-bold text-gray-900 leading-none">{prod.user.name}</p>
+                        <p className="text-[12px] text-gray-500 mt-1">{prod.user.email}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm font-bold">{prod.tasksCompleted} <span className="text-muted-foreground font-normal">done</span></div>
-                      <div className="text-xs text-muted-foreground">{prod.completionRate}% rate</div>
+                      <div className="text-[14px] font-bold text-gray-900">{prod.tasksCompleted} <span className="text-gray-500 font-normal">done</span></div>
+                      <div className="text-[12px] text-gray-500 font-medium">{prod.completionRate}% rate</div>
                     </div>
                   </div>
                 ))}
@@ -189,17 +192,17 @@ export default function ReportsPage() {
       </div>
 
       {/* Overdue Tasks List */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-[20px] shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-6 border-b border-gray-100">
-          <h3 className="flex items-center gap-2 text-lg font-semibold text-red-600">
+          <h3 className="flex items-center gap-2 text-lg font-bold text-red-600">
             <Clock className="h-5 w-5" />
             Overdue Tasks Warning
           </h3>
-          <p className="text-sm text-muted-foreground mt-1">Tasks that have missed their due date and are not yet completed.</p>
+          <p className="text-sm text-gray-500 mt-1">Tasks that have missed their due date and are not yet completed.</p>
         </div>
         <div className="p-0">
           {overdueTasks.length === 0 ? (
-            <p className="text-muted-foreground text-sm">No overdue tasks right now. Great job!</p>
+            <div className="p-6 text-center text-gray-500 font-medium">No overdue tasks right now. Great job!</div>
           ) : (
             <div className="relative overflow-x-auto">
               <table className="w-full text-sm text-left">
@@ -214,29 +217,29 @@ export default function ReportsPage() {
                 </thead>
                 <tbody>
                   {overdueTasks.map((task) => (
-                    <tr key={task.id} className="border-b last:border-0 hover:bg-muted/50">
-                      <td className="px-6 py-4 font-medium">{task.title}</td>
-                      <td className="px-6 py-4 text-muted-foreground">{task.project.name}</td>
+                    <tr key={task.id} className="border-b last:border-0 hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 font-bold text-gray-900 text-sm">{task.title}</td>
+                      <td className="px-6 py-4 text-gray-500 font-medium text-sm">{task.project.name}</td>
                       <td className="px-6 py-4">
                         {task.assignee ? (
                           <div className="flex items-center gap-2">
-                            <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-[10px]">
+                            <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-[10px]">
                               {task.assignee.profilePicture ? (
                                 <img src={task.assignee.profilePicture} alt={task.assignee.name} className="h-full w-full rounded-full object-cover" />
                               ) : (
                                 task.assignee.name.charAt(0)
                               )}
                             </div>
-                            <span>{task.assignee.name}</span>
+                            <span className="text-sm font-bold text-gray-700">{task.assignee.name}</span>
                           </div>
                         ) : (
-                          <span className="text-muted-foreground italic">Unassigned</span>
+                          <span className="text-gray-400 italic text-sm">Unassigned</span>
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        <Badge variant="outline">{task.status}</Badge>
+                        <Badge variant="outline" className="font-bold text-gray-600 bg-gray-50">{task.status}</Badge>
                       </td>
-                      <td className="px-6 py-4 text-red-600 font-medium whitespace-nowrap">
+                      <td className="px-6 py-4 text-red-600 font-bold whitespace-nowrap text-sm">
                         {format(new Date(task.dueDate), 'MMM d, yyyy')}
                       </td>
                     </tr>

@@ -86,32 +86,7 @@ export default function OrganizationDashboardPage() {
           </div>
         </div>
 
-        {/* Banner */}
-        <div className="bg-[#F0F4FD] rounded-[24px] p-8 flex items-center justify-between relative overflow-hidden">
-          <div className="relative z-10 max-w-[50%] space-y-4">
-            <h2 className="text-[26px] font-serif text-gray-900 tracking-tight">
-              Welcome Back {userName}
-            </h2>
-            <p className="text-[#64748B] text-sm leading-relaxed pb-2">
-              Get additional 500 GB space for your documents and files. Unlock now for more space.
-            </p>
-            <Button className="bg-[#7C68EE] hover:bg-[#6b58dd] text-white rounded-[14px] px-8 shadow-sm">
-              Upgrade
-            </Button>
-          </div>
-          
-          {/* Mock Illustration Area */}
-          <div className="absolute right-0 top-0 bottom-0 w-[45%] flex items-end justify-end pointer-events-none">
-             <div className="w-full h-full relative flex items-center justify-center">
-                <div className="w-[80%] h-[70%] border-[3px] border-indigo-500 rounded-xl bg-white relative flex items-center justify-center">
-                   <div className="w-16 h-12 border-2 border-dashed border-green-500 rounded-lg flex items-center justify-center">
-                     <CloudUpload className="h-6 w-6 text-green-500" />
-                   </div>
-                </div>
-                <div className="absolute right-6 bottom-4 w-12 h-32 bg-teal-400 rounded-full border-4 border-white shadow-sm"></div>
-             </div>
-          </div>
-        </div>
+        
 
         {/* Folders (Recent Projects) */}
         <div className="space-y-5">
@@ -218,7 +193,7 @@ export default function OrganizationDashboardPage() {
       </div>
 
       {/* Right Column / Widgets */}
-      <div className="w-full xl:w-[320px] flex-shrink-0 space-y-6 pt-4">
+      <div className="w-full xl:w-[320px] flex-shrink-0 space-y-6 pt-4 overflow-y-auto stylish-scrollbar pr-2 h-full pb-10">
         
         {/* Calendar Widget */}
         <div className="bg-white rounded-[24px] border border-[#F0F2F5] p-6 shadow-sm">

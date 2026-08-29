@@ -49,11 +49,12 @@ export default function AuditLogsPage() {
   }
 
   return (
-    <div className="p-6 pt-28 max-w-6xl mx-auto space-y-6 text-black">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col h-full px-10 pb-10 gap-8 bg-[#F8F9FA] overflow-y-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between mt-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-black">Audit Logs</h1>
-          <p className="text-muted-foreground mt-2 text-black/70">
+          <h1 className="text-[22px] font-bold text-gray-900">Audit Logs</h1>
+          <p className="text-sm text-gray-500 mt-1">
             Track user activities and system events across the organization.
           </p>
         </div>
@@ -61,16 +62,17 @@ export default function AuditLogsPage() {
           variant="outline" 
           onClick={() => fetchLogs(true)}
           disabled={isRefreshing}
+          className="bg-white"
         >
           <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-[20px] shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-6 border-b border-gray-100">
-          <h2 className="text-lg font-semibold">Activity Trail</h2>
-          <p className="text-sm text-muted-foreground">Latest 100 events recorded in the system.</p>
+          <h2 className="text-lg font-bold text-gray-900">Activity Trail</h2>
+          <p className="text-sm text-gray-500">Latest 100 events recorded in the system.</p>
         </div>
         <div className="p-0">
           {logs.length === 0 ? (
@@ -102,8 +104,8 @@ export default function AuditLogsPage() {
                             )}
                           </div>
                           <div className="flex flex-col">
-                            <span className="font-medium">{log.user.name}</span>
-                            <span className="text-xs text-muted-foreground">{log.user.email}</span>
+                            <span className="font-bold text-gray-900 text-[14px]">{log.user.name}</span>
+                            <span className="text-[12px] text-gray-500">{log.user.email}</span>
                           </div>
                         </div>
                       </td>
@@ -113,12 +115,12 @@ export default function AuditLogsPage() {
                         </Badge>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="font-medium text-muted-foreground">{log.entityType}</span>
+                        <span className="font-medium text-gray-700">{log.entityType}</span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="text-muted-foreground">{log.details || '-'}</span>
+                        <span className="text-gray-600">{log.details || '-'}</span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-muted-foreground">
+                      <td className="px-6 py-4 whitespace-nowrap text-gray-500 text-sm">
                         {format(new Date(log.createdAt), 'MMM d, yyyy HH:mm')}
                       </td>
                     </tr>
