@@ -130,23 +130,29 @@ export class OrganizationsService {
     }
   }
 
-  async getAllOrganizations() {
-    const orgs = await this.prisma.organization.findMany({
+  async getJoinedOrganizations(organizationId: string | null) {
+    if (!organizationId) {
+      return [];
+    }
+
+    const org = await this.prisma.organization.findUnique({
+      where: { id: organizationId },
       include: {
         _count: {
           select: { users: true }
         }
-      },
-      orderBy: { createdAt: 'desc' }
+      }
     });
 
-    return orgs.map(org => ({
+    if (!org) return [];
+
+    return [{
       id: org.id,
       name: org.name,
       category: org.category,
       memberCount: org._count.users,
       createdAt: org.createdAt
-    }));
+    }];
   }
 
   async getMembers(organizationId: string) {

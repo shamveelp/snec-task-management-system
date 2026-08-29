@@ -106,7 +106,7 @@ export function SecondarySidebar({ isExpanded, onExpand }: SecondarySidebarProps
             </div>
           </div>
 
-          {/* All Organizations */}
+          {/* All Joined Organizations */}
           <div className={cn(isExpanded ? "w-full" : "flex flex-col items-center gap-3")}>
             {isExpanded ? (
               <div 
@@ -116,7 +116,7 @@ export function SecondarySidebar({ isExpanded, onExpand }: SecondarySidebarProps
                 )}
               >
                 <ChevronRight className="h-3.5 w-3.5 mr-2" />
-                All Organizations
+                All Joined Organizations
               </div>
             ) : (
               <>

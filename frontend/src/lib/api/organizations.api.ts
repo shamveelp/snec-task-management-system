@@ -53,8 +53,8 @@ export const organizationsApi = {
     return response.data;
   },
 
-  getAllOrganizations: async () => {
-    const response = await api.get<OrganizationData[]>('/organizations/all');
+  getJoinedOrganizations: async () => {
+    const response = await api.get<OrganizationData[]>('/organizations/joined');
     return response.data;
   }
 };

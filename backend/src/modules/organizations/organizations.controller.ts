@@ -39,9 +39,9 @@ export class OrganizationsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('all')
-  async getAllOrganizations() {
-    return this.organizationsService.getAllOrganizations();
+  @Get('joined')
+  async getJoinedOrganizations(@Req() req) {
+    return this.organizationsService.getJoinedOrganizations(req.user.organizationId);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

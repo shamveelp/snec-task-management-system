@@ -26,7 +26,7 @@ export default function AllOrganizationsPage() {
   const loadOrganizations = async () => {
     try {
       setIsLoading(true)
-      const data = await organizationsApi.getAllOrganizations()
+      const data = await organizationsApi.getJoinedOrganizations()
       setOrganizations(data)
     } catch (error) {
       console.error("Failed to load organizations:", error)
@@ -75,8 +75,8 @@ export default function AllOrganizationsPage() {
         {/* Header Section */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight text-white/90">All Organizations</h1>
-            <p className="text-white/40 mt-1">Discover and join organizations across the platform.</p>
+            <h1 className="text-3xl font-semibold tracking-tight text-white/90">Joined Organizations</h1>
+            <p className="text-white/40 mt-1">Manage the organizations you are a member of.</p>
           </div>
           
           <div className="flex items-center gap-3">
