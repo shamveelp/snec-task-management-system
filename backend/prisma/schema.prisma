@@ -21,6 +21,7 @@ model User {
   email              String    @unique
   password           String
   mobile             String?
+  bio                String?
   profilePicture     String?
   status             UserStatus @default(ACTIVE)
   roleId             String?

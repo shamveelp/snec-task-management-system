@@ -9,6 +9,7 @@ interface AuthState {
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
   setAuth: (user: any, tokens: any) => void;
+  updateUser: (user: any) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -19,6 +20,9 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.setItem('accessToken', tokens.accessToken);
     localStorage.setItem('refreshToken', tokens.refreshToken);
     set({ user, isAuthenticated: true, isLoading: false });
+  },
+  updateUser: (user) => {
+    set({ user });
   },
   login: async (credentials) => {
     const { user, tokens } = await authApi.login(credentials);

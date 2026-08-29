@@ -5,9 +5,10 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { OrganizationsModule } from './modules/organizations/organizations.module';
 import { InvitationsModule } from './modules/invitations/invitations.module';
+import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, OrganizationsModule, InvitationsModule],
+  imports: [AuthModule, UsersModule, OrganizationsModule, InvitationsModule, CloudinaryModule],
   controllers: [AppController],
   providers: [AppService],
 })
