@@ -1,11 +1,14 @@
 import * as React from "react";
-import { tasksApi, TaskData } from "../../lib/api/tasks.api";
+import { tasksApi, TaskData, ProjectUserRole } from "../../lib/api/tasks.api";
+import { ProjectData } from "../../lib/api/projects.api";
 import { Loader2, Plus, MessageSquare, Paperclip, Calendar, Flag } from "lucide-react";
 import { Button } from "../ui/button";
 import { CreateTaskModal } from "./create-task-modal";
+import { TaskDetailPanel } from "./task-detail-panel";
 
 interface KanbanBoardDarkProps {
   projectId: string;
+  project?: ProjectData | null;
 }
 
 const COLUMNS = [
@@ -15,16 +18,24 @@ const COLUMNS = [
   { id: 'DONE', title: 'Done', color: 'bg-emerald-500', border: 'border-emerald-500/20' },
 ];
 
-export function KanbanBoardDark({ projectId }: KanbanBoardDarkProps) {
+export function KanbanBoardDark({ projectId, project }: KanbanBoardDarkProps) {
   const [tasks, setTasks] = React.useState<TaskData[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [projectRole, setProjectRole] = React.useState<ProjectUserRole>('DEVELOPER');
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
+  const [selectedTaskId, setSelectedTaskId] = React.useState<string | null>(null);
   const [draggedTaskId, setDraggedTaskId] = React.useState<string | null>(null);
+
+  const canCreateTask = ['ORG_ADMIN', 'PROJECT_MANAGER'].includes(projectRole);
 
   const fetchTasks = async () => {
     try {
-      const data = await tasksApi.getTasksByProject(projectId);
-      setTasks(data);
+      const [tasksData, roleData] = await Promise.all([
+        tasksApi.getTasksByProject(projectId),
+        tasksApi.getMyProjectRole(projectId).catch(() => 'DEVELOPER' as ProjectUserRole)
+      ]);
+      setTasks(tasksData);
+      setProjectRole(roleData);
     } catch (error) {
       console.error("Failed to fetch tasks", error);
     } finally {
@@ -69,7 +80,6 @@ export function KanbanBoardDark({ projectId }: KanbanBoardDarkProps) {
       await tasksApi.updateTask(draggedTaskId, { status });
     } catch (error: any) {
       console.error(error);
-      alert(error.response?.data?.message || 'Failed to update task status');
       setTasks(previousTasks);
     }
     setDraggedTaskId(null);
@@ -83,6 +93,20 @@ export function KanbanBoardDark({ projectId }: KanbanBoardDarkProps) {
       case 'LOW': return <Flag className="h-3.5 w-3.5 text-gray-500" />;
       default: return null;
     }
+  };
+
+  const defaultProject: ProjectData = project || {
+    id: projectId,
+    name: "Project",
+    description: "",
+    startDate: null,
+    endDate: null,
+    priority: "MEDIUM",
+    status: "ACTIVE",
+    organizationId: "",
+    createdById: "",
+    createdAt: new Date().toISOString(),
+    members: []
   };
 
   if (loading) {
@@ -102,13 +126,20 @@ export function KanbanBoardDark({ projectId }: KanbanBoardDarkProps) {
           <div className="text-sm font-medium text-[#8F96AE]">
             Total Tasks: <span className="text-white font-bold">{tasks.length}</span>
           </div>
+          <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-[#7C68EE]/10 text-[#7C68EE] border border-[#7C68EE]/20">
+            {projectRole === 'ORG_ADMIN' ? 'Org Admin' :
+             projectRole === 'PROJECT_MANAGER' ? 'Project Manager' :
+             projectRole === 'TEAM_LEAD' ? 'Team Lead' : 'Developer'}
+          </span>
         </div>
-        <Button 
-          onClick={() => setIsCreateModalOpen(true)}
-          className="bg-[#7C68EE] hover:bg-[#6b58dd] text-white rounded-lg px-4 h-9 shadow-sm font-medium text-sm"
-        >
-          <Plus className="h-4 w-4 mr-1.5" /> Add Task
-        </Button>
+        {canCreateTask && (
+          <Button 
+            onClick={() => setIsCreateModalOpen(true)}
+            className="bg-[#7C68EE] hover:bg-[#6b58dd] text-white rounded-lg px-4 h-9 shadow-sm font-medium text-sm"
+          >
+            <Plus className="h-4 w-4 mr-1.5" /> Add Task
+          </Button>
+        )}
       </div>
 
       {/* Kanban Canvas */}
@@ -144,8 +175,8 @@ export function KanbanBoardDark({ projectId }: KanbanBoardDarkProps) {
                       draggable
                       onDragStart={(e) => handleDragStart(e, task.id)}
                       onDragEnd={handleDragEnd}
-                      onClick={() => alert(`Task details coming soon: ${task.title}`)}
-                      className="bg-[#0D0E12] p-4 rounded-xl shadow-sm border border-white/5 cursor-grab active:cursor-grabbing hover:border-[#7C68EE]/50 hover:shadow-lg hover:shadow-[#7C68EE]/10 transition-all group"
+                      onClick={() => setSelectedTaskId(task.id)}
+                      className="bg-[#0D0E12] p-4 rounded-xl shadow-sm border border-white/5 cursor-pointer hover:border-[#7C68EE]/50 hover:shadow-lg hover:shadow-[#7C68EE]/10 transition-all group"
                     >
                       <div className="flex justify-between items-start mb-2">
                         <span className="text-[10px] font-bold text-white/30">TASK-{task.id.split('-')[0].toUpperCase()}</span>
@@ -212,12 +243,25 @@ export function KanbanBoardDark({ projectId }: KanbanBoardDarkProps) {
         </div>
       </div>
 
-      <CreateTaskModal 
-        isOpen={isCreateModalOpen} 
-        onClose={() => setIsCreateModalOpen(false)} 
-        onSuccess={fetchTasks}
-        projectId={projectId}
-      />
+      {/* Task Detail Modal */}
+      {selectedTaskId && (
+        <TaskDetailPanel
+          taskId={selectedTaskId}
+          projectRole={projectRole}
+          project={defaultProject}
+          onClose={() => setSelectedTaskId(null)}
+          onTaskUpdated={fetchTasks}
+        />
+      )}
+
+      {canCreateTask && (
+        <CreateTaskModal 
+          isOpen={isCreateModalOpen} 
+          onClose={() => setIsCreateModalOpen(false)} 
+          onSuccess={fetchTasks}
+          projectId={projectId}
+        />
+      )}
     </div>
   );
 }

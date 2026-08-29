@@ -333,7 +333,7 @@ export function OrganizationContentView({ organization }: OrganizationContentVie
                       {projects.slice(0, 4).map(project => (
                         <div 
                           key={project.id}
-                          onClick={() => router.push(`/organization/projects/${project.id}`)}
+                          onClick={() => router.push(`/dashboard/projects/${project.id}`)}
                           className="bg-[#131417] border border-white/[0.04] hover:border-white/20 p-4 rounded-xl cursor-pointer transition-all flex items-center justify-between group"
                         >
                           <div className="min-w-0 flex-1 mr-4">
@@ -612,7 +612,7 @@ export function OrganizationContentView({ organization }: OrganizationContentVie
                   {projects.map(project => (
                     <div 
                       key={project.id}
-                      onClick={() => router.push(`/organization/projects/${project.id}`)}
+                      onClick={() => router.push(`/dashboard/projects/${project.id}`)}
                       className="bg-[#18191E] border border-white/[0.06] hover:border-white/20 p-6 rounded-2xl cursor-pointer transition-all flex flex-col justify-between group"
                     >
                       <div>

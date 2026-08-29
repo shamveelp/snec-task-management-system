@@ -72,7 +72,7 @@ export default function UserProjectDetailsPage() {
 
       {/* Tab Content */}
       <div className="flex-1 overflow-hidden">
-        <KanbanBoardDark projectId={project.id} />
+        <KanbanBoardDark projectId={project.id} project={project} />
       </div>
     </div>
   );
