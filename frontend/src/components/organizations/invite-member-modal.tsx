@@ -1,114 +1,100 @@
-import * as React from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "../ui/button"
-import { Loader2, X, Search, Mail, Shield } from "lucide-react"
-import axios from "axios"
+import * as React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '../ui/button';
+import { Loader2, X, Search, Mail, Users } from 'lucide-react';
+import axios from 'axios';
 
 interface InviteMemberModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onSuccess: () => void
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
 }
 
 export function InviteMemberModal({ isOpen, onClose, onSuccess }: InviteMemberModalProps) {
-  const [email, setEmail] = React.useState("")
-  const [roleId, setRoleId] = React.useState("")
-  const [roles, setRoles] = React.useState<any[]>([])
-  const [loading, setLoading] = React.useState(false)
-  const [error, setError] = React.useState("")
-  const [success, setSuccess] = React.useState("")
+  const [email, setEmail] = React.useState('');
+  const [roleId, setRoleId] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState('');
+  const [success, setSuccess] = React.useState('');
 
-  const [searchResults, setSearchResults] = React.useState<any[]>([])
-  const [isSearching, setIsSearching] = React.useState(false)
-  const [showDropdown, setShowDropdown] = React.useState(false)
-  const searchTimeoutRef = React.useRef<NodeJS.Timeout | null>(null)
+  const [searchResults, setSearchResults] = React.useState<any[]>([]);
+  const [isSearching, setIsSearching] = React.useState(false);
+  const [showDropdown, setShowDropdown] = React.useState(false);
+  const searchTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
+  // Auto-fetch "Member" role ID
   React.useEffect(() => {
     if (isOpen) {
-      setEmail("")
-      setRoleId("")
-      setError("")
-      setSuccess("")
-      setSearchResults([])
-      setShowDropdown(false)
-      fetchRoles()
-    }
-  }, [isOpen])
+      setEmail('');
+      setError('');
+      setSuccess('');
+      setSearchResults([]);
+      setShowDropdown(false);
 
-  const fetchRoles = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/organizations/roles')
-      setRoles(response.data)
-      if (response.data.length > 0) {
-        setRoleId(response.data[0].id)
-      }
-    } catch (err) {
-      console.error("Failed to fetch roles", err)
+      // Fetch Member role ID
+      axios.get('http://localhost:5000/organizations/roles').then((res) => {
+        const memberRole = res.data[0]; // Only Member role is returned now
+        if (memberRole) setRoleId(memberRole.id);
+      }).catch(console.error);
     }
-  }
+  }, [isOpen]);
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setEmail(value)
+    const value = e.target.value;
+    setEmail(value);
 
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current)
-    }
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
 
     if (value.length >= 2) {
-      setShowDropdown(true)
-      setIsSearching(true)
+      setShowDropdown(true);
+      setIsSearching(true);
       searchTimeoutRef.current = setTimeout(async () => {
         try {
-          const token = localStorage.getItem('accessToken')
-          const response = await axios.get(`http://localhost:5000/organizations/search-developers?q=${encodeURIComponent(value)}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          })
-          setSearchResults(response.data)
-        } catch (err) {
-          console.error("Failed to search users", err)
-        } finally {
-          setIsSearching(false)
+          const token = localStorage.getItem('accessToken');
+          const res = await axios.get(
+            `http://localhost:5000/organizations/search-developers?q=${encodeURIComponent(value)}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          setSearchResults(res.data);
+        } catch { /* ignore */ } finally {
+          setIsSearching(false);
         }
-      }, 500)
+      }, 500);
     } else {
-      setSearchResults([])
-      setShowDropdown(false)
-      setIsSearching(false)
+      setSearchResults([]);
+      setShowDropdown(false);
+      setIsSearching(false);
     }
-  }
+  };
 
-  const selectUser = (selectedUser: any) => {
-    setEmail(selectedUser.email)
-    setShowDropdown(false)
-  }
+  const selectUser = (u: any) => {
+    setEmail(u.email);
+    setShowDropdown(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setSuccess("")
-    setLoading(true)
-
+    e.preventDefault();
+    if (!roleId) { setError('Could not load role. Please try again.'); return; }
+    setError('');
+    setSuccess('');
+    setLoading(true);
     try {
-      const token = localStorage.getItem('accessToken')
-      await axios.post('http://localhost:5000/invitations', {
-        email: email.trim(),
-        roleId
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      setSuccess("Invitation sent successfully!")
-      setTimeout(() => {
-        onSuccess()
-      }, 1500)
+      const token = localStorage.getItem('accessToken');
+      await axios.post(
+        'http://localhost:5000/invitations',
+        { email: email.trim(), roleId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setSuccess('Invitation sent successfully!');
+      setTimeout(onSuccess, 1500);
     } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to send invitation")
+      setError(err.response?.data?.message || 'Failed to send invitation');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <AnimatePresence>
@@ -117,51 +103,50 @@ export function InviteMemberModal({ isOpen, onClose, onSuccess }: InviteMemberMo
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 10 }}
-          className="bg-gray-900 w-full max-w-md rounded-3xl shadow-2xl overflow-visible relative text-white"
+          className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-visible relative"
         >
           {/* Header */}
-          <div className="px-8 py-6 border-b border-gray-700 bg-gray-800 rounded-t-3xl flex items-center justify-between">
+          <div className="px-8 py-6 border-b border-gray-100 bg-[#F8FAFC] rounded-t-3xl flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-white">Invite Team Member</h2>
-              <p className="text-sm text-gray-300 mt-1">Send an invitation to join your organization.</p>
+              <div className="flex items-center gap-2 mb-0.5">
+                <Users className="h-4 w-4 text-[#7C68EE]" />
+                <h2 className="text-xl font-bold text-gray-900">Invite Member</h2>
+              </div>
+              <p className="text-sm text-gray-400 mt-0.5">They'll join as a <strong>Member</strong> of your organization.</p>
             </div>
             <button
               onClick={onClose}
-              className="h-8 w-8 rounded-full bg-gray-700 border border-gray-600 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-600 transition-colors"
+              className="h-8 w-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-50 transition-colors"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
 
           {/* Body */}
-          <div className="p-8 overflow-visible bg-gray-900 rounded-b-3xl">
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="p-8 bg-white rounded-b-3xl overflow-visible">
+            <form onSubmit={handleSubmit} className="space-y-5">
               {error && (
-                <div className="p-4 rounded-xl bg-red-900/40 border border-red-700 text-red-300 text-sm font-medium">
-                  {error}
-                </div>
+                <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-medium">{error}</div>
               )}
               {success && (
-                <div className="p-4 rounded-xl bg-emerald-900/40 border border-emerald-700 text-emerald-300 text-sm font-medium">
-                  {success}
-                </div>
+                <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-medium">{success}</div>
               )}
 
               {/* Email Search */}
-              <div className="space-y-2 relative">
-                <label className="block text-sm font-bold text-gray-300">
+              <div className="space-y-1.5 relative">
+                <label className="block text-sm font-semibold text-gray-700">
                   <Mail className="inline h-4 w-4 mr-1.5 text-gray-400" />
-                  Email Address or Username
+                  Email Address or Name
                 </label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                   <input
-                    id="email"
                     type="text"
                     placeholder="Search or enter email..."
                     value={email}
                     onChange={handleEmailChange}
-                    className="w-full pl-9 pr-10 py-3 bg-gray-800 border border-gray-700 rounded-xl text-sm text-white placeholder:text-gray-500 focus:ring-2 focus:ring-[#7C68EE] focus:border-[#7C68EE] outline-none transition-all"
+                    style={{ colorScheme: 'light' }}
+                    className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-300 rounded-xl text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#7C68EE] focus:ring-2 focus:ring-[#7C68EE]/20 outline-none transition-all"
                     required
                     autoComplete="off"
                   />
@@ -172,67 +157,58 @@ export function InviteMemberModal({ isOpen, onClose, onSuccess }: InviteMemberMo
                   )}
                 </div>
 
-                {/* Dropdown */}
                 {showDropdown && (
-                  <div className="absolute z-[100] w-full mt-1 bg-gray-800 border border-gray-700 rounded-xl shadow-2xl overflow-hidden">
+                  <div className="absolute z-[100] w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden">
                     {searchResults.length > 0 ? (
-                      <ul className="max-h-60 overflow-auto py-1">
+                      <ul className="max-h-48 overflow-auto py-1">
                         {searchResults.map((u) => (
                           <li
                             key={u.id}
-                            className="px-4 py-3 hover:bg-gray-700 cursor-pointer flex flex-col transition-colors"
+                            className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-3 transition-colors"
                             onClick={() => selectUser(u)}
                           >
-                            <span className="font-semibold text-sm text-white">{u.name}</span>
-                            <span className="text-xs text-gray-400">{u.email}</span>
+                            <div className="h-8 w-8 rounded-full bg-[#7C68EE]/10 flex items-center justify-center text-[#7C68EE] font-bold text-sm flex-shrink-0">
+                              {u.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <div className="text-sm font-semibold text-gray-900">{u.name}</div>
+                              <div className="text-xs text-gray-400">{u.email}</div>
+                            </div>
                           </li>
                         ))}
                       </ul>
                     ) : !isSearching ? (
                       <div className="px-4 py-4 text-sm text-gray-400">
-                        No registered developers found.
-                        <br />
-                        <span className="text-xs text-gray-500">They will receive an email invitation to join.</span>
+                        No registered users found. An invite email will be sent.
                       </div>
                     ) : null}
                   </div>
                 )}
               </div>
 
-              {/* Role Select */}
-              <div className="space-y-2">
-                <label className="block text-sm font-bold text-gray-300">
-                  <Shield className="inline h-4 w-4 mr-1.5 text-gray-400" />
-                  Role
-                </label>
-                <select
-                  id="role"
-                  value={roleId}
-                  onChange={(e) => setRoleId(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-sm text-white focus:ring-2 focus:ring-[#7C68EE] focus:border-[#7C68EE] outline-none transition-all appearance-none font-medium"
-                  required
-                >
-                  {roles.map(role => (
-                    <option key={role.id} value={role.id} className="bg-gray-800 text-white">
-                      {role.name}
-                    </option>
-                  ))}
-                </select>
+              {/* Role info (read-only) */}
+              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#7C68EE]/5 border border-[#7C68EE]/20">
+                <div className="h-8 w-8 rounded-full bg-[#7C68EE]/10 flex items-center justify-center flex-shrink-0">
+                  <Users className="h-4 w-4 text-[#7C68EE]" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">Member</p>
+                  <p className="text-xs text-gray-400">Roles are assigned per-project by project managers.</p>
+                </div>
               </div>
 
-              {/* Submit */}
               <Button
                 type="submit"
                 className="w-full bg-[#7C68EE] hover:bg-[#6b58dd] text-white rounded-xl py-3 h-auto font-semibold shadow-sm transition-all"
                 disabled={loading}
               >
-                {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                {loading ? "Sending..." : "Send Invitation"}
+                {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                {loading ? 'Sending...' : 'Send Invitation'}
               </Button>
             </form>
           </div>
         </motion.div>
       </div>
     </AnimatePresence>
-  )
+  );
 }

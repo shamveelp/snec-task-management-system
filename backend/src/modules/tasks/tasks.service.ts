@@ -141,21 +141,39 @@ export class TasksService {
     const task = await this.prisma.task.findUnique({ where: { id: taskId } });
     if (!task) throw new NotFoundException('Task not found');
 
-    // Anyone in the project can comment
-    const role = await this.getProjectMemberRole(task.projectId, userId);
-    if (!role && userId !== task.reporterId) {
-      // Need to check OrgAdmin too ideally, but for simplicity, allow if they are in DB
-    }
-
     return this.prisma.taskComment.create({
-      data: {
-        taskId,
-        userId,
-        content,
-      },
+      data: { taskId, userId, content },
       include: {
         user: { select: { id: true, name: true, profilePicture: true } }
       }
     });
+  }
+
+  async addAttachment(taskId: string, userId: string, fileUrl: string, fileName: string, fileSize?: number) {
+    const task = await this.prisma.task.findUnique({ where: { id: taskId } });
+    if (!task) throw new NotFoundException('Task not found');
+
+    return this.prisma.taskAttachment.create({
+      data: { taskId, userId, fileUrl, fileName, fileSize },
+      include: {
+        user: { select: { id: true, name: true, profilePicture: true } }
+      }
+    });
+  }
+
+  async deleteAttachment(attachmentId: string, userId: string) {
+    const attachment = await this.prisma.taskAttachment.findUnique({ where: { id: attachmentId } });
+    if (!attachment) throw new NotFoundException('Attachment not found');
+    if (attachment.userId !== userId) throw new ForbiddenException('You can only delete your own attachments');
+    await this.prisma.taskAttachment.delete({ where: { id: attachmentId } });
+    return { success: true };
+  }
+
+  async getUserProjectRole(projectId: string, userId: string, userOrgRole: string): Promise<string> {
+    if (userOrgRole === 'Organization Admin') return 'ORG_ADMIN';
+    const member = await this.prisma.projectMember.findUnique({
+      where: { projectId_userId: { projectId, userId } },
+    });
+    return member?.role || 'NONE';
   }
 }

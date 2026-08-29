@@ -90,9 +90,8 @@ export default function ProjectDetailsPage() {
         </div>
       </div>
 
-      {/* Tab Content */}
       <div className="flex-1 overflow-hidden">
-        {activeTab === 'board' && <KanbanBoard projectId={project.id} />}
+        {activeTab === 'board' && <KanbanBoard projectId={project.id} project={project} />}
         {activeTab === 'members' && <ProjectMembers project={project} onUpdate={fetchProject} />}
         {activeTab === 'settings' && (
           <div className="p-8">

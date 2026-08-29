@@ -193,17 +193,18 @@ export class OrganizationsService {
   }
 
   async getRoles() {
-    return this.prisma.role.findMany({
-      where: {
-        name: {
-          in: ['Developer', 'Project Manager', 'Team Lead']
-        }
-      },
-      select: {
-        id: true,
-        name: true,
-      }
+    // Ensure a single "Member" role exists for org-level
+    let memberRole = await this.prisma.role.findFirst({
+      where: { name: 'Member' },
+      select: { id: true, name: true },
     });
+    if (!memberRole) {
+      memberRole = await this.prisma.role.create({
+        data: { name: 'Member', description: 'Organization member' },
+        select: { id: true, name: true },
+      });
+    }
+    return [memberRole];
   }
   async searchDevelopers(query: string, currentOrganizationId: string) {
     if (!query || query.length < 2) return [];

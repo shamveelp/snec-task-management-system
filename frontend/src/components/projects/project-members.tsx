@@ -1,63 +1,117 @@
-import * as React from "react";
-import { ProjectData, projectsApi } from "../../lib/api/projects.api";
-import { organizationsApi, OrganizationMember } from "../../lib/api/organizations.api";
-import { Loader2, Plus, UserX, Shield } from "lucide-react";
-import { Button } from "../ui/button";
-import { AppInput, AppSelect } from "../ui/form-fields";
-import { useAuthStore } from "../../store/auth.store";
+import * as React from 'react';
+import { ProjectData, projectsApi, ProjectMemberData } from '../../lib/api/projects.api';
+import { organizationsApi } from '../../lib/api/organizations.api';
+import { Loader2, Plus, UserX, Search, UserPlus, Shield, ChevronUp, ChevronDown, ArrowUpDown } from 'lucide-react';
+import { Button } from '../ui/button';
+import { AppInput, AppSelect } from '../ui/form-fields';
+import { useAuthStore } from '../../store/auth.store';
+import { useRouter } from 'next/navigation';
+import { tasksApi, ProjectUserRole } from '../../lib/api/tasks.api';
 
 interface ProjectMembersProps {
   project: ProjectData;
   onUpdate: () => void;
 }
 
+const ROLE_LABELS: Record<string, { label: string; color: string }> = {
+  PROJECT_MANAGER: { label: 'Project Manager', color: 'bg-purple-100 text-purple-700' },
+  TEAM_LEAD: { label: 'Team Lead', color: 'bg-blue-100 text-blue-700' },
+  DEVELOPER: { label: 'Developer', color: 'bg-green-100 text-green-700' },
+};
+
 export function ProjectMembers({ project, onUpdate }: ProjectMembersProps) {
   const { user } = useAuthStore();
-  const [orgMembers, setOrgMembers] = React.useState<OrganizationMember[]>([]);
+  const router = useRouter();
+  const [orgMembers, setOrgMembers] = React.useState<any[]>([]);
+  const [projectRole, setProjectRole] = React.useState<ProjectUserRole>('NONE');
   const [loading, setLoading] = React.useState(true);
-  const [isAdding, setIsAdding] = React.useState(false);
-  const [selectedUser, setSelectedUser] = React.useState("");
-  const [selectedRole, setSelectedRole] = React.useState("DEVELOPER");
-  const [searchQuery, setSearchQuery] = React.useState("");
+
+  // Add member form
+  const [memberSearch, setMemberSearch] = React.useState('');
+  const [selectedUserId, setSelectedUserId] = React.useState('');
+  const [selectedRole, setSelectedRole] = React.useState('DEVELOPER');
+  const [adding, setAdding] = React.useState(false);
+  const [addError, setAddError] = React.useState('');
+
+  // Existing members search/sort
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [sortField, setSortField] = React.useState<'name' | 'role'>('name');
+  const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('asc');
+
+  const isOrgAdmin = user?.role?.name === 'Organization Admin';
+  // Who can manage roles: Org Admin or Project Manager
+  const canManageRoles = isOrgAdmin || projectRole === 'PROJECT_MANAGER';
+  // Project Manager can only assign DEVELOPER or TEAM_LEAD (not PROJECT_MANAGER)
+  const allowedRolesToAssign = isOrgAdmin
+    ? ['PROJECT_MANAGER', 'TEAM_LEAD', 'DEVELOPER']
+    : projectRole === 'PROJECT_MANAGER'
+    ? ['DEVELOPER', 'TEAM_LEAD']
+    : [];
 
   React.useEffect(() => {
-    const fetchOrgMembers = async () => {
+    const init = async () => {
       try {
-        const members = await organizationsApi.getMembers();
+        const [members, role] = await Promise.all([
+          organizationsApi.getMembers(),
+          tasksApi.getMyProjectRole(project.id),
+        ]);
         setOrgMembers(members);
-      } catch (error) {
-        console.error(error);
+        setProjectRole(role);
       } finally {
         setLoading(false);
       }
     };
-    fetchOrgMembers();
-  }, []);
+    init();
+  }, [project.id]);
 
-  const handleAddMember = async () => {
-    if (!selectedUser) return;
-    setIsAdding(true);
-    try {
-      await projectsApi.addMember(project.id, selectedUser, selectedRole);
-      onUpdate();
-      setSelectedUser("");
-      setSelectedRole("DEVELOPER");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to add member");
-    } finally {
-      setIsAdding(false);
-    }
+  // Org members not yet in the project
+  const projectMemberIds = new Set(project.members?.map((m) => m.userId) || []);
+  const filteredOrgMembers = orgMembers.filter((m) => {
+    const notInProject = !projectMemberIds.has(m.id);
+    const matchSearch = !memberSearch || m.name.toLowerCase().includes(memberSearch.toLowerCase()) || m.email.toLowerCase().includes(memberSearch.toLowerCase());
+    return notInProject && matchSearch;
+  });
+
+  // Existing project members with search+sort
+  const sortedMembers = React.useMemo(() => {
+    const members = (project.members || []).filter((m) => {
+      if (!searchQuery) return true;
+      return (
+        m.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        m.user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        m.role.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    });
+    return [...members].sort((a, b) => {
+      const aVal = sortField === 'name' ? a.user.name : a.role;
+      const bVal = sortField === 'name' ? b.user.name : b.role;
+      return sortDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+    });
+  }, [project.members, searchQuery, sortField, sortDir]);
+
+  const toggleSort = (field: 'name' | 'role') => {
+    if (sortField === field) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+    else { setSortField(field); setSortDir('asc'); }
   };
 
-  const handleRemoveMember = async (userId: string) => {
-    if (!confirm("Are you sure you want to remove this member?")) return;
+  const SortIcon = ({ field }: { field: 'name' | 'role' }) =>
+    sortField === field
+      ? sortDir === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
+      : <ArrowUpDown className="h-3 w-3 opacity-30" />;
+
+  const handleAddMember = async () => {
+    if (!selectedUserId) { setAddError('Please select a member'); return; }
+    setAdding(true);
+    setAddError('');
     try {
-      await projectsApi.removeMember(project.id, userId);
+      await projectsApi.addMember(project.id, selectedUserId, selectedRole);
+      setSelectedUserId('');
+      setMemberSearch('');
       onUpdate();
-    } catch (error) {
-      console.error(error);
-      alert("Failed to remove member");
+    } catch (err: any) {
+      setAddError(err.response?.data?.message || 'Failed to add member');
+    } finally {
+      setAdding(false);
     }
   };
 
@@ -65,129 +119,222 @@ export function ProjectMembers({ project, onUpdate }: ProjectMembersProps) {
     try {
       await projectsApi.updateMemberRole(project.id, userId, role);
       onUpdate();
-    } catch (error) {
-      console.error(error);
-      alert("Failed to update role");
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  const availableMembers = orgMembers.filter(
-    (orgM) => !project.members?.find((pm) => pm.user.id === orgM.id) && 
-              (orgM.name.toLowerCase().includes(searchQuery.toLowerCase()) || orgM.email.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const handleRemoveMember = async (userId: string) => {
+    if (!confirm('Remove this member from the project?')) return;
+    try {
+      await projectsApi.removeMember(project.id, userId);
+      onUpdate();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-[#7C68EE]" />
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col h-full bg-[#F8FAFC]">
-      <div className="p-8 max-w-5xl mx-auto w-full flex-1">
-        
-        {/* Add Member Section */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Add Project Member</h2>
-          <div className="flex flex-col sm:flex-row gap-4">
+    <div className="p-8 space-y-8 overflow-y-auto h-full stylish-scrollbar bg-[#F8FAFC]">
+
+      {/* ── Add Member Section ── (only if canManageRoles) */}
+      {canManageRoles && (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">Add Project Member</h2>
+              <p className="text-sm text-gray-400 mt-0.5">Select from organization members and assign a role.</p>
+            </div>
+            {/* Invite to org shortcut */}
+            <button
+              onClick={() => router.push('/organization/team')}
+              className="flex items-center gap-1.5 text-sm font-semibold text-[#7C68EE] hover:text-[#6b58dd] transition-colors"
+            >
+              <UserPlus className="h-4 w-4" />
+              Invite to Organization
+            </button>
+          </div>
+
+          {addError && (
+            <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">{addError}</div>
+          )}
+
+          {/* Row: Search → Select → Role → Add */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            {/* Member search input */}
             <div className="flex-1">
               <AppInput
                 placeholder="Search organization members..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                icon={<Search className="h-4 w-4" />}
+                value={memberSearch}
+                onChange={(e) => {
+                  setMemberSearch(e.target.value);
+                  setSelectedUserId('');
+                }}
               />
             </div>
 
+            {/* Member dropdown */}
             <AppSelect
-              value={selectedUser}
-              onChange={(e) => setSelectedUser(e.target.value)}
-              className="sm:w-64"
+              value={selectedUserId}
+              onChange={(e) => setSelectedUserId(e.target.value)}
+              className="sm:w-56"
             >
-              <option value="">Select a member...</option>
-              {availableMembers.map((m) => (
-                <option key={m.id} value={m.id}>{m.name} ({m.email})</option>
+              <option value="">Select member...</option>
+              {filteredOrgMembers.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
               ))}
             </AppSelect>
 
+            {/* Role dropdown */}
             <AppSelect
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
               className="sm:w-48"
             >
-              <option value="DEVELOPER">Developer</option>
-              <option value="TEAM_LEAD">Team Lead</option>
-              <option value="PROJECT_MANAGER">Project Manager</option>
+              {allowedRolesToAssign.map((r) => (
+                <option key={r} value={r}>{ROLE_LABELS[r]?.label}</option>
+              ))}
             </AppSelect>
 
-            <Button 
-              onClick={handleAddMember} 
-              disabled={!selectedUser || isAdding}
-              className="bg-[#7C68EE] hover:bg-[#6b58dd] text-white rounded-xl px-6 h-auto"
+            <button
+              onClick={handleAddMember}
+              disabled={adding || !selectedUserId}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white disabled:opacity-50 transition-all flex-shrink-0"
+              style={{ background: 'linear-gradient(135deg, #7C68EE 0%, #5b45d4 100%)' }}
             >
-              {isAdding ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
+              {adding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
               Add
-            </Button>
+            </button>
+          </div>
+
+          {filteredOrgMembers.length === 0 && memberSearch && (
+            <p className="text-sm text-gray-400 mt-3">No matching org members available to add.</p>
+          )}
+        </div>
+      )}
+
+      {/* ── Members Table ── */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="p-6 border-b border-gray-100 flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <h2 className="text-lg font-bold text-gray-900">Project Members</h2>
+            <p className="text-sm text-gray-400">{project.members?.length || 0} member(s)</p>
+          </div>
+          {/* Search existing members */}
+          <div className="w-full sm:w-72">
+            <AppInput
+              placeholder="Search members..."
+              icon={<Search className="h-4 w-4" />}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
         </div>
 
-        {/* Members List */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-[#F8FAFC] border-b border-gray-100">
-              <tr>
-                <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Member</th>
-                <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Project Role</th>
-                <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-50">
+                <th className="px-6 py-3 text-left">
+                  <button
+                    className="flex items-center gap-1.5 text-xs font-bold text-gray-500 uppercase tracking-wider hover:text-gray-900 transition-colors"
+                    onClick={() => toggleSort('name')}
+                  >
+                    Member <SortIcon field="name" />
+                  </button>
+                </th>
+                <th className="px-6 py-3 text-left">
+                  <button
+                    className="flex items-center gap-1.5 text-xs font-bold text-gray-500 uppercase tracking-wider hover:text-gray-900 transition-colors"
+                    onClick={() => toggleSort('role')}
+                  >
+                    Project Role <SortIcon field="role" />
+                  </button>
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Email</th>
+                {canManageRoles && (
+                  <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
+                )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
-              {project.members?.map((member) => (
-                <tr key={member.id} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="py-4 px-6">
+            <tbody className="divide-y divide-gray-50">
+              {sortedMembers.map((member) => (
+                <tr key={member.userId} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-[#7C68EE] to-[#4c3ab8] flex items-center justify-center text-white font-bold text-sm shadow-sm overflow-hidden">
+                      <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-[#7C68EE] to-[#4c3ab8] flex items-center justify-center text-white font-bold text-sm overflow-hidden flex-shrink-0">
                         {member.user.profilePicture ? (
-                          <img src={member.user.profilePicture} alt="Avatar" className="w-full h-full object-cover" />
+                          <img src={member.user.profilePicture} alt="" className="w-full h-full object-cover" />
                         ) : (
                           member.user.name.charAt(0).toUpperCase()
                         )}
                       </div>
                       <div>
-                        <div className="font-bold text-gray-900 text-sm">{member.user.name}</div>
-                        <div className="text-gray-500 text-xs mt-0.5">{member.user.email}</div>
+                        <p className="text-sm font-semibold text-gray-900">{member.user.name}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-gray-400" />
+                  <td className="px-6 py-4">
+                    {canManageRoles && member.userId !== user?.id ? (
                       <select
                         value={member.role}
-                        onChange={(e) => handleUpdateRole(member.user.id, e.target.value)}
+                        onChange={(e) => handleUpdateRole(member.userId, e.target.value)}
                         style={{ colorScheme: 'light' }}
-                        className="bg-white border border-gray-200 text-sm font-semibold text-gray-700 cursor-pointer rounded-lg px-2 py-1 focus:ring-2 focus:ring-[#7C68EE] outline-none"
+                        className="bg-white border border-gray-200 text-sm font-semibold text-gray-700 cursor-pointer rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-[#7C68EE] outline-none"
                       >
-                        <option value="DEVELOPER">Developer</option>
-                        <option value="TEAM_LEAD">Team Lead</option>
-                        <option value="PROJECT_MANAGER">Project Manager</option>
+                        {allowedRolesToAssign.map((r) => (
+                          <option key={r} value={r}>{ROLE_LABELS[r]?.label}</option>
+                        ))}
+                        {/* Always show current role even if not in allowed list */}
+                        {!allowedRolesToAssign.includes(member.role) && (
+                          <option value={member.role}>{ROLE_LABELS[member.role]?.label}</option>
+                        )}
                       </select>
-                    </div>
+                    ) : (
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${ROLE_LABELS[member.role]?.color || 'bg-gray-100 text-gray-600'}`}>
+                        {ROLE_LABELS[member.role]?.label || member.role}
+                      </span>
+                    )}
                   </td>
-                  <td className="py-4 px-6 text-right">
-                    <button 
-                      onClick={() => handleRemoveMember(member.user.id)}
-                      className="p-2 text-red-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors"
-                      title="Remove Member"
-                    >
-                      <UserX className="h-5 w-5" />
-                    </button>
+                  <td className="px-6 py-4">
+                    <span className="text-sm text-gray-500">{member.user.email}</span>
                   </td>
+                  {canManageRoles && (
+                    <td className="px-6 py-4 text-right">
+                      {member.userId !== user?.id && (
+                        <button
+                          onClick={() => handleRemoveMember(member.userId)}
+                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-400 hover:text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-all"
+                        >
+                          <UserX className="h-3.5 w-3.5" /> Remove
+                        </button>
+                      )}
+                    </td>
+                  )}
                 </tr>
               ))}
+              {sortedMembers.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="px-6 py-12 text-center text-gray-400 text-sm">
+                    No members found.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
-          
-          {(!project.members || project.members.length === 0) && (
-            <div className="py-12 text-center text-gray-500 text-sm">
-              No members added to this project yet.
-            </div>
-          )}
         </div>
-        
       </div>
     </div>
   );

@@ -1,5 +1,25 @@
 import api from './client';
 
+export interface TaskCommentData {
+  id: string;
+  taskId: string;
+  userId: string;
+  content: string;
+  createdAt: string;
+  user: { id: string; name: string; profilePicture: string | null };
+}
+
+export interface TaskAttachmentData {
+  id: string;
+  taskId: string;
+  userId: string;
+  fileUrl: string;
+  fileName: string;
+  fileSize: number | null;
+  createdAt: string;
+  user: { id: string; name: string; profilePicture: string | null };
+}
+
 export interface TaskData {
   id: string;
   title: string;
@@ -15,23 +35,9 @@ export interface TaskData {
   createdAt: string;
   assignee?: { id: string; name: string; profilePicture: string | null };
   reporter?: { id: string; name: string; profilePicture: string | null };
-  _count?: {
-    comments: number;
-    attachments: number;
-  };
-}
-
-export interface TaskCommentData {
-  id: string;
-  taskId: string;
-  userId: string;
-  content: string;
-  createdAt: string;
-  user: {
-    id: string;
-    name: string;
-    profilePicture: string | null;
-  }
+  comments?: TaskCommentData[];
+  attachments?: TaskAttachmentData[];
+  _count?: { comments: number; attachments: number };
 }
 
 export interface CreateTaskPayload {
@@ -45,6 +51,9 @@ export interface CreateTaskPayload {
   estimatedHours?: number;
 }
 
+// Project role returned from GET /tasks/project/:id/my-role
+export type ProjectUserRole = 'ORG_ADMIN' | 'PROJECT_MANAGER' | 'TEAM_LEAD' | 'DEVELOPER' | 'NONE';
+
 export const tasksApi = {
   getTasksByProject: async (projectId: string) => {
     const response = await api.get<TaskData[]>(`/tasks/project/${projectId}`);
@@ -54,6 +63,11 @@ export const tasksApi = {
   getTaskById: async (id: string) => {
     const response = await api.get<TaskData>(`/tasks/${id}`);
     return response.data;
+  },
+
+  getMyProjectRole: async (projectId: string): Promise<ProjectUserRole> => {
+    const response = await api.get<{ role: ProjectUserRole }>(`/tasks/project/${projectId}/my-role`);
+    return response.data.role;
   },
 
   createTask: async (data: CreateTaskPayload) => {
@@ -69,5 +83,19 @@ export const tasksApi = {
   addComment: async (taskId: string, content: string) => {
     const response = await api.post<TaskCommentData>(`/tasks/${taskId}/comments`, { content });
     return response.data;
-  }
+  },
+
+  addAttachment: async (taskId: string, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post<TaskAttachmentData>(`/tasks/${taskId}/attachments`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+
+  deleteAttachment: async (attachmentId: string) => {
+    const response = await api.delete(`/tasks/attachments/${attachmentId}`);
+    return response.data;
+  },
 };
