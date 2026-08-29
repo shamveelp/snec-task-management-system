@@ -69,4 +69,11 @@ export class OrganizationsController {
   async searchDevelopers(@Query('q') query: string, @Req() req) {
     return this.organizationsService.searchDevelopers(query, req.user.organizationId);
   }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('Organization Admin')
+  @Get('notifications')
+  async getNotifications(@Req() req) {
+    return this.organizationsService.getOrganizationNotifications(req.user.organizationId);
+  }
 }

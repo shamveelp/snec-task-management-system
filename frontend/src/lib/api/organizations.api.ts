@@ -56,5 +56,10 @@ export const organizationsApi = {
   getJoinedOrganizations: async () => {
     const response = await api.get<OrganizationData[]>('/organizations/joined');
     return response.data;
+  },
+
+  getNotifications: async () => {
+    const response = await api.get<any[]>('/organizations/notifications');
+    return response.data;
   }
 };

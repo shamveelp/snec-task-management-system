@@ -32,29 +32,13 @@ const sidebarSections = [
     title: "COLLABORATION",
     items: [
       { name: "Team", href: "/organization/team", icon: Users },
-      { name: "Notifications", href: "/organization/dashboard#notifications", icon: Bell, badge: "3" },
+      { name: "Notifications", href: "/organization/notifications", icon: Bell },
     ]
   },
   {
     title: "WORKSPACE",
     items: [
       { name: "Projects", href: "/organization/projects", icon: FolderKanban },
-      { name: "Tasks", href: "/organization/dashboard#tasks", icon: CheckSquare },
-      { name: "My Tasks", href: "/organization/dashboard#mytasks", icon: ListTodo },
-    ]
-  },
-  {
-    title: "INSIGHTS",
-    items: [
-      { name: "Reports", href: "/organization/dashboard#reports", icon: BarChart2 },
-      { name: "Activity / Audit Logs", href: "/organization/dashboard#logs", icon: Activity },
-    ]
-  },
-  {
-    title: "ADMINISTRATION",
-    items: [
-      { name: "Members", href: "/organization/dashboard#members", icon: UserPlus },
-      { name: "Roles & Permissions", href: "/organization/dashboard#roles", icon: Shield },
     ]
   }
 ]
