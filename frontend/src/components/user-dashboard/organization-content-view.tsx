@@ -4,7 +4,7 @@ import * as React from "react"
 import { 
   Building2, ChevronRight, FolderKanban, CheckSquare, MessageSquare, 
   Users, Paperclip, Calendar, Flag, Clock, Star, ArrowUpRight, 
-  SlidersHorizontal, Diamond, Loader2, CheckCircle2, AlertCircle, ExternalLink, X, Send, Upload
+  SlidersHorizontal, Diamond, Loader2, CheckCircle2, AlertCircle, ExternalLink, X, Send, Upload, RefreshCw
 } from "lucide-react"
 import { cn } from "../../lib/utils"
 import { useAuthStore } from "../../store/auth.store"
@@ -187,6 +187,9 @@ export function OrganizationContentView({ organization }: OrganizationContentVie
                 <span className="bg-white/10 text-white/70 text-xs px-2.5 py-0.5 rounded-full border border-white/10">
                   {organization.category || "General"}
                 </span>
+                <button onClick={fetchData} disabled={loading} className="flex items-center justify-center p-1.5 ml-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors disabled:opacity-50">
+                  <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                </button>
               </div>
               <p className="text-xs text-white/40 mt-1 flex items-center gap-2">
                 <span>Role: <strong className="text-[#3B82F6] font-medium">{userOrgRole}</strong></span>

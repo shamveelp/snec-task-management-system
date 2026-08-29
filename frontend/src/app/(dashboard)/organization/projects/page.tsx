@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useAuthStore } from "../../../../store/auth.store";
 import { Button } from "../../../../components/ui/button";
-import { Plus, Search, MoreHorizontal, Loader2, LayoutGrid, Calendar, Users, Target, Flag } from "lucide-react";
+import { Plus, Search, MoreHorizontal, Loader2, LayoutGrid, Calendar, Users, Target, Flag, RefreshCw } from "lucide-react";
 import { projectsService, ProjectData } from "../../../../services/organization/projects.service";
 import { CreateProjectModal } from "../../../../components/projects/create-project-modal";
 import { useRouter } from "next/navigation";
@@ -75,6 +75,14 @@ export default function OrganizationProjectsPage() {
           <p className="text-sm text-gray-500 mt-1">Manage and oversee all projects in your organization.</p>
         </div>
         <div className="flex items-center gap-3">
+          <Button 
+            onClick={fetchProjects}
+            disabled={loading}
+            variant="outline"
+            className="rounded-[14px] px-4 py-5 h-auto text-gray-700 bg-white hover:bg-gray-50 border-gray-200"
+          >
+            <RefreshCw className={`h-5 w-5 mr-2 ${loading ? 'animate-spin' : ''}`} /> Refresh
+          </Button>
           <Button 
             onClick={() => setIsCreateModalOpen(true)}
             className="bg-[#7C68EE] hover:bg-[#6b58dd] text-white rounded-[14px] px-6 py-5 h-auto shadow-sm font-medium"

@@ -58,6 +58,10 @@ export default function UserInvitationsPage() {
           <h1 className="text-3xl font-semibold tracking-tight text-white/90">Invitations</h1>
           <p className="text-white/40 mt-1">Manage your pending invitations to join organizations.</p>
         </div>
+        <button onClick={fetchInvitations} disabled={loading} className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors text-sm font-medium disabled:opacity-50 border border-white/[0.04]">
+          <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          Refresh
+        </button>
         <div className="flex items-center gap-3">
           <Button 
             variant="ghost"

@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { projectsService, ProjectData } from "../../../../../services/organization/projects.service";
-import { Loader2, ArrowLeft, LayoutGrid, Users, Settings } from "lucide-react";
+import { Loader2, ArrowLeft, LayoutGrid, Users, Settings, RefreshCw } from "lucide-react";
 import { KanbanBoard } from "@/components/projects/kanban-board";
 import { ProjectMembers } from "@/components/projects/project-members";
 
@@ -12,23 +12,25 @@ export default function ProjectDetailsPage() {
   const router = useRouter();
   const [project, setProject] = React.useState<ProjectData | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const [refreshing, setRefreshing] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState<'board' | 'members' | 'settings'>('board');
 
-  const fetchProject = async () => {
+  const fetchProject = React.useCallback(async () => {
     try {
-      setLoading(true);
+      setRefreshing(true);
       const data = await projectsService.getProjectById(id);
       setProject(data);
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
-  };
+  }, [id]);
 
   React.useEffect(() => {
     fetchProject();
-  }, [id]);
+  }, [fetchProject]);
 
   if (loading) {
     return (
@@ -63,7 +65,10 @@ export default function ProjectDetailsPage() {
             <p className="text-sm text-gray-500 mt-1 max-w-2xl">{project.description || "No description provided."}</p>
           </div>
           <div className="flex gap-2">
-             {/* Additional actions can go here */}
+            <button onClick={fetchProject} disabled={refreshing} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-lg transition-colors text-sm font-medium disabled:opacity-50">
+              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+              Refresh
+            </button>
           </div>
         </div>
 

@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { projectsService, ProjectData } from "../../../../../services/organization/projects.service";
-import { Loader2, ArrowLeft, LayoutGrid, Users } from "lucide-react";
+import { Loader2, ArrowLeft, LayoutGrid, Users, RefreshCw } from "lucide-react";
 import { KanbanBoardDark } from "@/components/projects/kanban-board-dark";
 
 export default function UserProjectDetailsPage() {
@@ -11,20 +11,24 @@ export default function UserProjectDetailsPage() {
   const router = useRouter();
   const [project, setProject] = React.useState<ProjectData | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const fetchProject = React.useCallback(async () => {
+    setRefreshing(true);
+    try {
+      const data = await projectsService.getProjectById(id);
+      setProject(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [id]);
 
   React.useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        const data = await projectsService.getProjectById(id);
-        setProject(data);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchProject();
-  }, [id]);
+  }, [fetchProject]);
 
   if (loading) {
     return (
@@ -58,6 +62,10 @@ export default function UserProjectDetailsPage() {
             <h1 className="text-[28px] font-bold text-white tracking-tight">{project.name}</h1>
             <p className="text-sm text-[#8F96AE] mt-1 max-w-2xl">{project.description || "No description provided."}</p>
           </div>
+          <button onClick={fetchProject} disabled={refreshing} className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors text-sm font-medium disabled:opacity-50">
+            <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
         </div>
 
         {/* Tabs */}

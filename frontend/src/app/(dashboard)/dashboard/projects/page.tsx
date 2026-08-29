@@ -3,26 +3,30 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { projectsService, ProjectData } from "../../../../services/organization/projects.service";
-import { Loader2, LayoutGrid, Calendar, Users, Target, Flag } from "lucide-react";
+import { Loader2, LayoutGrid, Calendar, Users, Target, Flag, RefreshCw } from "lucide-react";
 
 export default function MyProjectsPage() {
   const router = useRouter();
   const [projects, setProjects] = React.useState<ProjectData[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const fetchProjects = React.useCallback(async () => {
+    setRefreshing(true);
+    try {
+      const data = await projectsService.getMyProjects();
+      setProjects(data);
+    } catch (error) {
+      console.error("Failed to fetch projects", error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
 
   React.useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const data = await projectsService.getMyProjects();
-        setProjects(data);
-      } catch (error) {
-        console.error("Failed to fetch projects", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchProjects();
-  }, []);
+  }, [fetchProjects]);
 
   const getPriorityBadge = (priority: string) => {
     switch(priority) {
@@ -61,9 +65,15 @@ export default function MyProjectsPage() {
   return (
     <div className="flex-1 flex flex-col px-10 pb-10 pt-28 overflow-hidden bg-[#131417]">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white tracking-tight">My Projects</h1>
-        <p className="text-[#8F96AE] mt-2">Projects you are a member of.</p>
+      <div className="mb-8 flex justify-between items-end">
+        <div>
+          <h1 className="text-3xl font-bold text-white tracking-tight">My Projects</h1>
+          <p className="text-[#8F96AE] mt-2">Projects you are a member of.</p>
+        </div>
+        <button onClick={fetchProjects} disabled={refreshing} className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors text-sm font-medium disabled:opacity-50">
+          <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+          Refresh
+        </button>
       </div>
 
       {/* Grid */}

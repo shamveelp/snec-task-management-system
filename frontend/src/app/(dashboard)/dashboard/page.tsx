@@ -5,7 +5,7 @@ import {
   Users, Briefcase, Activity, Calendar, User, 
   Mail, Check, X, FolderKanban, CheckSquare, 
   Bell, ArrowRight, Clock, MoreHorizontal, Edit3,
-  Loader2, Flag, Building2
+  Loader2, Flag, Building2, RefreshCw
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -80,9 +80,15 @@ export default function DashboardOverviewPage() {
           <h1 className="text-3xl font-semibold tracking-tight text-white/90">Dashboard</h1>
           <p className="text-white/40 mt-1">Here is a comprehensive overview of your workspace.</p>
         </div>
-        <div className="bg-[#18191E] border border-white/[0.04] px-4 py-2 rounded-xl text-sm font-medium text-white/70 flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-white/40" />
-          {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+        <div className="flex items-center gap-3">
+          <button onClick={fetchDashboardData} disabled={loading} className="bg-white/5 hover:bg-white/10 text-white px-3 py-2 rounded-xl text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50 border border-white/[0.04]">
+            <RefreshCw className={`h-4 w-4 text-white/70 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+          <div className="bg-[#18191E] border border-white/[0.04] px-4 py-2 rounded-xl text-sm font-medium text-white/70 flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-white/40" />
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+          </div>
         </div>
       </div>
 
