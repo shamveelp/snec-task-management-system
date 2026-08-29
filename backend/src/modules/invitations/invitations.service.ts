@@ -124,4 +124,28 @@ export class InvitationsService {
 
     return { message: 'Invitation accepted successfully' };
   }
+
+  async getMyInvitations(userId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+
+    const invitations = await this.prisma.invitation.findMany({
+      where: { email: user.email, status: 'PENDING' },
+      include: {
+        organization: { select: { id: true, name: true, category: true } },
+        role: { select: { id: true, name: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return invitations.map(i => ({
+      id: i.id,
+      token: i.token,
+      organizationName: i.organization.name,
+      organizationCategory: i.organization.category,
+      roleName: i.role.name,
+      createdAt: i.createdAt,
+      expiresAt: i.expiresAt,
+    }));
+  }
 }

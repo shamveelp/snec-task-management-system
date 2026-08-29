@@ -14,8 +14,7 @@ import { PublicRoute } from "../components/auth/public-route"
 
 export default function Home() {
   return (
-    <PublicRoute>
-      <div className="flex min-h-screen flex-col bg-background text-foreground">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
       <AnnouncementBar />
       <Navbar />
       
@@ -33,6 +32,5 @@ export default function Home() {
       
       <Footer />
     </div>
-    </PublicRoute>
   )
 }

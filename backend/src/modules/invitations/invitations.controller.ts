@@ -17,6 +17,12 @@ export class InvitationsController {
     return this.invitationsService.createInvitation(organizationId, body.email, body.roleId);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async getMyInvitations(@Req() req) {
+    return this.invitationsService.getMyInvitations(req.user.id);
+  }
+
   @Get(':token')
   async getInvitation(@Param('token') token: string) {
     return this.invitationsService.getInvitation(token);
