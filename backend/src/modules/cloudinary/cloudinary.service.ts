@@ -20,9 +20,10 @@ export class CloudinaryService {
   async uploadImage(
     file: Express.Multer.File,
   ): Promise<UploadApiResponse | UploadApiErrorResponse> {
+    const uploadPreset = this.configService.get<string>('CLOUDINARY_UPLOAD_PRESET') || 'snec-task';
     return new Promise((resolve, reject) => {
       const upload = cloudinary.uploader.upload_stream(
-        { folder: 'snec-task' },
+        { folder: 'snec-task', upload_preset: uploadPreset },
         (error, result) => {
           if (error) return reject(error);
           if (result) resolve(result);
@@ -35,9 +36,10 @@ export class CloudinaryService {
   async uploadFile(
     file: Express.Multer.File,
   ): Promise<UploadApiResponse | UploadApiErrorResponse> {
+    const uploadPreset = this.configService.get<string>('CLOUDINARY_UPLOAD_PRESET') || 'snec-task';
     return new Promise((resolve, reject) => {
       const upload = cloudinary.uploader.upload_stream(
-        { folder: 'snec-task-attachments', resource_type: 'auto' },
+        { folder: 'snec-task', resource_type: 'auto', upload_preset: uploadPreset },
         (error, result) => {
           if (error) return reject(error);
           if (result) resolve(result);

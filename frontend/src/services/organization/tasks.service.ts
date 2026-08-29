@@ -57,51 +57,49 @@ export type ProjectUserRole = 'ORG_ADMIN' | 'PROJECT_MANAGER' | 'TEAM_LEAD' | 'D
 
 export const tasksService = {
   getMyTasks: async () => {
-    const response = await api.get<TaskData[]>('/user/tasks/me');
+    const response = await api.get<TaskData[]>('/organization/tasks/me');
     return response.data;
   },
 
   getTasksByProject: async (projectId: string) => {
-    const response = await api.get<TaskData[]>(`/user/tasks/project/${projectId}`);
+    const response = await api.get<TaskData[]>(`/organization/tasks/project/${projectId}`);
     return response.data;
   },
 
   getTaskById: async (id: string) => {
-    const response = await api.get<TaskData>(`/user/tasks/${id}`);
+    const response = await api.get<TaskData>(`/organization/tasks/${id}`);
     return response.data;
   },
 
   getMyProjectRole: async (projectId: string): Promise<ProjectUserRole> => {
-    const response = await api.get<{ role: ProjectUserRole }>(`/tasks/project/${projectId}/my-role`);
+    const response = await api.get<{ role: ProjectUserRole }>(`/organization/tasks/project/${projectId}/my-role`);
     return response.data.role;
   },
 
   createTask: async (data: CreateTaskPayload) => {
-    const response = await api.post<TaskData>('/tasks', data);
+    const response = await api.post<TaskData>('/organization/tasks', data);
     return response.data;
   },
 
   updateTask: async (id: string, data: Partial<CreateTaskPayload> & { actualHours?: number }) => {
-    const response = await api.put<TaskData>(`/user/tasks/${id}`, data);
+    const response = await api.put<TaskData>(`/organization/tasks/${id}`, data);
     return response.data;
   },
 
   addComment: async (taskId: string, content: string) => {
-    const response = await api.post<TaskCommentData>(`/tasks/${taskId}/comments`, { content });
+    const response = await api.post<TaskCommentData>(`/organization/tasks/${taskId}/comments`, { content });
     return response.data;
   },
 
   addAttachment: async (taskId: string, file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await api.post<TaskAttachmentData>(`/tasks/${taskId}/attachments`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const response = await api.post<TaskAttachmentData>(`/organization/tasks/${taskId}/attachments`, formData);
     return response.data;
   },
 
   deleteAttachment: async (attachmentId: string) => {
-    const response = await api.delete(`/user/tasks/attachments/${attachmentId}`);
+    const response = await api.delete(`/organization/tasks/attachments/${attachmentId}`);
     return response.data;
   },
 };
