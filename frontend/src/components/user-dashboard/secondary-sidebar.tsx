@@ -6,9 +6,21 @@ import { cn } from "../../lib/utils"
 
 interface SecondarySidebarProps {
   isExpanded: boolean
+  onExpand?: () => void
 }
 
-export function SecondarySidebar({ isExpanded }: SecondarySidebarProps) {
+export function SecondarySidebar({ isExpanded, onExpand }: SecondarySidebarProps) {
+  const searchInputRef = React.useRef<HTMLInputElement>(null)
+
+  const handleSearchClick = () => {
+    if (onExpand) {
+      onExpand()
+      // Wait for the transition to finish before focusing
+      setTimeout(() => {
+        searchInputRef.current?.focus()
+      }, 300)
+    }
+  }
   return (
     <aside 
       className={cn(
@@ -32,13 +44,18 @@ export function SecondarySidebar({ isExpanded }: SecondarySidebarProps) {
           <div className="bg-[#121316] border border-white/[0.05] rounded-xl flex items-center px-3 py-2.5 mb-6">
             <Search className="h-4 w-4 text-white/40 mr-2 flex-shrink-0" />
             <input 
+              ref={searchInputRef}
               type="text" 
               placeholder="Search organizations..." 
               className="bg-transparent border-none outline-none text-sm w-full text-white placeholder-white/40"
             />
           </div>
         ) : (
-          <div className="mb-6 h-10 w-10 rounded-xl hover:bg-white/5 flex items-center justify-center cursor-pointer transition-colors" title="Search">
+          <div 
+            onClick={handleSearchClick}
+            className="mb-6 h-10 w-10 rounded-xl hover:bg-white/5 flex items-center justify-center cursor-pointer transition-colors" 
+            title="Search"
+          >
             <Search className="h-4 w-4 text-white/40" />
           </div>
         )}

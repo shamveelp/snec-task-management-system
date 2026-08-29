@@ -62,7 +62,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 Instead, we can use React Context, OR we can just let the SecondarySidebar render unconditionally in the child page, 
                 and we pass the state using a Context provider. */}
             {/* Let's create a simple context for the sidebar state so children can access it. */}
-            <DashboardSidebarContext.Provider value={{ isPrimaryExpanded }}>
+            <DashboardSidebarContext.Provider value={{ isPrimaryExpanded, toggleSidebar: handleToggle }}>
               {children}
             </DashboardSidebarContext.Provider>
           </div>
@@ -74,4 +74,4 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 }
 
 // Simple context to pass the sidebar state to child pages
-export const DashboardSidebarContext = React.createContext<{isPrimaryExpanded: boolean}>({ isPrimaryExpanded: false })
+export const DashboardSidebarContext = React.createContext<{isPrimaryExpanded: boolean, toggleSidebar?: () => void}>({ isPrimaryExpanded: false })

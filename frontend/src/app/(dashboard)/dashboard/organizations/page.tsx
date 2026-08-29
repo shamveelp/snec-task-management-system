@@ -6,12 +6,13 @@ import { KanbanBoard } from "../../../../components/user-dashboard/kanban-board"
 import { DashboardSidebarContext } from "../layout"
 
 export default function OrganizationsPage() {
-  const { isPrimaryExpanded } = React.useContext(DashboardSidebarContext)
+  const { isPrimaryExpanded, toggleSidebar } = React.useContext(DashboardSidebarContext)
 
   return (
     <div className="flex flex-1 overflow-hidden w-full h-full">
       <SecondarySidebar 
-        isExpanded={!isPrimaryExpanded} 
+        isExpanded={!isPrimaryExpanded}
+        onExpand={() => toggleSidebar?.()}
       />
       <KanbanBoard />
     </div>
