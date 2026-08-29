@@ -4,88 +4,121 @@ import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { 
-  LayoutDashboard, 
-  Users, 
-  Settings, 
-  FolderKanban,
-  ChevronLeft,
-  ChevronRight
+  Cloud, 
+  Share2, 
+  Folder,
+  Star,
+  Trash2,
+  BarChart2,
+  Calendar,
+  LogOut,
+  ArrowRightLeft
 } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "../../lib/utils"
+import { useAuthStore } from "../../store/auth.store"
+import { useRouter } from "next/navigation"
 
-const navItems = [
-  { name: "Overview", href: "/organization/dashboard", icon: LayoutDashboard },
-  { name: "Team Management", href: "/organization/dashboard#team", icon: Users },
-  { name: "Projects", href: "/organization/dashboard#projects", icon: FolderKanban },
-  { name: "Settings", href: "/organization/dashboard#settings", icon: Settings },
+const topNavItems = [
+  { name: "My Drive", href: "/organization/dashboard", icon: Cloud },
+  { name: "Shared Files", href: "/organization/dashboard#shared", icon: Share2 },
+  { name: "File Requests", href: "/organization/dashboard#requests", icon: Folder },
+  { name: "Starred", href: "/organization/dashboard#starred", icon: Star },
+  { name: "Trash", href: "/organization/dashboard#trash", icon: Trash2 },
+]
+
+const bottomNavItems = [
+  { name: "Statistics", href: "/organization/dashboard#stats", icon: BarChart2 },
+  { name: "Task", href: "/organization/dashboard#task", icon: Calendar },
 ]
 
 export function OrganizationSidebar() {
   const pathname = usePathname()
-  const [isCollapsed, setIsCollapsed] = React.useState(false)
+  const { logout } = useAuthStore()
+  const router = useRouter()
+
+  const handleLogout = () => {
+    logout()
+    router.push('/')
+  }
 
   return (
-    <motion.aside 
-      initial={false}
-      animate={{ width: isCollapsed ? 80 : 256 }}
-      className="relative h-screen flex-shrink-0 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 hidden md:flex flex-col z-20 shadow-sm transition-all duration-300"
-    >
-      <div className="flex h-16 items-center justify-between px-4 border-b border-gray-200 dark:border-gray-800">
-        <AnimatePresence mode="wait">
-          {!isCollapsed && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 truncate"
-            >
-              FlowTask Org
-            </motion.div>
-          )}
-        </AnimatePresence>
-        
-        <button 
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"
-        >
-          {isCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
-        </button>
+    <aside className="w-[260px] h-full flex-shrink-0 bg-[#1C1F37] flex flex-col z-20 py-8">
+      {/* Logo */}
+      <div className="flex items-center px-8 mb-10 gap-3">
+        <div className="flex items-center justify-center transform rotate-45">
+          <ArrowRightLeft className="h-6 w-6 text-yellow-400" />
+        </div>
+        <span className="font-serif text-2xl font-bold text-white tracking-wide">Drive.</span>
       </div>
 
-      <div className="flex-1 overflow-y-auto py-6 flex flex-col gap-2 px-3">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href
-          
-          return (
-            <Link key={item.name} href={item.href}>
-              <div
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group cursor-pointer",
-                  isActive 
-                    ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 shadow-sm" 
-                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200"
-                )}
-              >
-                <item.icon className={cn(
-                  "h-5 w-5 flex-shrink-0 transition-colors",
-                  isActive ? "text-blue-700 dark:text-blue-300" : "text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300"
-                )} />
-                
-                {!isCollapsed && (
-                  <motion.span
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="font-medium text-sm whitespace-nowrap"
-                  >
+      <div className="flex-1 overflow-y-auto flex flex-col">
+        {/* Top Nav */}
+        <div className="space-y-1 px-4">
+          {topNavItems.map((item) => {
+            const isActive = pathname === item.href
+            return (
+              <Link key={item.name} href={item.href}>
+                <div
+                  className={cn(
+                    "flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group cursor-pointer",
+                    isActive ? "text-white" : "text-[#8F96AE] hover:text-white hover:bg-white/5"
+                  )}
+                >
+                  <item.icon className="h-5 w-5 flex-shrink-0" />
+                  <span className="font-medium text-[15px]">
                     {item.name}
-                  </motion.span>
-                )}
+                  </span>
+                </div>
+              </Link>
+            )
+          })}
+        </div>
+
+        {/* Separator */}
+        <div className="my-4 px-8">
+          <div className="h-[1px] w-full bg-white/10"></div>
+        </div>
+
+        {/* Bottom Nav */}
+        <div className="space-y-1 px-4">
+          {bottomNavItems.map((item) => (
+            <Link key={item.name} href={item.href}>
+              <div className="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group cursor-pointer text-[#8F96AE] hover:text-white hover:bg-white/5">
+                <item.icon className="h-5 w-5 flex-shrink-0" />
+                <span className="font-medium text-[15px]">
+                  {item.name}
+                </span>
               </div>
             </Link>
-          )
-        })}
+          ))}
+          
+          <div 
+            onClick={handleLogout}
+            className="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group cursor-pointer text-[#8F96AE] hover:text-white hover:bg-white/5 mt-2"
+          >
+            <LogOut className="h-5 w-5 flex-shrink-0" />
+            <span className="font-medium text-[15px]">Logout</span>
+          </div>
+        </div>
       </div>
-    </motion.aside>
+
+      {/* Storage Widget */}
+      <div className="px-8 mt-auto pt-6">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2 text-white">
+            <Cloud className="h-4 w-4" />
+            <span className="text-sm font-medium">Storage</span>
+          </div>
+          <span className="text-xs text-white">27%</span>
+        </div>
+        
+        <div className="h-1.5 w-full bg-[#2A2E4C] rounded-full overflow-hidden flex mb-2">
+          <div className="h-full bg-[#FFB84C] w-[15%] rounded-l-full"></div>
+          <div className="h-full bg-[#7C68EE] w-[12%] rounded-r-full"></div>
+        </div>
+        
+        <p className="text-[11px] text-[#8F96AE]">27/100 GB Used</p>
+      </div>
+    </aside>
   )
 }

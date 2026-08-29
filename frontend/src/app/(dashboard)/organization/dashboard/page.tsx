@@ -3,207 +3,365 @@
 import * as React from "react";
 import { useAuthStore } from "../../../../store/auth.store";
 import { Button } from "../../../../components/ui/button";
-import { InviteMemberModal } from "../../../../components/organizations/invite-member-modal";
-import axios from "axios";
-import { Loader2, Plus, Users, UserPlus, FolderKanban, Activity, Mail } from "lucide-react";
-import { motion } from "framer-motion";
+import { 
+  CloudUpload, Grid, List, MoreVertical, Plus, Share2, 
+  ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Folder, Calendar
+} from "lucide-react";
 import { cn } from "../../../../lib/utils";
 
 export default function OrganizationDashboardPage() {
   const { user } = useAuthStore();
-  const [members, setMembers] = React.useState<any[]>([]);
-  const [invitations, setInvitations] = React.useState<any[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [isInviteModalOpen, setIsInviteModalOpen] = React.useState(false);
-
-  const fetchData = React.useCallback(async () => {
-    try {
-      const token = localStorage.getItem('accessToken');
-      const headers = { Authorization: `Bearer ${token}` };
-      const [membersRes, invitesRes] = await Promise.all([
-        axios.get('http://localhost:5000/organizations/members', { headers }),
-        axios.get('http://localhost:5000/organizations/invitations', { headers })
-      ]);
-      setMembers(membersRes.data);
-      setInvitations(invitesRes.data);
-    } catch (err) {
-      console.error("Failed to fetch team data", err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  React.useEffect(() => {
-    if (user) {
-      fetchData();
-    }
-  }, [user, fetchData]);
-
-  const activeMembersCount = members.filter(m => m.status === 'ACTIVE').length;
-  const pendingInvitesCount = invitations.filter(i => i.status === 'PENDING').length;
-
-  const stats = [
-    { title: "Total Members", value: members.length, icon: Users, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-900/30" },
-    { title: "Active Members", value: activeMembersCount, icon: Activity, color: "text-green-600 dark:text-green-400", bg: "bg-green-100 dark:bg-green-900/30" },
-    { title: "Pending Invites", value: pendingInvitesCount, icon: UserPlus, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-100 dark:bg-amber-900/30" },
-    { title: "Total Projects", value: "0", icon: FolderKanban, color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-100 dark:bg-purple-900/30" },
-  ];
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-full min-h-[500px]">
-        <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
-      </div>
-    );
-  }
+  const userName = user?.name?.split(' ')[0] || 'Jannie';
 
   return (
-    <div className="p-6 sm:p-8 max-w-7xl mx-auto space-y-8">
+    <div className="flex flex-col xl:flex-row h-full px-10 pb-10 gap-10 bg-white">
       
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Overview</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Manage your team and monitor organization activity.</p>
-        </div>
-        <Button onClick={() => setIsInviteModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all duration-200">
-          <Plus className="h-4 w-4 mr-2" />
-          Invite Member
-        </Button>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        {stats.map((stat, i) => (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            key={stat.title}
-            className="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 flex items-center space-x-4 hover:shadow-md transition-shadow"
-          >
-            <div className={cn("p-3 rounded-lg flex-shrink-0", stat.bg, stat.color)}>
-              <stat.icon className="h-6 w-6" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.title}</p>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stat.value}</h3>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8" id="team">
+      {/* Main Content Column */}
+      <div className="flex-1 space-y-10 overflow-y-auto pr-2 scrollbar-hide">
         
-        {/* Active Members Table */}
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden flex flex-col h-[500px]"
-        >
-          <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
-            <h2 className="font-semibold text-lg text-gray-900 dark:text-white">Active Members</h2>
-            <span className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 py-1 px-3 rounded-full text-xs font-semibold">
-              {members.length} Total
-            </span>
+        {/* Dashboard Header */}
+        <div className="flex justify-between items-center mt-2">
+          <h1 className="text-[22px] font-bold text-gray-900">Dashboard</h1>
+          <div className="flex items-center gap-4">
+            <button className="text-gray-400 hover:text-gray-900 transition-colors">
+              <Grid className="h-5 w-5" />
+            </button>
+            <button className="text-gray-400 hover:text-gray-900 transition-colors">
+              <List className="h-5 w-5" />
+            </button>
+            <Button className="bg-[#7C68EE] hover:bg-[#6b58dd] text-white rounded-[14px] px-5 py-5 h-auto ml-2 shadow-sm font-medium">
+              Upload File <CloudUpload className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Banner */}
+        <div className="bg-[#F0F4FD] rounded-[24px] p-8 flex items-center justify-between relative overflow-hidden">
+          <div className="relative z-10 max-w-[50%] space-y-4">
+            <h2 className="text-[26px] font-serif text-gray-900 tracking-tight">
+              Welcome Back {userName}
+            </h2>
+            <p className="text-[#64748B] text-sm leading-relaxed pb-2">
+              Get additional 500 GB space for your documents and files. Unlock now for more space.
+            </p>
+            <Button className="bg-[#7C68EE] hover:bg-[#6b58dd] text-white rounded-[14px] px-8 shadow-sm">
+              Upgrade
+            </Button>
           </div>
           
-          <div className="flex-1 overflow-auto">
-            {members.length > 0 ? (
-              <ul className="divide-y divide-gray-100 dark:divide-gray-800">
-                {members.map(member => (
-                  <li key={member.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
-                    <div className="flex items-center space-x-4">
-                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold flex-shrink-0 shadow-sm">
-                        {member.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                          {member.name}
-                        </p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                          {member.email}
-                        </p>
-                      </div>
-                      <div className="text-right flex-shrink-0">
-                        <span className="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-700 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:text-gray-300">
-                          {member.role}
-                        </span>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full text-gray-500 py-12">
-                <Users className="h-12 w-12 text-gray-300 dark:text-gray-600 mb-3" />
-                <p>No active members yet.</p>
-              </div>
-            )}
+          {/* Mock Illustration Area */}
+          <div className="absolute right-0 top-0 bottom-0 w-[45%] flex items-end justify-end pointer-events-none">
+             <div className="w-full h-full relative flex items-center justify-center">
+                {/* SVG Illustration Mock */}
+                <div className="w-[80%] h-[70%] border-[3px] border-indigo-500 rounded-xl bg-white relative flex items-center justify-center">
+                   <div className="w-16 h-12 border-2 border-dashed border-green-500 rounded-lg flex items-center justify-center">
+                     <CloudUpload className="h-6 w-6 text-green-500" />
+                   </div>
+                </div>
+                {/* Person mock */}
+                <div className="absolute right-6 bottom-4 w-12 h-32 bg-teal-400 rounded-full border-4 border-white shadow-sm"></div>
+             </div>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Pending Invitations Table */}
-        <motion.div 
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4 }}
-          className="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden flex flex-col h-[500px]"
-        >
-          <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
-            <h2 className="font-semibold text-lg text-gray-900 dark:text-white">Pending Invitations</h2>
-            <span className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 py-1 px-3 rounded-full text-xs font-semibold">
-              {pendingInvitesCount} Pending
-            </span>
+        {/* Folders */}
+        <div className="space-y-5">
+          <div className="flex justify-between items-center">
+            <h3 className="text-[17px] font-bold text-gray-900">Folders</h3>
+            <button className="text-gray-400 hover:text-gray-900 text-sm font-medium flex items-center">
+              View All <ChevronRight className="h-4 w-4 ml-1" />
+            </button>
           </div>
           
-          <div className="flex-1 overflow-auto">
-            {invitations.length > 0 ? (
-              <ul className="divide-y divide-gray-100 dark:divide-gray-800">
-                {invitations.map(invite => (
-                  <li key={invite.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center space-x-3">
-                        <div className="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500">
-                          <Mail className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-900 dark:text-white">{invite.email}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Role: {invite.role}</p>
-                        </div>
-                      </div>
-                      <span className={cn(
-                        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold",
-                        invite.status === 'PENDING' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300' :
-                        invite.status === 'ACCEPTED' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
-                        'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-                      )}>
-                        {invite.status}
-                      </span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full text-gray-500 py-12">
-                <Mail className="h-12 w-12 text-gray-300 dark:text-gray-600 mb-3" />
-                <p>No pending invitations.</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Red Card */}
+            <div className="bg-[#FF6B6B] rounded-[24px] p-6 text-white shadow-[0_20px_40px_-15px_rgba(255,107,107,0.7)] flex flex-col justify-between h-[180px]">
+              <div className="flex justify-between items-start">
+                <div className="bg-white/20 p-2 rounded-xl">
+                  <Folder className="h-5 w-5 text-white fill-white" />
+                </div>
+                <MoreVertical className="h-5 w-5 text-white/80 cursor-pointer" />
               </div>
-            )}
-          </div>
-        </motion.div>
+              <div>
+                <h4 className="text-[16px] font-semibold mb-3 text-white">Design Shift</h4>
+                <div className="flex items-center justify-between">
+                  <div className="flex -space-x-2">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&fit=crop" className="h-6 w-6 rounded-full border-2 border-[#FF6B6B]" />
+                    <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=64&h=64&fit=crop" className="h-6 w-6 rounded-full border-2 border-[#FF6B6B]" />
+                    <div className="h-6 w-6 rounded-full bg-white text-[#FF6B6B] text-[9px] font-bold flex items-center justify-center border-2 border-[#FF6B6B]">+4</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 mt-3">
+                  <div className="text-[11px] text-white/90">10 Files</div>
+                  <div className="text-[11px] text-white/90">Created on Dec 13, 2019</div>
+                </div>
+              </div>
+            </div>
 
+            {/* Purple Card */}
+            <div className="bg-[#7C68EE] rounded-[24px] p-6 text-white shadow-[0_20px_40px_-15px_rgba(124,104,238,0.7)] flex flex-col justify-between h-[180px]">
+              <div className="flex justify-between items-start">
+                <div className="bg-white/20 p-2 rounded-xl">
+                  <Folder className="h-5 w-5 text-white fill-white" />
+                </div>
+                <MoreVertical className="h-5 w-5 text-white/80 cursor-pointer" />
+              </div>
+              <div>
+                <h4 className="text-[16px] font-semibold mb-3 text-white">Health Care App</h4>
+                <div className="flex items-center justify-between">
+                  <div className="flex -space-x-2">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&fit=crop" className="h-6 w-6 rounded-full border-2 border-[#7C68EE]" />
+                    <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=64&h=64&fit=crop" className="h-6 w-6 rounded-full border-2 border-[#7C68EE]" />
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&fit=crop" className="h-6 w-6 rounded-full border-2 border-[#7C68EE]" />
+                    <div className="h-6 w-6 rounded-full bg-white text-[#7C68EE] text-[9px] font-bold flex items-center justify-center border-2 border-[#7C68EE]">+2</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 mt-3">
+                  <div className="text-[11px] text-white/90">12 Files</div>
+                  <div className="text-[11px] text-white/90">Created on Nov 04, 2019</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Yellow Card */}
+            <div className="bg-[#FFB84C] rounded-[24px] p-6 text-white shadow-[0_20px_40px_-15px_rgba(255,184,76,0.7)] flex flex-col justify-between h-[180px]">
+              <div className="flex justify-between items-start">
+                <div className="bg-white/20 p-2 rounded-xl">
+                  <Folder className="h-5 w-5 text-white fill-white" />
+                </div>
+                <MoreVertical className="h-5 w-5 text-white/80 cursor-pointer" />
+              </div>
+              <div>
+                <h4 className="text-[16px] font-semibold mb-3 text-white">Food truck Website</h4>
+                <div className="flex items-center justify-between">
+                  <div className="flex -space-x-2">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&fit=crop" className="h-6 w-6 rounded-full border-2 border-[#FFB84C]" />
+                    <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=64&h=64&fit=crop" className="h-6 w-6 rounded-full border-2 border-[#FFB84C]" />
+                    <div className="h-6 w-6 rounded-full bg-white text-[#FFB84C] text-[9px] font-bold flex items-center justify-center border-2 border-[#FFB84C]">+4</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 mt-3">
+                  <div className="text-[11px] text-white/90">16 Files</div>
+                  <div className="text-[11px] text-white/90">Created on Nov 03, 2019</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Files */}
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h3 className="text-[17px] font-bold text-gray-900">Recent Files</h3>
+            <button className="text-gray-400 hover:text-gray-900 text-sm font-medium flex items-center">
+              View All <ChevronRight className="h-4 w-4 ml-1" />
+            </button>
+          </div>
+          
+          <div className="space-y-3 pb-8">
+            {/* Row 1 - Inactive */}
+            <div className="flex items-center justify-between p-4 rounded-[20px] bg-white transition-all cursor-pointer">
+              <div className="flex items-center gap-4 w-[40%]">
+                <div className="h-[42px] w-[42px] rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-[10px] text-white bg-[#FF6B6B] shadow-sm">
+                  PDF
+                </div>
+                <span className="font-semibold text-gray-800 text-[14px]">
+                  Design Thinking Process
+                </span>
+              </div>
+              <div className="w-[20%] text-gray-400 text-xs">Only You</div>
+              <div className="w-[20%] text-gray-400 text-xs">Dec 13, 2019</div>
+              <div className="w-[10%] text-gray-400 text-xs text-right pr-4">2 MB</div>
+              <div className="flex items-center justify-end gap-3 w-[10%] text-gray-400">
+                <Plus className="h-4 w-4" />
+                <Share2 className="h-4 w-4" />
+                <MoreVertical className="h-4 w-4" />
+              </div>
+            </div>
+
+            {/* Row 2 - Active */}
+            <div className="flex items-center justify-between p-4 rounded-[20px] bg-[#7C68EE] text-white shadow-[0_15px_30px_-10px_rgba(124,104,238,0.5)] transition-all cursor-pointer">
+              <div className="flex items-center gap-4 w-[40%]">
+                <div className="h-[42px] w-[42px] rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-[10px] text-white bg-[#FFB84C] shadow-sm">
+                  PNG
+                </div>
+                <span className="font-semibold text-white text-[14px]">
+                  Design Thinking Process
+                </span>
+              </div>
+              <div className="w-[20%] text-white/80 text-xs">10 Members</div>
+              <div className="w-[20%] text-white/80 text-xs">Nov 04, 2019</div>
+              <div className="w-[10%] text-white/80 text-xs text-right pr-4">10 MB</div>
+              <div className="flex items-center justify-end gap-3 w-[10%] text-white">
+                <Plus className="h-4 w-4" />
+                <Share2 className="h-4 w-4" />
+                <MoreVertical className="h-4 w-4" />
+              </div>
+            </div>
+
+            {/* Row 3 - Inactive */}
+            <div className="flex items-center justify-between p-4 rounded-[20px] bg-white transition-all cursor-pointer">
+              <div className="flex items-center gap-4 w-[40%]">
+                <div className="h-[42px] w-[42px] rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-[10px] text-white bg-[#34D399] shadow-sm">
+                  ZIP
+                </div>
+                <span className="font-semibold text-gray-800 text-[14px]">
+                  Characters Animation
+                </span>
+              </div>
+              <div className="w-[20%] text-gray-400 text-xs">15 Members</div>
+              <div className="w-[20%] text-gray-400 text-xs">Nov 01, 2019</div>
+              <div className="w-[10%] text-gray-400 text-xs text-right pr-4">50 MB</div>
+              <div className="flex items-center justify-end gap-3 w-[10%] text-gray-400">
+                <Plus className="h-4 w-4" />
+                <Share2 className="h-4 w-4" />
+                <MoreVertical className="h-4 w-4" />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <InviteMemberModal 
-        isOpen={isInviteModalOpen} 
-        onClose={() => setIsInviteModalOpen(false)} 
-        onSuccess={() => {
-          setIsInviteModalOpen(false);
-          fetchData();
-        }}
-      />
+      {/* Right Column / Widgets */}
+      <div className="w-full xl:w-[320px] flex-shrink-0 space-y-6 pt-4">
+        
+        {/* Calendar Widget */}
+        <div className="bg-white rounded-[24px] border border-[#F0F2F5] p-6 shadow-sm">
+          <div className="flex justify-between items-center mb-5">
+            <h3 className="font-bold text-gray-900 text-[17px]">Calendar</h3>
+            <ChevronUp className="h-5 w-5 text-gray-400" />
+          </div>
+          <div className="flex justify-between bg-[#F4F6F9] rounded-[10px] p-[3px] mb-6">
+            <button className="flex-1 py-1.5 text-[12px] font-medium text-gray-500 rounded-[8px] transition-all">Week</button>
+            <button className="flex-1 py-1.5 text-[12px] font-medium bg-[#7C68EE] text-white shadow-sm rounded-[8px] transition-all">Month</button>
+            <button className="flex-1 py-1.5 text-[12px] font-medium text-gray-500 rounded-[8px] transition-all">Year</button>
+          </div>
+          
+          <div className="flex justify-between items-center mb-5">
+            <ChevronLeft className="h-4 w-4 text-gray-400 cursor-pointer" />
+            <span className="text-[13px] font-bold text-gray-900">December 2019</span>
+            <ChevronRight className="h-4 w-4 text-gray-400 cursor-pointer" />
+          </div>
+          
+          <div className="grid grid-cols-7 gap-1 text-center mb-3">
+            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => (
+              <span key={d} className="text-[10px] font-semibold text-gray-400">{d}</span>
+            ))}
+          </div>
+          <div className="grid grid-cols-7 gap-y-3 text-center text-[11px] font-semibold text-gray-600">
+            {/* Fake calendar grid */}
+            {[27, 28, 29, 30, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31].map((num, i) => (
+              <div 
+                key={i} 
+                className="relative h-6 w-6 mx-auto flex items-center justify-center cursor-pointer"
+              >
+                {num === 7 && i > 5 ? (
+                  <div className="absolute inset-0 bg-[#7C68EE] text-white rounded-full flex items-center justify-center shadow-md">
+                    {num}
+                  </div>
+                ) : (
+                  <span className={cn(
+                    "hover:text-gray-900 transition-colors", 
+                    (i < 4) && "text-gray-300",
+                    (num === 24 || num === 10) && "after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-[#FF6B6B] after:rounded-full"
+                  )}>
+                    {num}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Your Task Widget */}
+        <div className="space-y-4">
+          <div className="flex justify-between items-center px-1">
+            <h3 className="font-bold text-gray-900 text-[17px]">Your Task</h3>
+            <button className="text-gray-400 hover:text-gray-900 text-[11px] font-medium flex items-center">
+              View All <ChevronRight className="h-3 w-3 ml-1" />
+            </button>
+          </div>
+          <div className="bg-white rounded-[16px] border border-[#F0F2F5] p-4 shadow-sm flex items-start gap-4">
+            <div className="w-1 h-12 bg-[#FF6B6B] rounded-full"></div>
+            <div className="flex-1">
+              <div className="flex justify-between items-start">
+                <h4 className="text-[13px] font-bold text-gray-900">Review health care app with team</h4>
+                <MoreVertical className="h-4 w-4 text-gray-400" />
+              </div>
+              <div className="text-[11px] text-gray-400 mt-1 mb-3">7 Dec, 2019 | 10:00 AM</div>
+              <div className="flex items-center gap-2">
+                <div className="flex -space-x-2">
+                   <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&fit=crop" className="h-5 w-5 rounded-full border-2 border-white" />
+                   <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=64&h=64&fit=crop" className="h-5 w-5 rounded-full border-2 border-white" />
+                   <div className="h-5 w-5 rounded-full bg-gray-200 text-gray-600 text-[8px] font-bold flex items-center justify-center border-2 border-white">+</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Storage Widget */}
+        <div className="space-y-4 pt-2">
+          <div className="flex justify-between items-center px-1">
+            <h3 className="font-bold text-gray-900 text-[17px]">Storage</h3>
+            <button className="text-gray-400 hover:text-gray-900 text-[11px] font-medium flex items-center">
+              View All <ChevronRight className="h-3 w-3 ml-1" />
+            </button>
+          </div>
+          <div className="bg-white rounded-[24px] border border-[#F0F2F5] p-6 shadow-sm">
+            <div className="flex justify-between items-center mb-6">
+              <span className="text-[13px] font-medium text-gray-600">Available Space <span className="text-[#7C68EE] font-bold ml-1">73 GB</span></span>
+              <div className="flex items-center gap-1 bg-[#F4F6F9] px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-gray-600 cursor-pointer">
+                <Calendar className="h-3 w-3" /> Month <ChevronDown className="h-3 w-3 ml-1" />
+              </div>
+            </div>
+            
+            <div className="h-32 flex items-end justify-between px-1 relative">
+              {/* Y Axis labels */}
+              <div className="absolute left-0 top-0 bottom-6 flex flex-col justify-between text-[9px] text-gray-400 font-medium">
+                <span>50</span>
+                <span>40</span>
+                <span>30</span>
+                <span>20</span>
+                <span>10</span>
+              </div>
+              
+              <div className="flex items-end justify-between w-full pl-6">
+                {/* Fake bar chart columns */}
+                {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'].map((month, i) => {
+                  const h1 = 20 + Math.random() * 20; // Blue
+                  const h2 = 5 + Math.random() * 15; // Yellow
+                  const h3 = 10 + Math.random() * 25; // Red
+                  
+                  return (
+                    <div key={month} className="flex flex-col items-center gap-3 w-full relative">
+                      <div className="w-[3px] flex flex-col justify-end overflow-hidden h-28 gap-1">
+                        <div className="bg-[#FF6B6B] w-full rounded-full" style={{ height: `${h3}%` }}></div>
+                        <div className="bg-[#FFB84C] w-full rounded-full" style={{ height: `${h2}%` }}></div>
+                        <div className="bg-[#7C68EE] w-full rounded-full" style={{ height: `${h1}%` }}></div>
+                      </div>
+                      <span className="text-[9px] text-gray-400 font-medium">{month}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+            
+            <div className="flex justify-between mt-5 px-1">
+              <div className="flex items-center gap-1.5 text-[10px] text-gray-600 font-medium">
+                <div className="h-2.5 w-2.5 rounded-full bg-white border-2 border-[#FF6B6B]"></div> Uploads
+              </div>
+              <div className="flex items-center gap-1.5 text-[10px] text-gray-600 font-medium">
+                <div className="h-2.5 w-2.5 rounded-full bg-white border-2 border-[#FFB84C]"></div> Files Received
+              </div>
+              <div className="flex items-center gap-1.5 text-[10px] text-gray-600 font-medium">
+                <div className="h-2.5 w-2.5 rounded-full bg-white border-2 border-[#7C68EE]"></div> Space Left
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 }
