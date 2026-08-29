@@ -26,12 +26,14 @@ export class ProjectsService {
   constructor(private prisma: PrismaService) {}
 
   async createProject(organizationId: string, createdById: string, data: CreateProjectDto) {
-    const { memberIds, ...projectData } = data;
+    const { memberIds, startDate, endDate, ...projectData } = data;
 
     // Create the project and automatically add the creator as a PROJECT_MANAGER
     const project = await this.prisma.project.create({
       data: {
         ...projectData,
+        startDate: startDate ? new Date(startDate) : undefined,
+        endDate: endDate ? new Date(endDate) : undefined,
         organizationId,
         createdById,
         members: {
@@ -117,9 +119,14 @@ export class ProjectsService {
   }
 
   async updateProject(projectId: string, data: UpdateProjectDto) {
+    const { startDate, endDate, ...rest } = data;
     return this.prisma.project.update({
       where: { id: projectId },
-      data,
+      data: {
+        ...rest,
+        ...(startDate !== undefined ? { startDate: startDate ? new Date(startDate) : null } : {}),
+        ...(endDate !== undefined ? { endDate: endDate ? new Date(endDate) : null } : {}),
+      },
     });
   }
 

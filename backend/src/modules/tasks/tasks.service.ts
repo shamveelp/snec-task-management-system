@@ -50,9 +50,12 @@ export class TasksService {
     // Only ORG ADMIN or PROJECT_MANAGER can create tasks
     await this.checkAccess(data.projectId, userId, userOrgRole, [ProjectRole.PROJECT_MANAGER]);
 
+    const { dueDate, ...rest } = data;
+
     return this.prisma.task.create({
       data: {
-        ...data,
+        ...rest,
+        dueDate: dueDate ? new Date(dueDate) : undefined,
         reporterId: userId,
       },
       include: {
@@ -127,9 +130,14 @@ export class TasksService {
       }
     }
 
+    const { dueDate, ...rest } = data;
+
     return this.prisma.task.update({
       where: { id: taskId },
-      data,
+      data: {
+        ...rest,
+        ...(dueDate !== undefined ? { dueDate: dueDate ? new Date(dueDate) : null } : {}),
+      },
       include: {
         assignee: { select: { id: true, name: true, profilePicture: true } },
         reporter: { select: { id: true, name: true, profilePicture: true } },
