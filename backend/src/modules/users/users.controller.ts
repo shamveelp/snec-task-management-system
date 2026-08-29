@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Post, Body, UseGuards, Req, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Put, Post, Body, UseGuards, Req, UseInterceptors, UploadedFile, BadRequestException, Query } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
@@ -16,6 +16,13 @@ export class UsersController {
     private usersService: UsersService,
     private cloudinaryService: CloudinaryService
   ) {}
+
+  @Get('check-username')
+  async checkUsername(@Req() req: any, @Query('username') username: string) {
+    if (!username) return { available: false };
+    const available = await this.usersService.checkUsernameAvailability(username, req.user.userId);
+    return { available };
+  }
 
   @Put('profile')
   async updateProfile(@Req() req: any, @Body() body: { name?: string; username?: string; mobile?: string; bio?: string }) {

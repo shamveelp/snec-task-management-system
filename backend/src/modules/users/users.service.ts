@@ -48,4 +48,14 @@ export class UsersService {
       }
     });
   }
+
+  async checkUsernameAvailability(username: string, userId: string) {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { username }
+    });
+    
+    // Available if it doesn't exist, OR if it exists but belongs to the current user
+    if (!existingUser) return true;
+    return existingUser.id === userId;
+  }
 }

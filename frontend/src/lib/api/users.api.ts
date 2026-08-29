@@ -21,6 +21,11 @@ export const usersApi = {
     return response.data;
   },
 
+  checkUsername: async (username: string) => {
+    const response = await api.get(`/users/check-username?username=${encodeURIComponent(username)}`);
+    return response.data;
+  },
+
   updateProfilePicture: async (file: File) => {
     const formData = new FormData();
     formData.append('file', file);

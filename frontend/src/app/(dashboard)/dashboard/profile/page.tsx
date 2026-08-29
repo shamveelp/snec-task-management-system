@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useAuthStore } from "../../../../store/auth.store"
 import { usersApi } from "../../../../lib/api/users.api"
-import { Camera, Save, Loader2, X, User } from "lucide-react"
+import { Camera, Save, Loader2, X, User, CheckCircle2, XCircle } from "lucide-react"
 import Cropper from 'react-easy-crop'
 import { getCroppedImg } from "../../../../lib/cropImage"
 
@@ -20,6 +20,8 @@ export default function ProfilePage() {
   const [isSaving, setIsSaving] = React.useState(false)
   const [successMsg, setSuccessMsg] = React.useState('')
   const [errorMsg, setErrorMsg] = React.useState('')
+
+  const [usernameStatus, setUsernameStatus] = React.useState<'idle' | 'checking' | 'available' | 'taken'>('idle')
 
   // Crop states
   const [imageSrc, setImageSrc] = React.useState<string | null>(null)
@@ -40,6 +42,30 @@ export default function ProfilePage() {
       })
     }
   }, [user])
+
+  React.useEffect(() => {
+    if (!formData.username) {
+      setUsernameStatus('idle');
+      return;
+    }
+    // Don't check if it's identical to the currently saved username
+    if (user && formData.username === user.username) {
+      setUsernameStatus('idle');
+      return;
+    }
+
+    setUsernameStatus('checking');
+    const timer = setTimeout(async () => {
+      try {
+        const { available } = await usersApi.checkUsername(formData.username);
+        setUsernameStatus(available ? 'available' : 'taken');
+      } catch (err) {
+        setUsernameStatus('idle');
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [formData.username, user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
@@ -167,15 +193,26 @@ export default function ProfilePage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-white/60">Username</label>
-                    <input 
-                      type="text" 
-                      name="username"
-                      value={formData.username}
-                      onChange={handleChange}
-                      className="w-full bg-[#131417] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#3B82F6] transition-colors"
-                      placeholder="@johndoe"
-                    />
+                    <label className="text-xs font-semibold text-white/60 flex items-center justify-between">
+                      <span>Username</span>
+                      {usernameStatus === 'checking' && <Loader2 className="h-3 w-3 animate-spin text-white/40" />}
+                      {usernameStatus === 'available' && <span className="text-[#22C55E] flex items-center gap-1"><CheckCircle2 className="h-3 w-3" /> Available</span>}
+                      {usernameStatus === 'taken' && <span className="text-[#EF4444] flex items-center gap-1"><XCircle className="h-3 w-3" /> Taken</span>}
+                    </label>
+                    <div className="relative">
+                      <input 
+                        type="text" 
+                        name="username"
+                        value={formData.username}
+                        onChange={handleChange}
+                        className={`w-full bg-[#131417] border rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none transition-colors ${
+                          usernameStatus === 'taken' ? 'border-[#EF4444] focus:border-[#EF4444]' : 
+                          usernameStatus === 'available' ? 'border-[#22C55E] focus:border-[#22C55E]' : 
+                          'border-white/10 focus:border-[#3B82F6]'
+                        }`}
+                        placeholder="@johndoe"
+                      />
+                    </div>
                   </div>
                 </div>
 
