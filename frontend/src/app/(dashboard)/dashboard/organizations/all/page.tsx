@@ -144,7 +144,11 @@ export default function AllOrganizationsPage() {
                               <div>
                                 <div className="text-sm font-semibold text-white group-hover:text-[#3B82F6] transition-colors flex items-center gap-2">
                                   {org.name}
-                                  {isMember && <Star className="h-3 w-3 text-[#EAB308] fill-[#EAB308]" title="Your Organization" />}
+                                  {isMember && (
+                                    <span title="Your Organization">
+                                      <Star className="h-3 w-3 text-[#EAB308] fill-[#EAB308]" />
+                                    </span>
+                                  )}
                                 </div>
                                 <div className="text-[10px] text-white/40 mt-0.5">ID: {org.id.split('-')[0]}</div>
                               </div>

@@ -4,7 +4,7 @@ import * as React from "react";
 import { useAuthStore } from "../../../../store/auth.store";
 import { Button } from "../../../../components/ui/button";
 import { invitationsApi, PendingInvitation } from "../../../../lib/api/invitations.api";
-import { Loader2, Mail, Building, Clock, Check, X, ArrowRight } from "lucide-react";
+import { Loader2, Mail, Building, Clock, Check, X, ArrowRight, RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function UserInvitationsPage() {
@@ -58,9 +58,20 @@ export default function UserInvitationsPage() {
           <h1 className="text-3xl font-semibold tracking-tight text-white/90">Invitations</h1>
           <p className="text-white/40 mt-1">Manage your pending invitations to join organizations.</p>
         </div>
-        <div className="bg-[#18191E] border border-white/[0.04] px-4 py-2 rounded-xl text-sm font-medium text-white/70 flex items-center gap-2">
-          <Mail className="h-4 w-4 text-white/40" />
-          {invitations.length} Pending
+        <div className="flex items-center gap-3">
+          <Button 
+            variant="ghost"
+            onClick={fetchInvitations}
+            disabled={loading}
+            className="bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-3 h-10"
+            title="Refresh Data"
+          >
+            <RefreshCw className={`h-4 w-4 text-white/70 ${loading ? 'animate-spin' : ''}`} />
+          </Button>
+          <div className="bg-[#18191E] border border-white/[0.04] px-4 py-2 rounded-xl text-sm font-medium text-white/70 flex items-center gap-2">
+            <Mail className="h-4 w-4 text-white/40" />
+            {invitations.length} Pending
+          </div>
         </div>
       </div>
 

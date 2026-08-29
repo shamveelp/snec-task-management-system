@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useAuthStore } from "../../../../store/auth.store";
 import { Button } from "../../../../components/ui/button";
-import { Plus, Search, MoreHorizontal, Loader2, Users, Mailbox, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { Plus, Search, MoreHorizontal, Loader2, Users, Mailbox, CheckCircle2, XCircle, Clock, RefreshCw } from "lucide-react";
 import { organizationsApi, OrganizationMember, OrganizationInvitation } from "../../../../lib/api/organizations.api";
 import { InviteMemberModal } from "../../../../components/organizations/invite-member-modal";
 
@@ -86,12 +86,23 @@ export default function OrganizationTeamPage() {
           <h1 className="text-[24px] font-bold text-gray-900 tracking-tight">Team & Members</h1>
           <p className="text-sm text-gray-500 mt-1">Manage your organization's members and pending invitations.</p>
         </div>
-        <Button 
-          onClick={() => setIsInviteModalOpen(true)}
-          className="bg-[#7C68EE] hover:bg-[#6b58dd] text-white rounded-[14px] px-6 py-5 h-auto shadow-sm font-medium"
-        >
-          <Plus className="h-5 w-5 mr-2" /> Invite Member
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button 
+            variant="outline"
+            onClick={fetchData}
+            disabled={loading}
+            className="rounded-[14px] px-4 py-5 h-auto shadow-sm font-medium border-gray-200"
+            title="Refresh Data"
+          >
+            <RefreshCw className={`h-5 w-5 text-gray-500 ${loading ? 'animate-spin' : ''}`} />
+          </Button>
+          <Button 
+            onClick={() => setIsInviteModalOpen(true)}
+            className="bg-[#7C68EE] hover:bg-[#6b58dd] text-white rounded-[14px] px-6 py-5 h-auto shadow-sm font-medium"
+          >
+            <Plus className="h-5 w-5 mr-2" /> Invite Member
+          </Button>
+        </div>
       </div>
 
       {/* Tabs and Controls */}
