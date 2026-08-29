@@ -17,12 +17,12 @@ export const invitationsService = {
   },
 
   getMyInvitations: async () => {
-    const response = await api.get<PendingInvitation[]>('/user/invitations/me');
+    const response = await api.get<PendingInvitation[]>('/organization/invitations/me');
     return response.data;
   },
 
   acceptInvitation: async (token: string) => {
-    const response = await api.put(`/user/invitations/${token}/accept`);
+    const response = await api.post(`/organization/invitations/${token}/accept`);
     return response.data;
   },
 };

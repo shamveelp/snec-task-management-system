@@ -21,7 +21,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const fetchInvitations = async () => {
     try {
       const token = localStorage.getItem('accessToken')
-      const response = await axios.get('http://localhost:5000/invitations/me', {
+      const response = await axios.get('http://localhost:5000/organization/invitations/me', {
         headers: { Authorization: `Bearer ${token}` }
       })
       setInvitations(response.data)

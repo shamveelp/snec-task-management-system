@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "../../../../store/auth.store";
 import { Button } from "../../../../components/ui/button";
 import { 
@@ -8,10 +9,60 @@ import {
   ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Folder, Calendar
 } from "lucide-react";
 import { cn } from "../../../../lib/utils";
+import { organizationsService } from "../../../../services/organization/organizations.service";
+
+const PROJECT_COLORS = [
+  { bg: "bg-[#FF6B6B]", shadow: "shadow-[0_20px_40px_-15px_rgba(255,107,107,0.7)]" },
+  { bg: "bg-[#7C68EE]", shadow: "shadow-[0_20px_40px_-15px_rgba(124,104,238,0.7)]" },
+  { bg: "bg-[#FFB84C]", shadow: "shadow-[0_20px_40px_-15px_rgba(255,184,76,0.7)]" },
+  { bg: "bg-[#34D399]", shadow: "shadow-[0_20px_40px_-15px_rgba(52,211,153,0.7)]" }
+];
+
+const TASK_COLORS = [
+  { bg: "bg-[#FF6B6B]", text: "PDF" },
+  { bg: "bg-[#FFB84C]", text: "DOC" },
+  { bg: "bg-[#34D399]", text: "ZIP" },
+  { bg: "bg-[#7C68EE]", text: "TXT" }
+];
 
 export default function OrganizationDashboardPage() {
   const { user } = useAuthStore();
-  const userName = user?.name?.split(' ')[0] || 'Jannie';
+  const userName = user?.name?.split(' ')[0] || 'User';
+
+  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const data = await organizationsService.getDashboardData();
+        setDashboardData(data);
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboard();
+  }, []);
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  const formatTime = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  };
+
+  if (loading) {
+    return <div className="flex items-center justify-center h-full">Loading dashboard...</div>;
+  }
+
+  const { recentProjects = [], recentTasks = [], yourUpcomingTask, storageInfo } = dashboardData || {};
 
   return (
     <div className="flex flex-col xl:flex-row h-full px-10 pb-10 gap-10 bg-white">
@@ -52,172 +103,116 @@ export default function OrganizationDashboardPage() {
           {/* Mock Illustration Area */}
           <div className="absolute right-0 top-0 bottom-0 w-[45%] flex items-end justify-end pointer-events-none">
              <div className="w-full h-full relative flex items-center justify-center">
-                {/* SVG Illustration Mock */}
                 <div className="w-[80%] h-[70%] border-[3px] border-indigo-500 rounded-xl bg-white relative flex items-center justify-center">
                    <div className="w-16 h-12 border-2 border-dashed border-green-500 rounded-lg flex items-center justify-center">
                      <CloudUpload className="h-6 w-6 text-green-500" />
                    </div>
                 </div>
-                {/* Person mock */}
                 <div className="absolute right-6 bottom-4 w-12 h-32 bg-teal-400 rounded-full border-4 border-white shadow-sm"></div>
              </div>
           </div>
         </div>
 
-        {/* Folders */}
+        {/* Folders (Recent Projects) */}
         <div className="space-y-5">
           <div className="flex justify-between items-center">
-            <h3 className="text-[17px] font-bold text-gray-900">Folders</h3>
+            <h3 className="text-[17px] font-bold text-gray-900">Recent Projects</h3>
             <button className="text-gray-400 hover:text-gray-900 text-sm font-medium flex items-center">
               View All <ChevronRight className="h-4 w-4 ml-1" />
             </button>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Red Card */}
-            <div className="bg-[#FF6B6B] rounded-[24px] p-6 text-white shadow-[0_20px_40px_-15px_rgba(255,107,107,0.7)] flex flex-col justify-between h-[180px]">
-              <div className="flex justify-between items-start">
-                <div className="bg-white/20 p-2 rounded-xl">
-                  <Folder className="h-5 w-5 text-white fill-white" />
-                </div>
-                <MoreVertical className="h-5 w-5 text-white/80 cursor-pointer" />
-              </div>
-              <div>
-                <h4 className="text-[16px] font-semibold mb-3 text-white">Design Shift</h4>
-                <div className="flex items-center justify-between">
-                  <div className="flex -space-x-2">
-                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&fit=crop" className="h-6 w-6 rounded-full border-2 border-[#FF6B6B]" />
-                    <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=64&h=64&fit=crop" className="h-6 w-6 rounded-full border-2 border-[#FF6B6B]" />
-                    <div className="h-6 w-6 rounded-full bg-white text-[#FF6B6B] text-[9px] font-bold flex items-center justify-center border-2 border-[#FF6B6B]">+4</div>
+            {recentProjects.length === 0 ? (
+              <div className="col-span-3 text-sm text-gray-400 p-4 border border-dashed rounded-xl text-center">No projects available</div>
+            ) : (
+              recentProjects.map((project: any, index: number) => {
+                const colors = PROJECT_COLORS[index % PROJECT_COLORS.length];
+                const members = project.members || [];
+                const maxDisplay = 3;
+                const extra = members.length > maxDisplay ? members.length - maxDisplay : 0;
+                
+                return (
+                  <div key={project.id} className={cn(colors.bg, "rounded-[24px] p-6 text-white flex flex-col justify-between h-[180px]", colors.shadow)}>
+                    <div className="flex justify-between items-start">
+                      <div className="bg-white/20 p-2 rounded-xl">
+                        <Folder className="h-5 w-5 text-white fill-white" />
+                      </div>
+                      <MoreVertical className="h-5 w-5 text-white/80 cursor-pointer" />
+                    </div>
+                    <div>
+                      <h4 className="text-[16px] font-semibold mb-3 text-white truncate" title={project.name}>{project.name}</h4>
+                      <div className="flex items-center justify-between">
+                        <div className="flex -space-x-2">
+                          {members.slice(0, maxDisplay).map((m: any) => (
+                            <img key={m.id} src={m.user.profilePicture || "https://ui-avatars.com/api/?name=" + encodeURIComponent(m.user.name)} className={cn("h-6 w-6 rounded-full border-2", `border-[${colors.bg.replace('bg-[', '').replace(']', '')}]`)} />
+                          ))}
+                          {extra > 0 && (
+                            <div className={cn("h-6 w-6 rounded-full bg-white text-[9px] font-bold flex items-center justify-center border-2", `text-[${colors.bg.replace('bg-[', '').replace(']', '')}] border-[${colors.bg.replace('bg-[', '').replace(']', '')}]`)}>+{extra}</div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 mt-3">
+                        <div className="text-[11px] text-white/90">{project._count?.tasks || 0} Tasks</div>
+                        <div className="text-[11px] text-white/90">Created {formatDate(project.createdAt)}</div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-3 mt-3">
-                  <div className="text-[11px] text-white/90">10 Files</div>
-                  <div className="text-[11px] text-white/90">Created on Dec 13, 2019</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Purple Card */}
-            <div className="bg-[#7C68EE] rounded-[24px] p-6 text-white shadow-[0_20px_40px_-15px_rgba(124,104,238,0.7)] flex flex-col justify-between h-[180px]">
-              <div className="flex justify-between items-start">
-                <div className="bg-white/20 p-2 rounded-xl">
-                  <Folder className="h-5 w-5 text-white fill-white" />
-                </div>
-                <MoreVertical className="h-5 w-5 text-white/80 cursor-pointer" />
-              </div>
-              <div>
-                <h4 className="text-[16px] font-semibold mb-3 text-white">Health Care App</h4>
-                <div className="flex items-center justify-between">
-                  <div className="flex -space-x-2">
-                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&fit=crop" className="h-6 w-6 rounded-full border-2 border-[#7C68EE]" />
-                    <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=64&h=64&fit=crop" className="h-6 w-6 rounded-full border-2 border-[#7C68EE]" />
-                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&fit=crop" className="h-6 w-6 rounded-full border-2 border-[#7C68EE]" />
-                    <div className="h-6 w-6 rounded-full bg-white text-[#7C68EE] text-[9px] font-bold flex items-center justify-center border-2 border-[#7C68EE]">+2</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 mt-3">
-                  <div className="text-[11px] text-white/90">12 Files</div>
-                  <div className="text-[11px] text-white/90">Created on Nov 04, 2019</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Yellow Card */}
-            <div className="bg-[#FFB84C] rounded-[24px] p-6 text-white shadow-[0_20px_40px_-15px_rgba(255,184,76,0.7)] flex flex-col justify-between h-[180px]">
-              <div className="flex justify-between items-start">
-                <div className="bg-white/20 p-2 rounded-xl">
-                  <Folder className="h-5 w-5 text-white fill-white" />
-                </div>
-                <MoreVertical className="h-5 w-5 text-white/80 cursor-pointer" />
-              </div>
-              <div>
-                <h4 className="text-[16px] font-semibold mb-3 text-white">Food truck Website</h4>
-                <div className="flex items-center justify-between">
-                  <div className="flex -space-x-2">
-                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&fit=crop" className="h-6 w-6 rounded-full border-2 border-[#FFB84C]" />
-                    <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=64&h=64&fit=crop" className="h-6 w-6 rounded-full border-2 border-[#FFB84C]" />
-                    <div className="h-6 w-6 rounded-full bg-white text-[#FFB84C] text-[9px] font-bold flex items-center justify-center border-2 border-[#FFB84C]">+4</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 mt-3">
-                  <div className="text-[11px] text-white/90">16 Files</div>
-                  <div className="text-[11px] text-white/90">Created on Nov 03, 2019</div>
-                </div>
-              </div>
-            </div>
+                );
+              })
+            )}
           </div>
         </div>
 
-        {/* Recent Files */}
+        {/* Recent Files (Recent Tasks) */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-[17px] font-bold text-gray-900">Recent Files</h3>
+            <h3 className="text-[17px] font-bold text-gray-900">Recent Tasks</h3>
             <button className="text-gray-400 hover:text-gray-900 text-sm font-medium flex items-center">
               View All <ChevronRight className="h-4 w-4 ml-1" />
             </button>
           </div>
           
           <div className="space-y-3 pb-8">
-            {/* Row 1 - Inactive */}
-            <div className="flex items-center justify-between p-4 rounded-[20px] bg-white transition-all cursor-pointer">
-              <div className="flex items-center gap-4 w-[40%]">
-                <div className="h-[42px] w-[42px] rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-[10px] text-white bg-[#FF6B6B] shadow-sm">
-                  PDF
-                </div>
-                <span className="font-semibold text-gray-800 text-[14px]">
-                  Design Thinking Process
-                </span>
-              </div>
-              <div className="w-[20%] text-gray-400 text-xs">Only You</div>
-              <div className="w-[20%] text-gray-400 text-xs">Dec 13, 2019</div>
-              <div className="w-[10%] text-gray-400 text-xs text-right pr-4">2 MB</div>
-              <div className="flex items-center justify-end gap-3 w-[10%] text-gray-400">
-                <Plus className="h-4 w-4" />
-                <Share2 className="h-4 w-4" />
-                <MoreVertical className="h-4 w-4" />
-              </div>
-            </div>
-
-            {/* Row 2 - Active */}
-            <div className="flex items-center justify-between p-4 rounded-[20px] bg-[#7C68EE] text-white shadow-[0_15px_30px_-10px_rgba(124,104,238,0.5)] transition-all cursor-pointer">
-              <div className="flex items-center gap-4 w-[40%]">
-                <div className="h-[42px] w-[42px] rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-[10px] text-white bg-[#FFB84C] shadow-sm">
-                  PNG
-                </div>
-                <span className="font-semibold text-white text-[14px]">
-                  Design Thinking Process
-                </span>
-              </div>
-              <div className="w-[20%] text-white/80 text-xs">10 Members</div>
-              <div className="w-[20%] text-white/80 text-xs">Nov 04, 2019</div>
-              <div className="w-[10%] text-white/80 text-xs text-right pr-4">10 MB</div>
-              <div className="flex items-center justify-end gap-3 w-[10%] text-white">
-                <Plus className="h-4 w-4" />
-                <Share2 className="h-4 w-4" />
-                <MoreVertical className="h-4 w-4" />
-              </div>
-            </div>
-
-            {/* Row 3 - Inactive */}
-            <div className="flex items-center justify-between p-4 rounded-[20px] bg-white transition-all cursor-pointer">
-              <div className="flex items-center gap-4 w-[40%]">
-                <div className="h-[42px] w-[42px] rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-[10px] text-white bg-[#34D399] shadow-sm">
-                  ZIP
-                </div>
-                <span className="font-semibold text-gray-800 text-[14px]">
-                  Characters Animation
-                </span>
-              </div>
-              <div className="w-[20%] text-gray-400 text-xs">15 Members</div>
-              <div className="w-[20%] text-gray-400 text-xs">Nov 01, 2019</div>
-              <div className="w-[10%] text-gray-400 text-xs text-right pr-4">50 MB</div>
-              <div className="flex items-center justify-end gap-3 w-[10%] text-gray-400">
-                <Plus className="h-4 w-4" />
-                <Share2 className="h-4 w-4" />
-                <MoreVertical className="h-4 w-4" />
-              </div>
-            </div>
+            {recentTasks.length === 0 ? (
+              <div className="text-sm text-gray-400 p-4 border border-dashed rounded-xl text-center">No tasks available</div>
+            ) : (
+              recentTasks.map((task: any, index: number) => {
+                const color = TASK_COLORS[index % TASK_COLORS.length];
+                // Make the second item (index 1) active style just for visual variety if needed, or keep them uniform
+                const isActive = index === 1 && recentTasks.length > 1;
+                
+                return (
+                  <div key={task.id} className={cn(
+                    "flex items-center justify-between p-4 rounded-[20px] transition-all cursor-pointer",
+                    isActive ? "bg-[#7C68EE] text-white shadow-[0_15px_30px_-10px_rgba(124,104,238,0.5)]" : "bg-white text-gray-800"
+                  )}>
+                    <div className="flex items-center gap-4 w-[40%]">
+                      <div className={cn("h-[42px] w-[42px] rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-[10px] text-white shadow-sm", color.bg)}>
+                        {color.text}
+                      </div>
+                      <span className="font-semibold text-[14px] truncate" title={task.title}>
+                        {task.title}
+                      </span>
+                    </div>
+                    <div className={cn("w-[20%] text-xs truncate", isActive ? "text-white/80" : "text-gray-400")}>
+                      {task.project?.name || 'No Project'}
+                    </div>
+                    <div className={cn("w-[20%] text-xs", isActive ? "text-white/80" : "text-gray-400")}>
+                      {formatDate(task.createdAt)}
+                    </div>
+                    <div className={cn("w-[10%] text-xs text-right pr-4", isActive ? "text-white/80" : "text-gray-400")}>
+                      {task.status}
+                    </div>
+                    <div className={cn("flex items-center justify-end gap-3 w-[10%]", isActive ? "text-white" : "text-gray-400")}>
+                      <Plus className="h-4 w-4" />
+                      <Share2 className="h-4 w-4" />
+                      <MoreVertical className="h-4 w-4" />
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
       </div>
@@ -276,28 +271,35 @@ export default function OrganizationDashboardPage() {
         {/* Your Task Widget */}
         <div className="space-y-4">
           <div className="flex justify-between items-center px-1">
-            <h3 className="font-bold text-gray-900 text-[17px]">Your Task</h3>
+            <h3 className="font-bold text-gray-900 text-[17px]">Your Upcoming Task</h3>
             <button className="text-gray-400 hover:text-gray-900 text-[11px] font-medium flex items-center">
               View All <ChevronRight className="h-3 w-3 ml-1" />
             </button>
           </div>
-          <div className="bg-white rounded-[16px] border border-[#F0F2F5] p-4 shadow-sm flex items-start gap-4">
-            <div className="w-1 h-12 bg-[#FF6B6B] rounded-full"></div>
-            <div className="flex-1">
-              <div className="flex justify-between items-start">
-                <h4 className="text-[13px] font-bold text-gray-900">Review health care app with team</h4>
-                <MoreVertical className="h-4 w-4 text-gray-400" />
-              </div>
-              <div className="text-[11px] text-gray-400 mt-1 mb-3">7 Dec, 2019 | 10:00 AM</div>
-              <div className="flex items-center gap-2">
-                <div className="flex -space-x-2">
-                   <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&fit=crop" className="h-5 w-5 rounded-full border-2 border-white" />
-                   <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=64&h=64&fit=crop" className="h-5 w-5 rounded-full border-2 border-white" />
-                   <div className="h-5 w-5 rounded-full bg-gray-200 text-gray-600 text-[8px] font-bold flex items-center justify-center border-2 border-white">+</div>
+          
+          {!yourUpcomingTask ? (
+            <div className="bg-white rounded-[16px] border border-[#F0F2F5] p-4 text-center text-xs text-gray-400">
+              No upcoming tasks!
+            </div>
+          ) : (
+            <div className="bg-white rounded-[16px] border border-[#F0F2F5] p-4 shadow-sm flex items-start gap-4">
+              <div className="w-1 h-12 bg-[#FF6B6B] rounded-full"></div>
+              <div className="flex-1">
+                <div className="flex justify-between items-start">
+                  <h4 className="text-[13px] font-bold text-gray-900">{yourUpcomingTask.title}</h4>
+                  <MoreVertical className="h-4 w-4 text-gray-400" />
+                </div>
+                <div className="text-[11px] text-gray-400 mt-1 mb-3">
+                  {yourUpcomingTask.dueDate ? `${formatDate(yourUpcomingTask.dueDate)} | ${formatTime(yourUpcomingTask.dueDate)}` : 'No due date'}
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold px-2 py-1 bg-gray-100 rounded-md text-gray-600">
+                    {yourUpcomingTask.project?.name || 'Standalone Task'}
+                  </span>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Storage Widget */}
@@ -310,7 +312,7 @@ export default function OrganizationDashboardPage() {
           </div>
           <div className="bg-white rounded-[24px] border border-[#F0F2F5] p-6 shadow-sm">
             <div className="flex justify-between items-center mb-6">
-              <span className="text-[13px] font-medium text-gray-600">Available Space <span className="text-[#7C68EE] font-bold ml-1">73 GB</span></span>
+              <span className="text-[13px] font-medium text-gray-600">Available Space <span className="text-[#7C68EE] font-bold ml-1">{storageInfo?.available || '0 GB'}</span></span>
               <div className="flex items-center gap-1 bg-[#F4F6F9] px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-gray-600 cursor-pointer">
                 <Calendar className="h-3 w-3" /> Month <ChevronDown className="h-3 w-3 ml-1" />
               </div>

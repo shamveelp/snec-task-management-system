@@ -3,13 +3,15 @@ import { OrganizationsModule } from './organization-management/organizations.mod
 import { ProjectsModule } from './projects-management/projects.module';
 import { TasksModule } from './tasks-management/tasks.module';
 import { InvitationsModule } from './invitation-management/invitations.module';
+import { OrganizationDashboardModule } from './dashboard/organization-dashboard.module';
 
 @Module({
   imports: [
     OrganizationsModule,
     ProjectsModule,
     TasksModule,
-    InvitationsModule
+    InvitationsModule,
+    OrganizationDashboardModule
   ]
 })
 export class OrganizationModule {}

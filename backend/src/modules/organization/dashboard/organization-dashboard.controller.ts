@@ -9,6 +9,9 @@ export class OrganizationDashboardController {
 
   @Get()
   async getDetails(@Req() req) {
-    return { message: 'OrganizationDashboard API' };
+    if (!req.user?.organizationId) {
+      return { recentProjects: [], recentTasks: [], yourUpcomingTask: null, storageInfo: { available: '0 GB', used: '0 GB' } };
+    }
+    return this.organizationdashboardService.getDashboardData(req.user.organizationId, req.user.id);
   }
 }

@@ -61,5 +61,10 @@ export const organizationsService = {
   getNotifications: async () => {
     const response = await api.get<any[]>('/organization/profile/notifications');
     return response.data;
+  },
+
+  getDashboardData: async () => {
+    const response = await api.get<any>('/organization/dashboard');
+    return response.data;
   }
 };
