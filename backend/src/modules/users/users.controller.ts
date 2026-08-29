@@ -20,14 +20,14 @@ export class UsersController {
   @Get('check-username')
   async checkUsername(@Req() req: any, @Query('username') username: string) {
     if (!username) return { available: false };
-    const available = await this.usersService.checkUsernameAvailability(username, req.user.userId);
+    const available = await this.usersService.checkUsernameAvailability(username, req.user.id);
     return { available };
   }
 
   @Put('profile')
   async updateProfile(@Req() req: any, @Body() body: { name?: string; username?: string; mobile?: string; bio?: string }) {
     try {
-      const user = await this.usersService.updateProfile(req.user.userId, body);
+      const user = await this.usersService.updateProfile(req.user.id, body);
       return { message: 'Profile updated successfully', user };
     } catch (error: any) {
       throw new BadRequestException(error.message || 'Failed to update profile');
@@ -46,10 +46,11 @@ export class UsersController {
       const result = await this.cloudinaryService.uploadImage(file);
       
       // Update User DB record
-      const user = await this.usersService.updateProfilePicture(req.user.userId, result.secure_url);
+      const user = await this.usersService.updateProfilePicture(req.user.id, result.secure_url);
       
       return { message: 'Profile picture updated successfully', user };
     } catch (error) {
+      console.error('Profile picture upload error:', error);
       throw new BadRequestException('Failed to upload profile picture');
     }
   }

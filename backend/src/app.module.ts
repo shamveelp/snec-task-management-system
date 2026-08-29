@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
@@ -8,7 +9,7 @@ import { InvitationsModule } from './modules/invitations/invitations.module';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, OrganizationsModule, InvitationsModule, CloudinaryModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), AuthModule, UsersModule, OrganizationsModule, InvitationsModule, CloudinaryModule],
   controllers: [AppController],
   providers: [AppService],
 })

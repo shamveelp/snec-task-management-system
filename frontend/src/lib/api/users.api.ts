@@ -30,11 +30,7 @@ export const usersApi = {
     const formData = new FormData();
     formData.append('file', file);
     
-    const response = await api.post('/users/profile-picture', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await api.post('/users/profile-picture', formData);
     return response.data;
   },
 };
