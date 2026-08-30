@@ -53,8 +53,8 @@ graph TD
 - **Form Controls**: Reusable `AppInput`, `AppSelect`, and `AppDatePicker` ensuring consistent light/dark theme compliance and calendar picking.
 
 ### 2.2 Application Layer (Backend)
-- **Framework**: NestJS (TypeScript) with Modular Structure (`AuthModule`, `UsersModule`, `OrganizationsModule`, `ProjectsModule`, `TasksModule`, `CloudinaryModule`, `EmailModule`, `DatabaseModule`).
-- **Authentication**: Stateless JSON Web Tokens (Access Token + Refresh Token).
+- **Framework**: NestJS (TypeScript) with Modular Structure (`AuthModule`, `UsersModule`, `OrganizationsModule`, `ProjectsModule`, `TasksModule`, `CloudinaryModule`, `EmailModule`, `DatabaseModule`, `AuditLogsModule`, `AdminModule`).
+- **Authentication**: Stateless JSON Web Tokens (Access Token + Refresh Token), Google OAuth 2.0 Integration via Passport.
 - **Authorization**: Custom NestJS Guards (`JwtAuthGuard`, `RolesGuard`, `PermissionsGuard`) enforcing both organization and project-level scopes.
 - **File Uploads**: Multer memory storage stream piped to Cloudinary for zero-disk serverless-compatible attachment handling.
 
@@ -87,14 +87,20 @@ flowchart TD
 
 ## 4. Key Workflows
 
-### 4.1 Organization Registration & OTP Verification
-1. User enters company details and email.
-2. Backend generates a cryptographic 6-digit OTP stored with a 5-minute expiry in the `Otp` table.
-3. Nodemailer sends an HTML-formatted OTP to the company's email address.
-4. Upon OTP submission, an atomic Prisma transaction creates both the `Organization` entity and the initial `Organization Admin` user account.
+### 4.1 Organization Registration & Authentication
+1. **Registration**: User enters company details and email. Backend generates a 6-digit OTP stored with a 5-minute expiry in the `Otp` table. Nodemailer sends an HTML-formatted OTP. Upon OTP submission, an atomic Prisma transaction creates both the `Organization` entity and the initial `Organization Admin` user account.
+2. **Password Recovery**: Users can request a password reset OTP which is emailed via Nodemailer. Using this OTP, users can securely set a new password.
+3. **Google OAuth**: Users can bypass email registration and login/register seamlessly via Google. Usernames are auto-generated from email prefixes.
 
 ### 4.2 Project & Task Lifecycle
 1. **Creation**: Organization Admin or Project Manager creates a project and picks members from the organization roster.
 2. **Assignment**: Tasks are assigned with estimated hours, priority, and deadline.
 3. **Execution**: Developers update status in real-time on the drag-and-drop Kanban board (`TODO` → `IN_PROGRESS` → `IN_REVIEW` → `DONE`).
 4. **Collaboration**: Members post real-time task comments and upload technical specifications or screenshots directly to Cloudinary.
+
+### 4.3 Auditing & Reporting
+1. **Audit Logs**: All critical CRUD and Auth operations (Login, Logout, Create Task, Update Project, etc.) are recorded persistently in the `AuditLog` table.
+2. **Reports Engine**: Real-time aggregation of project progress, user productivity, task completion rates, and overdue task warnings for Organization Admins.
+
+### 4.4 Super Admin Management
+1. **Tenant Oversight**: Super Admins can list, update, and completely remove organizations from the database, effectively managing the SaaS ecosystem globally.

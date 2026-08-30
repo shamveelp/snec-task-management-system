@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Button } from "../ui/button"
+import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import { PasswordInput } from "../ui/password-input"
 import { Loader2, CheckCircle2 } from "lucide-react"
@@ -12,9 +13,10 @@ import { useSearchParams } from "next/navigation"
 
 export function ResetPasswordForm() {
   const searchParams = useSearchParams()
-  const token = searchParams.get('token')
-  const email = searchParams.get('email')
+  const emailParam = searchParams.get('email')
 
+  const [email, setEmail] = React.useState(emailParam || "")
+  const [token, setToken] = React.useState("")
   const [newPassword, setNewPassword] = React.useState("")
   const [confirmPassword, setConfirmPassword] = React.useState("")
   const [loading, setLoading] = React.useState(false)
@@ -26,7 +28,7 @@ export function ResetPasswordForm() {
     setError("")
     
     if (!token || !email) {
-      setError("Invalid or expired password reset link.")
+      setError("Please provide your email and the 6-digit OTP.")
       return
     }
 
@@ -82,7 +84,7 @@ export function ResetPasswordForm() {
       <div className="flex flex-col space-y-2 text-center mb-8">
         <h1 className="text-3xl font-semibold tracking-tight">Create new password</h1>
         <p className="text-sm text-muted-foreground">
-          Your new password must be different from previous used passwords.
+          Enter the 6-digit OTP sent to your email and your new password.
         </p>
       </div>
 
@@ -94,6 +96,34 @@ export function ResetPasswordForm() {
         )}
 
         <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="name@company.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            disabled={loading || !!emailParam}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="token">6-Digit OTP</Label>
+          <Input
+            id="token"
+            type="text"
+            placeholder="123456"
+            maxLength={6}
+            className="tracking-widest"
+            value={token}
+            onChange={(e) => setToken(e.target.value)}
+            required
+            disabled={loading}
+          />
+        </div>
+
+        <div className="space-y-2">
           <Label htmlFor="newPassword">New Password</Label>
           <PasswordInput
             id="newPassword"
@@ -101,7 +131,7 @@ export function ResetPasswordForm() {
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             required
-            disabled={loading || !token || !email}
+            disabled={loading}
           />
           <p className="text-xs text-muted-foreground">Must be at least 8 characters long.</p>
         </div>
@@ -114,11 +144,11 @@ export function ResetPasswordForm() {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
-            disabled={loading || !token || !email}
+            disabled={loading}
           />
         </div>
 
-        <Button type="submit" className="w-full mt-2" disabled={loading || !token || !email}>
+        <Button type="submit" className="w-full mt-2" disabled={loading}>
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -53,6 +53,36 @@ Authorization: Bearer <accessToken>
 - **POST** `/auth/refresh`
 - **Body**: `{ "refreshToken": "..." }`
 
+### 1.4 Change Password
+- **POST** `/auth/change-password`
+- **Headers**: `Bearer <token>`
+- **Body**:
+```json
+{
+  "oldPassword": "Password@123",
+  "newPassword": "NewPassword@123"
+}
+```
+
+### 1.5 Forgot Password (OTP)
+- **POST** `/auth/forgot-password`
+- **Body**: `{ "email": "user@example.com" }`
+
+### 1.6 Reset Password (OTP)
+- **POST** `/auth/reset-password`
+- **Body**:
+```json
+{
+  "email": "user@example.com",
+  "token": "123456",
+  "newPassword": "NewPassword@123"
+}
+```
+
+### 1.7 Google OAuth2
+- **GET** `/auth/google` (Initiates Google Sign-In)
+- **GET** `/auth/google/callback` (OAuth callback redirect)
+
 ---
 
 ## 2. Organization Endpoints
@@ -83,6 +113,31 @@ Authorization: Bearer <accessToken>
 ### 2.4 Search Developers / Members
 - **GET** `/organizations/search-developers?q=jane`
 - **Headers**: `Bearer <token>`
+
+### 2.5 Organization Settings
+- **GET** `/organization/settings`
+- **PUT** `/organization/settings`
+- **Headers**: `Bearer <token>`
+- **Body** (PUT):
+```json
+{
+  "name": "Updated Org Name",
+  "mobile": "+1987654321",
+  "category": "Healthcare"
+}
+```
+
+### 2.6 Invitations
+- **POST** `/invitations` (Send invite to email)
+- **GET** `/invitations/:token` (Verify token)
+- **POST** `/invitations/:token/accept` (Accept invitation and join organization)
+
+### 2.7 Reports & Audit Logs
+- **GET** `/organization/reports/project-progress`
+- **GET** `/organization/reports/user-productivity`
+- **GET** `/organization/reports/task-completion`
+- **GET** `/organization/reports/overdue-tasks`
+- **GET** `/organization/audit-logs`
 
 ---
 
@@ -194,3 +249,15 @@ Authorization: Bearer <accessToken>
 
 ### 4.8 Delete Task Attachment
 - **DELETE** `/tasks/attachments/:attachmentId`
+
+---
+
+## 5. Super Admin Endpoints
+
+### 5.1 Admin Organization Management
+- **GET** `/admin/organizations` (List all organizations)
+- **GET** `/admin/organizations/:id` (Get organization details)
+- **POST** `/admin/organizations` (Create organization)
+- **PUT** `/admin/organizations/:id` (Update organization status/details)
+- **DELETE** `/admin/organizations/:id` (Delete organization)
+- **Headers**: `Bearer <token>` (Must have Super Admin role)

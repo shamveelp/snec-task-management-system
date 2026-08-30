@@ -7,6 +7,7 @@ import { Label } from '../../../../components/ui/label';
 import { organizationsService } from '../../../../services/organization/organizations.service';
 import { Loader2, Save, Building, Mail, Phone, Tag } from 'lucide-react';
 import { toast } from 'sonner';
+import { ChangePasswordForm } from '../../../../components/auth/change-password-form';
 
 export default function OrganizationSettingsPage() {
   const [loading, setLoading] = useState(true);
@@ -175,6 +176,8 @@ export default function OrganizationSettingsPage() {
           </div>
         </form>
       </div>
+
+      <ChangePasswordForm />
     </div>
   );
 }

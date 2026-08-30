@@ -4,8 +4,10 @@ import * as React from "react"
 import { useAuthStore } from "../../../../store/auth.store"
 import { usersService } from "../../../../services/auth/users.service"
 import { Camera, Save, Loader2, X, User, CheckCircle2, XCircle } from "lucide-react"
+import { toast } from 'sonner'
+import { getCroppedImg } from '../../../../lib/cropImage'
+import { ChangePasswordForm } from '../../../../components/auth/change-password-form'
 import Cropper from 'react-easy-crop'
-import { getCroppedImg } from "../../../../lib/cropImage"
 
 export default function ProfilePage() {
   const { user, updateUser } = useAuthStore()
@@ -264,6 +266,10 @@ export default function ProfilePage() {
               </form>
             </div>
           </div>
+        </div>
+
+        <div className="mt-8">
+          <ChangePasswordForm />
         </div>
       </div>
 

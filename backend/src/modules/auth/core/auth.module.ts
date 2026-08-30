@@ -7,6 +7,7 @@ import { AuthController } from './auth.controller';
 import { PrismaAuthRepository } from './prisma-auth.repository';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
+import { GoogleStrategy } from './strategies/google.strategy';
 import { DatabaseModule } from '../../../database/database.module';
 import { EmailModule } from '../../email/email.module';
 
@@ -26,6 +27,7 @@ import { AuditLogsModule } from '../../organization/audit-logs/audit-logs.module
     TokenService,
     JwtStrategy,
     JwtRefreshStrategy,
+    GoogleStrategy,
     {
       provide: 'IAuthRepository',
       useClass: PrismaAuthRepository,

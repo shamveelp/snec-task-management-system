@@ -14,6 +14,9 @@ export const authService = {
   resetPassword: async (payload: any) => {
     await api.post('/auth/reset-password', payload);
   },
+  changePassword: async (payload: any) => {
+    await api.post('/auth/change-password', payload);
+  },
   getProfile: async () => {
     const { data } = await api.get('/auth/me');
     return data;

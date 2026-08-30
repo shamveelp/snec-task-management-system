@@ -201,33 +201,94 @@ export class AuthService {
       return;
     }
 
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const hashedResetToken = await bcrypt.hash(resetToken, 10);
-    const resetTokenExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date();
+    expiresAt.setMinutes(expiresAt.getMinutes() + 15); // 15 mins
 
-    await this.authRepository.updateResetToken(user.id, hashedResetToken, resetTokenExpiry);
+    await this.prisma.otp.upsert({
+      where: { email: user.email },
+      update: { otp, expiresAt, createdAt: new Date() },
+      create: { email: user.email, otp, expiresAt },
+    });
 
-    // Mock Email sending
-    console.log(`[Mock Email] Password reset token for ${user.email}: ${resetToken}`);
-    // In production, send email with a link like: `https://frontend.com/reset-password?token=${resetToken}&email=${user.email}`
+    await this.emailService.sendOtpEmail(user.email, otp);
+    console.log(`[Mock Email] Password reset OTP for ${user.email}: ${otp}`);
   }
 
   async resetPassword(dto: ResetPasswordDto, email: string) {
     const user = await this.authRepository.findByEmail(email);
-    if (!user || !user.resetToken || !user.resetTokenExpiry) {
-      throw new BadRequestException('Invalid or expired reset token');
+    if (!user) {
+      throw new BadRequestException('Invalid request');
     }
 
-    if (new Date() > user.resetTokenExpiry) {
-      throw new BadRequestException('Reset token has expired');
-    }
-
-    const isValidToken = await bcrypt.compare(dto.token, user.resetToken);
-    if (!isValidToken) {
-      throw new BadRequestException('Invalid reset token');
+    const storedOtp = await this.prisma.otp.findUnique({ where: { email } });
+    if (!storedOtp || storedOtp.otp !== dto.token || storedOtp.expiresAt < new Date()) {
+      throw new BadRequestException('Invalid or expired OTP');
     }
 
     const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
     await this.authRepository.updatePassword(user.id, hashedPassword);
+    
+    // Clear OTP after successful reset
+    await this.prisma.otp.delete({ where: { email } });
+  }
+  async validateOAuthLogin(profile: any) {
+    let user = await this.authRepository.findByEmail(profile.email);
+    
+    if (!user) {
+      // Auto generate username from email (until the @)
+      let baseUsername = profile.email.split('@')[0];
+      let username = baseUsername;
+      let counter = 1;
+      
+      // Ensure unique username
+      while (await this.authRepository.findByEmailOrUsername(username)) {
+        username = `${baseUsername}${counter}`;
+        counter++;
+      }
+
+      // Generate a random password since they logged in with Google
+      const randomPassword = crypto.randomBytes(16).toString('hex');
+      const hashedPassword = await bcrypt.hash(randomPassword, 10);
+      
+      let userRole = await this.prisma.role.findUnique({ where: { name: 'Developer' } });
+      if (!userRole) {
+        userRole = await this.prisma.role.create({
+          data: { name: 'Developer', description: 'Developer role' },
+        });
+      }
+
+      user = await this.authRepository.create({
+        name: profile.firstName ? `${profile.firstName} ${profile.lastName || ''}`.trim() : username,
+        username,
+        email: profile.email,
+        password: hashedPassword,
+        roleId: userRole.id,
+      });
+    }
+
+    if (user.status !== 'ACTIVE') {
+      throw new UnauthorizedException('User account is inactive');
+    }
+
+    const tokens = await this.tokenService.generateTokens(user.id, user.email);
+    const hashedRefreshToken = await bcrypt.hash(tokens.refreshToken, 10);
+    await this.authRepository.updateRefreshToken(user.id, hashedRefreshToken);
+
+    await this.auditLogsService.logAction({
+      userId: user.id,
+      organizationId: user.organizationId || undefined,
+      action: AuditAction.LOGIN,
+      entityType: 'AUTH',
+      entityId: user.id,
+      details: 'User logged in via Google',
+    });
+
+    const { password, hashedRefreshToken: _, resetToken, resetTokenExpiry, ...userWithoutSecrets } = user as any;
+
+    return {
+      user: userWithoutSecrets,
+      tokens,
+    };
   }
 }

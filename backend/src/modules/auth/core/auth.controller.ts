@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Req, HttpCode, HttpStatus, Get } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req, Res, HttpCode, HttpStatus, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/login.dto';
 import { ChangePasswordDto } from './dtos/change-password.dto';
@@ -6,6 +6,7 @@ import { ForgotPasswordDto } from './dtos/forgot-password.dto';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { JwtRefreshGuard } from '../../../common/guards/jwt-refresh.guard';
+import { AuthGuard } from '@nestjs/passport';
 
 import { RegisterDto } from './dtos/register.dto';
 import { VerifyUserRegistrationDto } from './dtos/verify-user-registration.dto';
@@ -74,12 +75,8 @@ export class AuthController {
 
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
-  async resetPassword(@Body() dto: ResetPasswordDto, @Req() req) {
-    // Usually the email is sent in the body or in the token payload.
-    // For simplicity, let's assume the email is passed as well, or we just rely on token.
-    // Oh wait, my dto didn't have email. Let's add email to reset-password body, or decode it from somewhere.
-    // I'll adjust the ResetPasswordDto. Let's just expect it in Body.
-    await this.authService.resetPassword(dto, req.body.email);
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    await this.authService.resetPassword(dto, dto.email);
     return { message: 'Password reset successfully' };
   }
 
@@ -88,5 +85,26 @@ export class AuthController {
   getProfile(@Req() req) {
     const { password, hashedRefreshToken, resetToken, resetTokenExpiry, ...user } = req.user;
     return user;
+  }
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth(@Req() req) {
+    // Initiates the Google OAuth2 login flow
+  }
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleAuthRedirect(@Req() req, @Res() res) {
+    const { user, tokens } = await this.authService.validateOAuthLogin(req.user);
+    
+    // Redirect to frontend with tokens (or set cookies).
+    // Assuming frontend is running on localhost:3000
+    // In production, use env variable for frontend URL.
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    
+    // Simplest way is to redirect with tokens in query params or set cookies.
+    // Let's redirect with tokens as query params for this example (since we are not using cookies for JWT here).
+    res.redirect(`${frontendUrl}/login?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`);
   }
 }

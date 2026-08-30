@@ -9,10 +9,12 @@ import { Label } from "../ui/label"
 import { Loader2, ArrowLeft, MailCheck } from "lucide-react"
 import { authService } from "../../services/auth/auth.service"
 
+import { useRouter } from "next/navigation"
+
 export function ForgotPasswordForm() {
   const [email, setEmail] = React.useState("")
   const [loading, setLoading] = React.useState(false)
-  const [success, setSuccess] = React.useState(false)
+  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -20,35 +22,13 @@ export function ForgotPasswordForm() {
 
     try {
       await authService.forgotPassword(email)
-      // We always show success to prevent email enumeration attacks
+      router.push(`/reset-password?email=${encodeURIComponent(email)}`)
     } catch (err: any) {
       // Intentionally ignoring errors to prevent email enumeration
+      router.push(`/reset-password?email=${encodeURIComponent(email)}`)
     } finally {
       setLoading(false)
-      setSuccess(true)
     }
-  }
-
-  if (success) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="text-center space-y-6"
-      >
-        <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
-          <MailCheck className="w-8 h-8" />
-        </div>
-        <h2 className="text-2xl font-semibold">Check your inbox</h2>
-        <p className="text-muted-foreground text-sm max-w-sm mx-auto">
-          We've sent a password reset link to <span className="font-medium text-foreground">{email}</span>. 
-          Please check your email and follow the instructions.
-        </p>
-        <Link href="/login" className="block pt-4">
-          <Button variant="outline" className="w-full">Return to Sign In</Button>
-        </Link>
-      </motion.div>
-    )
   }
 
   return (
@@ -60,7 +40,7 @@ export function ForgotPasswordForm() {
       <div className="flex flex-col space-y-2 text-center mb-8">
         <h1 className="text-3xl font-semibold tracking-tight">Forgot password?</h1>
         <p className="text-sm text-muted-foreground">
-          Enter your email and we'll send instructions to reset your password.
+          Enter your email and we'll send a 6-digit OTP to reset your password.
         </p>
       </div>
 
@@ -85,7 +65,7 @@ export function ForgotPasswordForm() {
               Sending...
             </>
           ) : (
-            "Send Reset Link"
+            "Send OTP"
           )}
         </Button>
       </form>
