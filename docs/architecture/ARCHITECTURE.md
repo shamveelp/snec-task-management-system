@@ -104,3 +104,7 @@ flowchart TD
 
 ### 4.4 Super Admin Management
 1. **Tenant Oversight**: Super Admins can list, update, and completely remove organizations from the database, effectively managing the SaaS ecosystem globally.
+
+### 4.5 API Documentation (Swagger)
+1. **Swagger UI**: The backend is integrated with `@nestjs/swagger` which automatically generates OpenApi definitions from controllers and DTOs.
+2. **Access**: When running locally, the API docs can be accessed at `http://localhost:5000/api/docs`. It provides an interactive interface for exploring all available endpoints, their expected payloads, and authentication requirements.

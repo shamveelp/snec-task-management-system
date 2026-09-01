@@ -7,6 +7,7 @@ Welcome to the comprehensive technical documentation for the **SNEC Task Managem
 - **[System Architecture](architecture/ARCHITECTURE.md)**: High-level diagrams, technical stack, modular breakdown, and security workflow.
 - **[Database & ER Diagrams](database/ER_DIAGRAM.md)**: Entity-Relationship diagram, Prisma schema definitions, enums, and foreign key cascades.
 - **[API Reference](api/API_DOCUMENTATION.md)**: REST endpoints for Authentication, Organizations, Projects, Tasks, Comments, and Attachments.
+- **[Swagger UI (Live API Docs)](http://localhost:5000/api/docs)**: Interactive API documentation generated automatically by `@nestjs/swagger` when the backend is running locally.
 - **[Postman Collection](api/postman_collection.json)**: Ready-to-import Postman v2.1 collection with preset variables and authorization headers.
 - **[Docker Deployment Guide](docker/DOCKER_GUIDE.md)**: Docker Compose orchestration, multi-stage Dockerfiles, and production container guidelines.
 
